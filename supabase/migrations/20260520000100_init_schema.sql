@@ -101,14 +101,14 @@ DROP POLICY IF EXISTS "Users can create their own status events" ON public.appli
 CREATE POLICY "Users can create their own status events"
   ON public.application_status_events FOR INSERT WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete their own status events" ON public.application_status_events;
+CREATE POLICY "Users can delete their own status events"
+  ON public.application_status_events FOR DELETE USING (auth.uid() = user_id);
+
 -- RLS Policies for profiles
 DROP POLICY IF EXISTS "Users can read their own profile" ON public.profiles;
 CREATE POLICY "Users can read their own profile"
   ON public.profiles FOR SELECT USING (auth.uid() = id);
-
-DROP POLICY IF EXISTS "Users can create their own profile" ON public.profiles;
-CREATE POLICY "Users can create their own profile"
-  ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
 
 DROP POLICY IF EXISTS "Users can update their own profile" ON public.profiles;
 CREATE POLICY "Users can update their own profile"

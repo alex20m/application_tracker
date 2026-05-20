@@ -59,18 +59,28 @@ export async function updateApplicationAction(
   }
 
   if (currentApp.status !== newStatus) {
+    // When moving away from no_answer, delete the initial null→no_answer event
+    // so it never appears as a node in the Sankey (it gets replaced below).
+    if (currentApp.status === "no_answer") {
+      await supabase
+        .from("application_status_events")
+        .delete()
+        .eq("application_id", applicationId)
+        .eq("user_id", user.id)
+        .eq("to_status", "no_answer")
+        .is("from_status", null);
+    }
+
     const { error: eventError } = await supabase
       .from("application_status_events")
-      .insert([
-        {
-          id: randomUUID(),
-          application_id: applicationId,
-          user_id: user.id,
-          from_status: currentApp.status,
-          to_status: newStatus,
-          changed_at: new Date().toISOString(),
-        },
-      ]);
+      .insert([{
+        id: randomUUID(),
+        application_id: applicationId,
+        user_id: user.id,
+        from_status: currentApp.status === "no_answer" ? null : currentApp.status,
+        to_status: newStatus,
+        changed_at: new Date().toISOString(),
+      }]);
 
     if (eventError) {
       console.error("Status event creation error:", eventError);
