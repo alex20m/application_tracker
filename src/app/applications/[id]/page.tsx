@@ -27,7 +27,7 @@ export default async function ApplicationDetailPage({
     return (
       <AppShell email={user.email || ""}>
         <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm text-center">
-          <p className="text-rose-600">Application not found</p>
+          <p className="text-rose-600">No applications yet</p>
           <Link href="/applications" className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition border border-slate-300 bg-white text-slate-800 hover:bg-slate-100 mt-4 inline-block">
             Back to Applications
           </Link>

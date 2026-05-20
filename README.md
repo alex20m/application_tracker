@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Application Tracker
 
-## Getting Started
+Cross-device job application tracker built with Next.js 16 + Supabase.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Next.js 16 (App Router)
+- TypeScript
+- Supabase (Auth + Postgres + RLS)
+- Tailwind CSS
+- PWA support (installable on iPhone + desktop)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+See full onboarding guide in [SETUP.md](SETUP.md).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Quick local setup
 
-## Learn More
+1. Install dependencies: `npm install`
+2. Copy env file: `cp .env.example .env.local`
+3. Fill `.env.local` values from Supabase project settings
+4. Start dev server: `npm run dev`
 
-To learn more about Next.js, take a look at the following resources:
+Open http://localhost:3000.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Database workflow (schema as code)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+This repo is configured for migration-first Supabase development.
 
-## Deploy on Vercel
+- Migrations live in [supabase/migrations](supabase/migrations)
+- Initial schema migration: [supabase/migrations/20260520000100_init_schema.sql](supabase/migrations/20260520000100_init_schema.sql)
+- Apply pending migrations to linked project: `npm run db:push`
+- Pull remote schema changes (if needed): `npm run db:pull`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+For every schema change:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. `supabase migration new <change_name>`
+2. Edit the generated SQL migration file
+3. Run `npm run db:push`
+4. Commit + push to GitHub
+
+If Supabase GitHub integration is enabled, pushed migrations are deployed automatically in Supabase.
+
+## Scripts
+
+- `npm run dev` – start local dev server
+- `npm run build` – production build
+- `npm run start` – run production server
+- `npm run lint` – lint codebase
+- `npm run db:push` – apply migrations to linked Supabase project
+- `npm run db:pull` – pull remote DB schema into local migration
+
+## Deploy
+
+Deploy on Vercel and add these environment variables:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_APP_URL`
+
+Then update Supabase Auth redirect URL:
+
+- `https://your-domain/auth/callback`

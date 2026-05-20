@@ -1,35 +1,171 @@
 "use client";
 
-import { ResponsiveContainer, Sankey, Tooltip } from "recharts";
-
+import { useEffect, useRef, useState } from "react";
+import { sankey, sankeyLinkHorizontal, sankeyLeft } from "d3-sankey";
 import type { SankeyData } from "@/lib/types";
+import { STATUS_LABELS } from "@/lib/statuses";
 
-type SankeyChartProps = {
-  data: SankeyData;
+type SankeyChartProps = { data: SankeyData };
+
+const COLORS: Record<string, string> = {
+  applications: "#60a5fa",
+  no_answer: "#818cf8",
+  withdrew: "#94a3b8",
+  rejected: "#f87171",
+  interviews: "#a78bfa",
+  no_offer: "#fb923c",
+  offer: "#34d399",
+  accepted: "#22c55e",
+  declined: "#fbbf24",
 };
 
 export function SankeyChart({ data }: SankeyChartProps) {
-  if (!data.links.length) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [dims, setDims] = useState<{ w: number; h: number } | null>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => {
+      const { width, height } = e.contentRect;
+      if (width > 0 && height > 0) setDims({ w: width, h: height });
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  if (!data.nodes.length) {
     return (
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm text-sm text-slate-500">
-        Not enough transitions yet. Update statuses in the Applications page to build
-        flow data.
+      <div className="rounded-xl border border-slate-200 bg-white p-8 shadow-sm text-center text-sm text-slate-500">
+        No applications yet. Create an application to see the flow.
       </div>
     );
   }
 
+  if (!dims) {
+    return (
+      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm h-[500px]" ref={ref} />
+    );
+  }
+
+  const margin = 120;
+  const width = dims.w;
+  const height = dims.h;
+
+  // Handle case with no links (only applications node)
+  if (!data.links.length && data.nodes.length === 1) {
+    const node = data.nodes[0];
+    return (
+      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm h-[500px]">
+        <div ref={ref} className="relative w-full h-full flex items-center justify-center">
+          <div className="text-center">
+            <div className="inline-flex items-center gap-3 rounded-xl border border-slate-300 bg-indigo-50 px-6 py-4">
+              <div className="w-4 h-16 rounded bg-indigo-500" />
+              <div className="text-left">
+                <div className="text-sm font-semibold text-slate-900">Applications</div>
+                <div className="text-xs text-slate-600 mt-1">
+                  {data.nodes[0].name === "applications" ? "No transitions yet" : ""}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Build sankey
+  const sankeyGen = sankey<any, any>()
+    .nodeWidth(16)
+    .nodePadding(20)
+    .nodeAlign(sankeyLeft)
+    .extent([
+      [margin, 20],
+      [width - margin, height - 20],
+    ]);
+
+  const graph = sankeyGen({
+    nodes: data.nodes.map((d) => ({ ...d })) as any,
+    links: data.links.map((d) => ({ ...d })) as any,
+  });
+
+  const appliedIdx = data.nodes.findIndex((n) => n.name === "no_answer");
+  const appliedTotal =
+    appliedIdx >= 0
+      ? data.links
+          .filter((l) => l.source === appliedIdx)
+          .reduce((s, l) => s + l.value, 0)
+      : 1;
+
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm h-[460px]">
-      <ResponsiveContainer width="100%" height="100%">
-        <Sankey
-          data={data}
-          nodePadding={36}
-          margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-          link={{ stroke: "#6366f1" }}
-        >
-          <Tooltip />
-        </Sankey>
-      </ResponsiveContainer>
+    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm h-[500px]">
+      <div ref={ref} className="relative w-full h-full">
+        <svg width={width} height={height}>
+          {/* Links */}
+          {graph.links.map((link, i) => {
+            const src = link.source as any;
+            const color = COLORS[src.name] || "#a5b4fc";
+            return (
+              <path
+                key={i}
+                d={sankeyLinkHorizontal()(link as any) || ""}
+                fill="none"
+                stroke={color}
+                strokeOpacity={0.4}
+                strokeWidth={Math.max(2, link.width || 2)}
+              />
+            );
+          })}
+
+          {/* Nodes */}
+          {graph.nodes.map((node: any, i) => {
+            const label =
+              node.name === "applications" ? "Applications" :
+              node.name === "no_answer" ? "No Answer" :
+              (STATUS_LABELS[node.name as keyof typeof STATUS_LABELS] || node.name);
+            const h = Math.max(node.y1 - node.y0, 1);
+            const total = node.value || 0;
+            const pct = appliedTotal > 0 ? Math.round((total / appliedTotal) * 100) : 0;
+            const sub = (node.name === "applications" || node.name === "no_answer") ? `${total}` : `${total} · ${pct}%`;
+            const rightSide = node.x0 > width / 2;
+            const lx = rightSide ? node.x0 - 8 : node.x1 + 8;
+            const anchor = rightSide ? "end" : "start";
+
+            return (
+              <g key={i}>
+                <rect
+                  x={node.x0}
+                  y={node.y0}
+                  width={node.x1 - node.x0}
+                  height={h}
+                  rx={3}
+                  fill={COLORS[node.name] || "#6366f1"}
+                  fillOpacity={0.9}
+                />
+                <text
+                  x={lx}
+                  y={node.y0 + h / 2 - 6}
+                  textAnchor={anchor}
+                  fontSize={12}
+                  fill="#1e293b"
+                  fontWeight={600}
+                >
+                  {label}
+                </text>
+                <text
+                  x={lx}
+                  y={node.y0 + h / 2 + 9}
+                  textAnchor={anchor}
+                  fontSize={11}
+                  fill="#64748b"
+                >
+                  {sub}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+      </div>
     </div>
   );
 }

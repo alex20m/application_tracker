@@ -16,8 +16,8 @@ export default function LoginPage() {
           <LoginForm action={loginAction} />
         </div>
 
-        <p className="text-center text-xs text-slate-500">
-          Don't have an account? Sign up with email/password or magic link.
+        <p className="text-center text-xs text-slate-700">
+          Sign up or sign in with email/password or magic link.
         </p>
       </div>
     </div>

@@ -1,23 +1,37 @@
 export const APPLICATION_STATUSES = [
   "wishlist",
-  "applied",
-  "screening",
-  "interview",
-  "offer",
+  "no_answer",
+  "withdrew",
   "rejected",
-  "withdrawn",
+  "interviews",
+  "no_offer",
+  "offer",
   "accepted",
+  "declined",
 ] as const;
 
 export type ApplicationStatus = (typeof APPLICATION_STATUSES)[number];
 
 export const STATUS_LABELS: Record<ApplicationStatus, string> = {
   wishlist: "Wishlist",
-  applied: "Applied",
-  screening: "Screening",
-  interview: "Interview",
-  offer: "Offer",
+  no_answer: "No Answer",
+  withdrew: "Withdrew",
   rejected: "Rejected",
-  withdrawn: "Withdrawn",
+  interviews: "Interviews",
+  no_offer: "No Offer",
+  offer: "Offer",
   accepted: "Accepted",
+  declined: "Declined",
+};
+
+export const NEXT_STATUSES: Record<ApplicationStatus, ApplicationStatus[]> = {
+  wishlist: ["no_answer"],
+  no_answer: ["withdrew", "rejected", "interviews"],
+  withdrew: [],
+  rejected: [],
+  interviews: ["withdrew", "no_offer", "offer"],
+  no_offer: [],
+  offer: ["accepted", "declined"],
+  accepted: [],
+  declined: [],
 };

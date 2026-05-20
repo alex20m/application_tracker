@@ -27,7 +27,7 @@ export function AppShell({ email, children }: AppShellProps) {
               {email}
             </span>
             <form action="/auth/signout" method="post">
-              <button className="button-secondary" type="submit">
+              <button className="rounded-lg border border-slate-300 bg-white px-3 py-1 text-xs text-slate-700 hover:bg-slate-100" type="submit">
                 Sign out
               </button>
             </form>

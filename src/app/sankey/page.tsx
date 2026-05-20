@@ -16,6 +16,10 @@ export default async function SankeyPage() {
     .from("application_status_events")
     .select("*")
     .eq("user_id", user.id)
+    .in(
+      "application_id",
+      (applications || []).map((a) => a.id)
+    )
     .order("changed_at", { ascending: true });
 
   const sankeyData = buildSankeyData(applications || [], statusEvents || []);
