@@ -25,10 +25,10 @@ export default async function ApplicationsPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <DeleteAllApplicationsButton hasApplications={Boolean(applications?.length)} />
             <Link href="/applications/new" className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition bg-indigo-600 text-white hover:bg-indigo-700">
               + Add Application
             </Link>
+            <DeleteAllApplicationsButton hasApplications={Boolean(applications?.length)} />
           </div>
         </div>
 

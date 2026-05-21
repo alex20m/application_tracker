@@ -1,8 +1,6 @@
 import type { ApplicationRecord } from "@/lib/types";
-import { StatusBadge } from "@/components/status-badge";
-import { NEXT_STATUSES, STATUS_LABELS } from "@/lib/statuses";
-import { transitionApplicationStatusAction } from "@/app/applications/actions";
 import { formatDate } from "@/lib/date";
+import { ApplicationStatusQuickActions } from "@/components/application-status-quick-actions";
 import Link from "next/link";
 
 type ApplicationListProps = {
@@ -22,6 +20,7 @@ export function ApplicationList({ applications }: ApplicationListProps) {
   return (
     <div className="space-y-2">
       {applications.map((app) => (
+        // Keep status transitions one-click in preview for a simpler flow.
         <div
           key={app.id}
           className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow-md"
@@ -53,38 +52,10 @@ export function ApplicationList({ applications }: ApplicationListProps) {
             </Link>
 
             <div className="text-right pl-2">
-              <div className="flex h-full flex-col items-end justify-start gap-2 whitespace-nowrap">
-                <details>
-                  <summary className="list-none cursor-pointer inline-block">
-                    <StatusBadge status={app.status} />
-                  </summary>
-                  {(NEXT_STATUSES[app.status] ?? []).length > 0 ? (
-                    <form action={transitionApplicationStatusAction} className="mt-2 flex items-center justify-end gap-2">
-                      <input type="hidden" name="application_id" value={app.id} />
-                      <select
-                        name="next_status"
-                        defaultValue=""
-                        required
-                        className="rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs text-slate-900"
-                      >
-                        <option value="" disabled>
-                          Change...
-                        </option>
-                        {(NEXT_STATUSES[app.status] ?? []).map((status) => (
-                          <option key={status} value={status}>
-                            {STATUS_LABELS[status]}
-                          </option>
-                        ))}
-                      </select>
-                      <button className="rounded-lg bg-indigo-600 px-2 py-1 text-xs font-medium text-white hover:bg-indigo-700">
-                        Save
-                      </button>
-                    </form>
-                  ) : (
-                    <p className="mt-2 text-xs text-slate-500">No further transitions</p>
-                  )}
-                </details>
-              </div>
+              <ApplicationStatusQuickActions
+                applicationId={app.id}
+                currentStatus={app.status}
+              />
             </div>
           </div>
         </div>
