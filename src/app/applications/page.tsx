@@ -10,7 +10,7 @@ export default async function ApplicationsPage() {
     .from("applications")
     .select("*")
     .eq("user_id", user.id)
-    .is("deleted_at", null)
+
     .order("updated_at", { ascending: false });
 
   return (

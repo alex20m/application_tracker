@@ -20,7 +20,7 @@ export default async function ApplicationDetailPage({
     .select("*")
     .eq("id", id)
     .eq("user_id", user.id)
-    .is("deleted_at", null)
+
     .single();
 
   if (!application) {

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import type { ApplicationStatus } from "@/lib/statuses";
-import { randomUUID } from "crypto";
+import type { StatusEvent } from "@/lib/types";
 
 export async function updateApplicationAction(
   applicationId: string,
@@ -38,6 +38,18 @@ export async function updateApplicationAction(
     return { success: false, error: "Application not found" };
   }
 
+  let events: StatusEvent[] = currentApp.events || [];
+
+  if (currentApp.status !== newStatus) {
+    if (currentApp.status === "no_answer") {
+      // Remove the null→no_answer entry, replace with null→newStatus
+      events = events.filter((e) => !(e.from_status === null && e.to_status === "no_answer"));
+      events.push({ from_status: null, to_status: newStatus, changed_at: new Date().toISOString() });
+    } else {
+      events.push({ from_status: currentApp.status, to_status: newStatus, changed_at: new Date().toISOString() });
+    }
+  }
+
   const { error: appError } = await supabase
     .from("applications")
     .update({
@@ -47,7 +59,7 @@ export async function updateApplicationAction(
       applied_on: appliedOn || null,
       status: newStatus,
       notes: notes || null,
-      version: (currentApp.version || 1) + 1,
+      events,
       updated_at: new Date().toISOString(),
     })
     .eq("id", applicationId)
@@ -56,36 +68,6 @@ export async function updateApplicationAction(
   if (appError) {
     console.error("Application update error:", appError);
     return { success: false, error: appError.message };
-  }
-
-  if (currentApp.status !== newStatus) {
-    // When moving away from no_answer, delete the initial null→no_answer event
-    // so it never appears as a node in the Sankey (it gets replaced below).
-    if (currentApp.status === "no_answer") {
-      await supabase
-        .from("application_status_events")
-        .delete()
-        .eq("application_id", applicationId)
-        .eq("user_id", user.id)
-        .eq("to_status", "no_answer")
-        .is("from_status", null);
-    }
-
-    const { error: eventError } = await supabase
-      .from("application_status_events")
-      .insert([{
-        id: randomUUID(),
-        application_id: applicationId,
-        user_id: user.id,
-        from_status: currentApp.status === "no_answer" ? null : currentApp.status,
-        to_status: newStatus,
-        changed_at: new Date().toISOString(),
-      }]);
-
-    if (eventError) {
-      console.error("Status event creation error:", eventError);
-      return { success: false, error: eventError.message };
-    }
   }
 
   revalidatePath("/sankey");
@@ -102,9 +84,7 @@ export async function deleteApplicationAction(
 
   const { error } = await supabase
     .from("applications")
-    .update({
-      deleted_at: new Date().toISOString(),
-    })
+    .delete()
     .eq("id", applicationId)
     .eq("user_id", user.id);
 

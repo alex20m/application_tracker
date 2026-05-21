@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { sankey, sankeyLinkHorizontal, sankeyLeft } from "d3-sankey";
 import type { SankeyData } from "@/lib/types";
-import { STATUS_LABELS } from "@/lib/statuses";
+import { STATUS_LABELS, getStatusRankForDepth } from "@/lib/statuses";
 
 type SankeyChartProps = { data: SankeyData };
 
@@ -75,10 +75,25 @@ export function SankeyChart({ data }: SankeyChartProps) {
   }
 
   // Build sankey
+
   const sankeyGen = sankey<any, any>()
     .nodeWidth(16)
     .nodePadding(20)
     .nodeAlign(sankeyLeft)
+    .nodeSort((a: any, b: any) => {
+      // Only compare ordering inside the same column/level.
+      if (a.depth !== b.depth) return 0;
+      const ra =
+        a.name === "applications"
+          ? -1
+          : getStatusRankForDepth(a.name, a.depth);
+      const rb =
+        b.name === "applications"
+          ? -1
+          : getStatusRankForDepth(b.name, b.depth);
+      if (ra !== rb) return ra - rb;
+      return String(a.name).localeCompare(String(b.name));
+    })
     .extent([
       [margin, 20],
       [width - margin, height - 20],

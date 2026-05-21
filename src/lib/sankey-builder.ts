@@ -1,28 +1,25 @@
 import type { SankeyData } from "@/lib/types";
-import type { ApplicationRecord, StatusEventRecord } from "@/lib/types";
+import type { ApplicationRecord } from "@/lib/types";
 
-export function buildSankeyData(
-  applications: ApplicationRecord[],
-  statusEvents: StatusEventRecord[]
-): SankeyData {
-  const apps = applications.filter((a) => !a.deleted_at && a.status !== "wishlist");
-  const totalApps = apps.length;
+export function buildSankeyData(applications: ApplicationRecord[]): SankeyData {
+  const apps = applications.filter((a) => a.status !== "wishlist");
 
-  if (totalApps === 0) {
+  if (apps.length === 0) {
     return { nodes: [], links: [] };
   }
 
-  // Purely event-driven.
-  // Events with from_status=null represent the initial placement: applications → to_status.
-  // All other events are deeper transitions: from_status → to_status.
+  // Flatten all events from all apps.
+  // from_status=null means applications → to_status.
   const transitionCounts = new Map<string, number>();
-  statusEvents.forEach((event) => {
-    const from = event.from_status ?? "applications";
-    const to = event.to_status;
-    if (!to || to === "wishlist") return;
-    if (from === to) return;
-    const key = `${from}→${to}`;
-    transitionCounts.set(key, (transitionCounts.get(key) || 0) + 1);
+  apps.forEach((app) => {
+    (app.events || []).forEach((event) => {
+      const from = event.from_status ?? "applications";
+      const to = event.to_status;
+      if (!to || to === "wishlist") return;
+      if (from === to) return;
+      const key = `${from}→${to}`;
+      transitionCounts.set(key, (transitionCounts.get(key) || 0) + 1);
+    });
   });
 
   const nodes = new Set<string>(["applications"]);

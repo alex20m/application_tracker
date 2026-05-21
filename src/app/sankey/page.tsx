@@ -9,20 +9,9 @@ export default async function SankeyPage() {
   const { data: applications } = await supabase
     .from("applications")
     .select("*")
-    .eq("user_id", user.id)
-    .is("deleted_at", null);
+    .eq("user_id", user.id);
 
-  const { data: statusEvents } = await supabase
-    .from("application_status_events")
-    .select("*")
-    .eq("user_id", user.id)
-    .in(
-      "application_id",
-      (applications || []).map((a) => a.id)
-    )
-    .order("changed_at", { ascending: true });
-
-  const sankeyData = buildSankeyData(applications || [], statusEvents || []);
+  const sankeyData = buildSankeyData(applications || []);
 
   return (
     <AppShell email={user.email || ""}>
@@ -35,21 +24,6 @@ export default async function SankeyPage() {
         </div>
 
         <SankeyChart data={sankeyData} />
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <p className="text-xs font-medium text-slate-500">Total Applications</p>
-            <p className="mt-2 text-2xl font-bold text-slate-900">
-              {applications?.length || 0}
-            </p>
-          </div>
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <p className="text-xs font-medium text-slate-500">Status Transitions</p>
-            <p className="mt-2 text-2xl font-bold text-slate-900">
-              {statusEvents?.length || 0}
-            </p>
-          </div>
-        </div>
       </div>
     </AppShell>
   );

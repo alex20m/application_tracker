@@ -38,34 +38,15 @@ export async function createApplicationAction(
       applied_on: appliedOn || null,
       status,
       notes: notes || null,
-      version: 1,
+      events: [{ from_status: null, to_status: status, changed_at: new Date().toISOString() }],
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      deleted_at: null,
     },
   ]);
 
   if (appError) {
     console.error("Application creation error:", appError);
     return { success: false, error: appError.message };
-  }
-
-  const { error: eventError } = await supabase
-    .from("application_status_events")
-    .insert([
-      {
-        id: randomUUID(),
-        application_id: appId,
-        user_id: user.id,
-        from_status: null,
-        to_status: status,
-        changed_at: new Date().toISOString(),
-      },
-    ]);
-
-  if (eventError) {
-    console.error("Status event creation error:", eventError);
-    return { success: false, error: eventError.message };
   }
 
   revalidatePath("/sankey");
