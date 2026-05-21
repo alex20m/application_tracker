@@ -104,13 +104,12 @@ export function SankeyChart({ data }: SankeyChartProps) {
     links: data.links.map((d) => ({ ...d })) as any,
   });
 
-  const appliedIdx = data.nodes.findIndex((n) => n.name === "no_answer");
+  // Compute total applications coming out of the root "applications" node
+  // using the built graph to avoid relying on original index ordering.
   const appliedTotal =
-    appliedIdx >= 0
-      ? data.links
-          .filter((l) => l.source === appliedIdx)
-          .reduce((s, l) => s + l.value, 0)
-      : 1;
+    graph.links
+      .filter((l: any) => (l.source as any)?.name === "applications")
+      .reduce((s: number, l: any) => s + (l.value || 0), 0) || 1;
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm h-[500px]">
@@ -140,7 +139,23 @@ export function SankeyChart({ data }: SankeyChartProps) {
               (STATUS_LABELS[node.name as keyof typeof STATUS_LABELS] || node.name);
             const h = Math.max(node.y1 - node.y0, 1);
             const total = node.value || 0;
-            const pct = appliedTotal > 0 ? Math.round((total / appliedTotal) * 100) : 0;
+
+            // Determine percentage relative to the node before (the strongest predecessor).
+            // Find incoming links to this node, pick the largest incoming link (by value),
+            // then calculate pct = (incomingFromBestParent / parentOutgoingTotal) * 100.
+            const incomingLinks = graph.links.filter((l: any) => (l.target as any) === node);
+            let pct = 0;
+            if (incomingLinks.length > 0) {
+              const best = incomingLinks.reduce((a: any, b: any) => ( (a.value || 0) >= (b.value || 0) ? a : b));
+              const parent = best.source as any;
+              const parentOutgoingTotal = graph.links
+                .filter((l: any) => (l.source as any) === parent)
+                .reduce((s: number, l: any) => s + (l.value || 0), 0);
+              if (parentOutgoingTotal > 0) {
+                pct = Math.round(((best.value || 0) / parentOutgoingTotal) * 100);
+              }
+            }
+
             const sub = (node.name === "applications" || node.name === "no_answer") ? `${total}` : `${total} · ${pct}%`;
             const rightSide = node.x0 > width / 2;
             const lx = rightSide ? node.x0 - 8 : node.x1 + 8;
