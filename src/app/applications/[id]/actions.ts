@@ -16,15 +16,16 @@ export async function updateApplicationAction(
 }> {
   const { supabase, user } = await requireUser();
 
-  const company = formData.get("company") as string;
-  const role = formData.get("role") as string;
-  const source = formData.get("source") as string | null;
-  const appliedOn = formData.get("applied_on") as string | null;
+  const company = (formData.get("company") as string | null)?.trim() || "";
+  const role = (formData.get("role") as string | null)?.trim() || "";
+  const location = (formData.get("location") as string | null)?.trim() || "";
+  const source = (formData.get("source") as string | null)?.trim() || "";
+  const appliedOn = (formData.get("applied_on") as string | null) || null;
   const newStatus = (formData.get("status") as ApplicationStatus) || "no_answer";
   const notes = formData.get("notes") as string | null;
 
-  if (!company || !role) {
-    return { success: false, error: "Company and role are required" };
+  if (!company || !role || !location) {
+    return { success: false, error: "Company, role, and location are required" };
   }
 
   const { data: currentApp } = await supabase
@@ -55,6 +56,7 @@ export async function updateApplicationAction(
     .update({
       company,
       role,
+      location,
       source: source || null,
       applied_on: appliedOn || null,
       status: newStatus,

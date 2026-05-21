@@ -11,6 +11,7 @@ export type ApplicationRecord = {
   user_id: string;
   company: string;
   role: string;
+  location: string;
   source: string | null;
   status: ApplicationStatus;
   applied_on: string | null;

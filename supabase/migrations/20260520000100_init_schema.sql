@@ -15,6 +15,7 @@ CREATE TABLE public.applications (
   user_id    UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   company    TEXT NOT NULL,
   role       TEXT NOT NULL,
+  location   TEXT NOT NULL,
   source     TEXT,
   status     TEXT NOT NULL DEFAULT 'no_answer' CHECK (status IN (
                'wishlist', 'no_answer', 'withdrew', 'rejected',

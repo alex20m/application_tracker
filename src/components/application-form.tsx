@@ -35,7 +35,7 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
           type="text"
           name="company"
           required
-          defaultValue={application?.company}
+          defaultValue={application?.company || ""}
           className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400"
           placeholder="e.g., Acme Corp"
         />
@@ -49,9 +49,21 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
           type="text"
           name="role"
           required
-          defaultValue={application?.role}
+          defaultValue={application?.role || ""}
           className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400"
           placeholder="e.g., Senior Engineer"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-slate-700">Location</label>
+        <input
+          type="text"
+          name="location"
+          required
+          defaultValue={application?.location || ""}
+          className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400"
+          placeholder="e.g., Stockholm / Remote"
         />
       </div>
 
@@ -75,9 +87,7 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
         <input
           type="date"
           name="applied_on"
-          defaultValue={
-            application?.applied_on?.split("T")[0] || today
-          }
+          defaultValue={application?.applied_on?.split("T")[0] || today}
           className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900"
         />
       </div>
