@@ -6,7 +6,6 @@ type AppShellProps = {
 };
 
 const navItems = [
-  { href: "/dashboard", label: "Dashboard" },
   { href: "/applications", label: "Applications" },
   { href: "/sankey", label: "Sankey" },
 ];
@@ -18,9 +17,7 @@ export function AppShell({ email, children }: AppShellProps) {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="text-sm text-slate-500">Application Tracker</p>
-            <h1 className="text-lg font-semibold text-slate-900">
-              Sync across phone + desktop
-            </h1>
+            
           </div>
           <div className="flex items-center gap-3">
             <span className="rounded-lg bg-slate-100 px-3 py-1 text-xs text-slate-700">

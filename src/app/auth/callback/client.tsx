@@ -28,7 +28,7 @@ export function AuthCallback() {
       handleAuthCallback(code)
         .then((success) => {
           if (success) {
-            router.push("/dashboard");
+            router.push("/applications");
           } else {
             setError("Failed to complete sign-in. Please try again.");
           }

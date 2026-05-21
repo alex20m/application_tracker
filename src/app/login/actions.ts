@@ -60,5 +60,5 @@ export async function loginAction(
     return { success: false, error: error.message };
   }
 
-  redirect("/dashboard");
+  redirect("/applications");
 }
