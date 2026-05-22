@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
+import { ROUTES } from "@/lib/env";
+import { BTN_PRIMARY_LINK } from "@/lib/ui";
 import { AppShell } from "@/components/app-shell";
 import { ApplicationList } from "@/components/application-list";
 import { DeleteAllApplicationsButton } from "@/components/delete-all-applications-button";
@@ -24,10 +26,7 @@ export default async function ApplicationsPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Link
-              href="/applications/new"
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700"
-            >
+            <Link href={ROUTES.newApplication} className={BTN_PRIMARY_LINK}>
               + Add
             </Link>
             <DeleteAllApplicationsButton hasApplications={Boolean(applications?.length)} />

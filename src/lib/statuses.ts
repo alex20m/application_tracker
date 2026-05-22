@@ -24,7 +24,7 @@ export const STATUS_NAMES = {
   [STATUS.declined]: "Declined",
 } as const;
 
-const STATUS_NEXT: Record<ApplicationStatus, ApplicationStatus[]> = {
+export const STATUS_NEXT: Record<ApplicationStatus, ApplicationStatus[]> = {
   [STATUS.wishlist]: [STATUS.no_answer],
   [STATUS.no_answer]: [STATUS.withdrew, STATUS.rejected, STATUS.interviews],
   [STATUS.withdrew]: [],
@@ -43,10 +43,24 @@ const DEPTH_ORDER: Record<number, ApplicationStatus[]> = {
   3: [STATUS.accepted, STATUS.declined],
 };
 
-export const APPLICATION_STATUSES = Object.values(STATUS) as ApplicationStatus[];
+export const STATUS_THEME: Record<
+  ApplicationStatus,
+  { dot: string; border: string; badge: string; sankey: string }
+> = {
+  [STATUS.wishlist]:   { dot: "bg-slate-400",   border: "bg-slate-300",   badge: "bg-slate-100 text-slate-600",    sankey: "#94a3b8" },
+  [STATUS.no_answer]:  { dot: "bg-blue-500",    border: "bg-blue-400",    badge: "bg-blue-50 text-blue-700",       sankey: "#818cf8" },
+  [STATUS.withdrew]:   { dot: "bg-gray-400",    border: "bg-gray-300",    badge: "bg-gray-100 text-gray-600",      sankey: "#94a3b8" },
+  [STATUS.rejected]:   { dot: "bg-red-500",     border: "bg-red-400",     badge: "bg-red-50 text-red-700",         sankey: "#f87171" },
+  [STATUS.interviews]: { dot: "bg-violet-500",  border: "bg-violet-500",  badge: "bg-violet-50 text-violet-700",   sankey: "#a78bfa" },
+  [STATUS.no_offer]:   { dot: "bg-orange-400",  border: "bg-orange-400",  badge: "bg-orange-50 text-orange-700",   sankey: "#fb923c" },
+  [STATUS.offer]:      { dot: "bg-emerald-500", border: "bg-emerald-500", badge: "bg-emerald-50 text-emerald-700", sankey: "#34d399" },
+  [STATUS.accepted]:   { dot: "bg-green-500",   border: "bg-green-500",   badge: "bg-green-50 text-green-700",     sankey: "#22c55e" },
+  [STATUS.declined]:   { dot: "bg-amber-400",   border: "bg-amber-400",   badge: "bg-amber-50 text-amber-700",     sankey: "#fbbf24" },
+};
 
-export const STATUS_LABELS: Record<ApplicationStatus, string> = STATUS_NAMES;
-export const NEXT_STATUSES: Record<ApplicationStatus, ApplicationStatus[]> = STATUS_NEXT;
+export const SANKEY_ROOT = "applications";
+export const SANKEY_ROOT_COLOR = "#60a5fa";
+export const SANKEY_ROOT_LABEL = "Applications";
 
 export function getStatusRankForDepth(status: ApplicationStatus, depth: number): number {
   const index = DEPTH_ORDER[depth]?.indexOf(status) ?? -1;

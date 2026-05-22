@@ -1,7 +1,8 @@
 import type { ApplicationRecord } from "@/lib/types";
 import { formatDate } from "@/lib/date";
+import { STATUS_THEME } from "@/lib/statuses";
 import { ApplicationStatusQuickActions } from "@/components/application-status-quick-actions";
-import { StatusBadge, STATUS_LEFT_BORDER } from "@/components/status-badge";
+import { StatusBadge } from "@/components/status-badge";
 import Link from "next/link";
 
 type ApplicationListProps = {
@@ -25,7 +26,7 @@ export function ApplicationList({ applications }: ApplicationListProps) {
           key={app.id}
           className="group flex overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md"
         >
-          <div className={`w-1 flex-shrink-0 ${STATUS_LEFT_BORDER[app.status]}`} />
+          <div className={`w-1 flex-shrink-0 ${STATUS_THEME[app.status].border}`} />
 
           <div className="flex flex-1 items-start gap-4 px-5 py-4">
             <Link

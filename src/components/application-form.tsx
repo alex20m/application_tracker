@@ -2,7 +2,8 @@
 
 import { useActionState } from "react";
 
-import { STATUS_LABELS, NEXT_STATUSES } from "@/lib/statuses";
+import { STATUS, STATUS_NAMES, STATUS_NEXT } from "@/lib/statuses";
+import { BTN_PRIMARY, ERROR_BANNER, INPUT, LABEL } from "@/lib/ui";
 import type { ApplicationRecord } from "@/lib/types";
 
 type ApplicationFormProps = {
@@ -13,11 +14,6 @@ type ApplicationFormProps = {
   ) => Promise<{ success: boolean; error?: string }>;
 };
 
-const inputClass =
-  "mt-1.5 block w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100";
-
-const labelClass = "block text-xs font-semibold uppercase tracking-wide text-gray-500";
-
 export function ApplicationForm({ application, action }: ApplicationFormProps) {
   const [state, formAction, isPending] = useActionState(action, {
     success: false,
@@ -27,110 +23,104 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
   return (
     <form action={formAction} className="space-y-5">
       {state.error && (
-        <div className="rounded-lg border-l-4 border-red-400 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {state.error}
-        </div>
+        <div className={ERROR_BANNER}>{state.error}</div>
       )}
 
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
-          <label className={labelClass}>Company</label>
+          <label className={LABEL}>Company</label>
           <input
             type="text"
             name="company"
             required
             defaultValue={application?.company || ""}
-            className={inputClass}
+            className={INPUT}
             placeholder="Acme Corp"
           />
         </div>
 
         <div>
-          <label className={labelClass}>Role</label>
+          <label className={LABEL}>Role</label>
           <input
             type="text"
             name="role"
             required
             defaultValue={application?.role || ""}
-            className={inputClass}
+            className={INPUT}
             placeholder="Senior Engineer"
           />
         </div>
 
         <div>
-          <label className={labelClass}>Location</label>
+          <label className={LABEL}>Location</label>
           <input
             type="text"
             name="location"
             required
             defaultValue={application?.location || ""}
-            className={inputClass}
+            className={INPUT}
             placeholder="Stockholm / Remote"
           />
         </div>
 
         <div>
-          <label className={labelClass}>Source</label>
+          <label className={LABEL}>Source</label>
           <input
             type="text"
             name="source"
             defaultValue={application?.source || ""}
-            className={inputClass}
+            className={INPUT}
             placeholder="LinkedIn, Referral…"
           />
         </div>
 
         <div>
-          <label className={labelClass}>Applied On</label>
+          <label className={LABEL}>Applied On</label>
           <input
             type="date"
             name="applied_on"
             defaultValue={application?.applied_on?.split("T")[0] || today}
-            className={inputClass}
+            className={INPUT}
           />
         </div>
 
         {application ? (
           <div>
-            <label className={labelClass}>Status</label>
+            <label className={LABEL}>Status</label>
             <select
               name="status"
               required
               defaultValue={application.status}
-              className={inputClass}
+              className={INPUT}
             >
               <option value={application.status}>
-                {STATUS_LABELS[application.status]}
+                {STATUS_NAMES[application.status]}
               </option>
-              {(NEXT_STATUSES[application.status] ?? []).map((status) => (
+              {(STATUS_NEXT[application.status] ?? []).map((status) => (
                 <option key={status} value={status}>
-                  {STATUS_LABELS[status]}
+                  {STATUS_NAMES[status]}
                 </option>
               ))}
             </select>
           </div>
         ) : (
-          <input type="hidden" name="status" value="no_answer" />
+          <input type="hidden" name="status" value={STATUS.no_answer} />
         )}
       </div>
 
       <div>
-        <label className={labelClass}>Notes</label>
+        <label className={LABEL}>Notes</label>
         <textarea
           name="notes"
           defaultValue={application?.notes || ""}
-          className={inputClass}
+          className={INPUT}
           rows={4}
           placeholder="Add any notes, contacts, or interview details…"
         />
       </div>
 
       <div className="flex justify-end pt-1">
-        <button
-          type="submit"
-          disabled={isPending}
-          className="cursor-pointer rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
-        >
+        <button type="submit" disabled={isPending} className={BTN_PRIMARY}>
           {isPending ? "Saving…" : "Save Application"}
         </button>
       </div>

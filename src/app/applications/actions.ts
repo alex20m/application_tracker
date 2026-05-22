@@ -3,7 +3,8 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
-import { NEXT_STATUSES, type ApplicationStatus } from "@/lib/statuses";
+import { STATUS, STATUS_NEXT, type ApplicationStatus } from "@/lib/statuses";
+import { appendStatusEvent, revalidateApplicationViews } from "@/lib/applications";
 import { randomUUID } from "crypto";
 import type { StatusEvent } from "@/lib/types";
 
@@ -21,13 +22,14 @@ export async function createApplicationAction(
   const location = (formData.get("location") as string | null)?.trim() || "";
   const source = formData.get("source") as string | null;
   const appliedOn = formData.get("applied_on") as string | null;
-  const status = (formData.get("status") as ApplicationStatus) || "no_answer";
+  const status = (formData.get("status") as ApplicationStatus) || STATUS.no_answer;
   const notes = formData.get("notes") as string | null;
 
   if (!company || !role || !location) {
     return { success: false, error: "Company, role, and location are required" };
   }
 
+  const now = new Date().toISOString();
   const appId = randomUUID();
 
   const { error: appError } = await supabase.from("applications").insert([
@@ -41,9 +43,9 @@ export async function createApplicationAction(
       applied_on: appliedOn || null,
       status,
       notes: notes || null,
-      events: [{ from_status: null, to_status: status, changed_at: new Date().toISOString() }],
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      events: [{ from_status: null, to_status: status, changed_at: now }],
+      created_at: now,
+      updated_at: now,
     },
   ]);
 
@@ -75,16 +77,14 @@ export async function transitionApplicationStatusAction(
 
   if (!currentApp) return;
 
-  const allowedNext = NEXT_STATUSES[currentApp.status as ApplicationStatus] ?? [];
+  const allowedNext = STATUS_NEXT[currentApp.status as ApplicationStatus] ?? [];
   if (!allowedNext.includes(nextStatus)) return;
 
-  let events: StatusEvent[] = currentApp.events || [];
-  if (currentApp.status === "no_answer") {
-    events = events.filter((e) => !(e.from_status === null && e.to_status === "no_answer"));
-    events.push({ from_status: null, to_status: nextStatus, changed_at: new Date().toISOString() });
-  } else {
-    events.push({ from_status: currentApp.status, to_status: nextStatus, changed_at: new Date().toISOString() });
-  }
+  const events = appendStatusEvent(
+    currentApp.status as ApplicationStatus,
+    nextStatus,
+    (currentApp.events as StatusEvent[]) ?? []
+  );
 
   await supabase
     .from("applications")
@@ -96,8 +96,7 @@ export async function transitionApplicationStatusAction(
     .eq("id", applicationId)
     .eq("user_id", user.id);
 
-  revalidatePath("/applications");
-  revalidatePath("/sankey");
+  revalidateApplicationViews();
 }
 
 export async function updateApplicationNoteAction(formData: FormData): Promise<void> {
@@ -127,8 +126,7 @@ export async function deleteApplicationFromListAction(formData: FormData): Promi
     .eq("id", applicationId)
     .eq("user_id", user.id);
 
-  revalidatePath("/applications");
-  revalidatePath("/sankey");
+  revalidateApplicationViews();
 }
 
 export async function deleteAllApplicationsAction(): Promise<void> {
@@ -139,6 +137,5 @@ export async function deleteAllApplicationsAction(): Promise<void> {
     .delete()
     .eq("user_id", user.id);
 
-  revalidatePath("/applications");
-  revalidatePath("/sankey");
+  revalidateApplicationViews();
 }

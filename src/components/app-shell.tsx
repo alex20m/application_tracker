@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ROUTES } from "@/lib/env";
 
 type AppShellProps = {
   email: string;
@@ -6,8 +7,8 @@ type AppShellProps = {
 };
 
 const navItems = [
-  { href: "/applications", label: "Applications" },
-  { href: "/sankey", label: "Flow" },
+  { href: ROUTES.applications, label: "Applications" },
+  { href: ROUTES.sankey, label: "Flow" },
 ];
 
 export function AppShell({ email, children }: AppShellProps) {
@@ -33,7 +34,7 @@ export function AppShell({ email, children }: AppShellProps) {
 
           <div className="flex items-center gap-4">
             <span className="hidden text-xs text-gray-400 sm:block">{email}</span>
-            <form action="/auth/signout" method="post">
+            <form action={ROUTES.signOut} method="post">
               <button
                 type="submit"
                 className="cursor-pointer text-xs font-medium text-gray-500 transition-colors hover:text-gray-900"

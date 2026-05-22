@@ -15,3 +15,14 @@ export const NEXT_PUBLIC_SUPABASE_ANON_KEY = requireEnv(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   "NEXT_PUBLIC_SUPABASE_ANON_KEY"
 );
+
+export const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
+export const ROUTES = {
+  login: "/login",
+  applications: "/applications",
+  newApplication: "/applications/new",
+  sankey: "/sankey",
+  authCallback: "/auth/callback",
+  signOut: "/auth/signout",
+} as const;

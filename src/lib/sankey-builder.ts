@@ -1,3 +1,4 @@
+import { SANKEY_ROOT } from "@/lib/statuses";
 import type { SankeyData } from "@/lib/types";
 import type { ApplicationRecord } from "@/lib/types";
 
@@ -13,7 +14,7 @@ export function buildSankeyData(applications: ApplicationRecord[]): SankeyData {
   const transitionCounts = new Map<string, number>();
   apps.forEach((app) => {
     (app.events || []).forEach((event) => {
-      const from = event.from_status ?? "applications";
+      const from = event.from_status ?? SANKEY_ROOT;
       const to = event.to_status;
       if (!to || to === "wishlist") return;
       if (from === to) return;
@@ -22,7 +23,7 @@ export function buildSankeyData(applications: ApplicationRecord[]): SankeyData {
     });
   });
 
-  const nodes = new Set<string>(["applications"]);
+  const nodes = new Set<string>([SANKEY_ROOT]);
   const links: Array<{ source: string; target: string; value: number }> = [];
 
   transitionCounts.forEach((count, key) => {

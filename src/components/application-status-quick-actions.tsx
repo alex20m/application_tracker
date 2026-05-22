@@ -2,11 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { transitionApplicationStatusAction } from "@/app/applications/actions";
-import {
-  NEXT_STATUSES,
-  STATUS_LABELS,
-  type ApplicationStatus,
-} from "@/lib/statuses";
+import { STATUS_NEXT, STATUS_NAMES, type ApplicationStatus } from "@/lib/statuses";
 
 type ApplicationStatusQuickActionsProps = {
   applicationId: string;
@@ -19,7 +15,7 @@ export function ApplicationStatusQuickActions({
 }: ApplicationStatusQuickActionsProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const nextStatuses = NEXT_STATUSES[currentStatus] ?? [];
+  const nextStatuses = STATUS_NEXT[currentStatus] ?? [];
 
   const handleChangeStatus = (nextStatus: ApplicationStatus) => {
     const formData = new FormData();
@@ -57,7 +53,7 @@ export function ApplicationStatusQuickActions({
               disabled={isPending}
               className="cursor-pointer rounded-lg border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 transition hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {STATUS_LABELS[status]}
+              {STATUS_NAMES[status]}
             </button>
           ))}
           <button

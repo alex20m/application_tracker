@@ -3,12 +3,13 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
-import type { ApplicationStatus } from "@/lib/statuses";
+import { STATUS, type ApplicationStatus } from "@/lib/statuses";
+import { appendStatusEvent } from "@/lib/applications";
 import type { StatusEvent } from "@/lib/types";
 
 export async function updateApplicationAction(
   applicationId: string,
-  prevState: unknown,
+  _prevState: unknown,
   formData: FormData
 ): Promise<{
   success: boolean;
@@ -21,7 +22,7 @@ export async function updateApplicationAction(
   const location = (formData.get("location") as string | null)?.trim() || "";
   const source = (formData.get("source") as string | null)?.trim() || "";
   const appliedOn = (formData.get("applied_on") as string | null) || null;
-  const newStatus = (formData.get("status") as ApplicationStatus) || "no_answer";
+  const newStatus = (formData.get("status") as ApplicationStatus) || STATUS.no_answer;
   const notes = formData.get("notes") as string | null;
 
   if (!company || !role || !location) {
@@ -39,16 +40,14 @@ export async function updateApplicationAction(
     return { success: false, error: "Application not found" };
   }
 
-  let events: StatusEvent[] = currentApp.events || [];
+  let events: StatusEvent[] = (currentApp.events as StatusEvent[]) || [];
 
   if (currentApp.status !== newStatus) {
-    if (currentApp.status === "no_answer") {
-      // Remove the null→no_answer entry, replace with null→newStatus
-      events = events.filter((e) => !(e.from_status === null && e.to_status === "no_answer"));
-      events.push({ from_status: null, to_status: newStatus, changed_at: new Date().toISOString() });
-    } else {
-      events.push({ from_status: currentApp.status, to_status: newStatus, changed_at: new Date().toISOString() });
-    }
+    events = appendStatusEvent(
+      currentApp.status as ApplicationStatus,
+      newStatus,
+      events
+    );
   }
 
   const { error: appError } = await supabase

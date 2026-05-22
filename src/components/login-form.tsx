@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { BTN_PRIMARY, ERROR_BANNER, INPUT_ON_GRAY, LABEL, SUCCESS_BANNER } from "@/lib/ui";
 
 type LoginAction = (
   prevState: unknown,
@@ -14,9 +15,6 @@ type LoginAction = (
 type LoginFormProps = {
   action: LoginAction;
 };
-
-const inputClass =
-  "mt-1.5 block w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 transition focus:border-indigo-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100";
 
 export function LoginForm({ action }: LoginFormProps) {
   const [state, formAction, isPending] = useActionState(action, {
@@ -35,40 +33,32 @@ export function LoginForm({ action }: LoginFormProps) {
   return (
     <form action={formAction} className="space-y-4">
       {state.error && (
-        <div className="rounded-lg border-l-4 border-red-400 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {state.error}
-        </div>
+        <div className={ERROR_BANNER}>{state.error}</div>
       )}
 
       {state.message && (
-        <div className="rounded-lg border-l-4 border-emerald-400 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-          {state.message}
-        </div>
+        <div className={SUCCESS_BANNER}>{state.message}</div>
       )}
 
       <div>
-        <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500">
-          Email
-        </label>
+        <label className={LABEL}>Email</label>
         <input
           type="email"
           name="email"
           required
-          className={inputClass}
+          className={INPUT_ON_GRAY}
           placeholder="you@example.com"
         />
       </div>
 
       {authMode === "password" && (
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500">
-            Password
-          </label>
+          <label className={LABEL}>Password</label>
           <input
             type="password"
             name="password"
             required
-            className={inputClass}
+            className={INPUT_ON_GRAY}
             placeholder="••••••••"
           />
         </div>
@@ -80,7 +70,7 @@ export function LoginForm({ action }: LoginFormProps) {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full cursor-pointer rounded-lg bg-indigo-600 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+        className={`w-full py-2.5 ${BTN_PRIMARY}`}
       >
         {isPending ? "Loading…" : primaryLabel}
       </button>

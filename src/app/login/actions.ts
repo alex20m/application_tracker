@@ -2,9 +2,10 @@
 
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { APP_URL, ROUTES } from "@/lib/env";
 
 export async function loginAction(
-  prevState: unknown,
+  _prevState: unknown,
   formData: FormData
 ): Promise<{
   success: boolean;
@@ -28,7 +29,7 @@ export async function loginAction(
       email,
       options: {
         shouldCreateUser: true,
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/auth/callback`,
+        emailRedirectTo: `${APP_URL}${ROUTES.authCallback}`,
       },
     });
 
@@ -60,5 +61,5 @@ export async function loginAction(
     return { success: false, error: error.message };
   }
 
-  redirect("/applications");
+  redirect(ROUTES.applications);
 }

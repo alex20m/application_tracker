@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
+import { ROUTES } from "@/lib/env";
+import { CARD } from "@/lib/ui";
 import { AppShell } from "@/components/app-shell";
 import { ApplicationForm } from "@/components/application-form";
 import { createApplicationAction } from "@/app/applications/actions";
@@ -11,7 +13,7 @@ export default async function NewApplicationPage() {
     <AppShell email={user.email || ""}>
       <div className="space-y-6">
         <div className="flex items-center gap-2 text-sm">
-          <Link href="/applications" className="text-gray-400 transition hover:text-gray-700">
+          <Link href={ROUTES.applications} className="text-gray-400 transition hover:text-gray-700">
             Applications
           </Link>
           <span className="text-gray-300">/</span>
@@ -25,7 +27,7 @@ export default async function NewApplicationPage() {
           </p>
         </div>
 
-        <div className="max-w-2xl rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className={`max-w-2xl ${CARD}`}>
           <ApplicationForm action={createApplicationAction} />
         </div>
       </div>
