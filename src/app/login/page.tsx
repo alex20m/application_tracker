@@ -3,22 +3,21 @@ import { loginAction } from "./actions";
 
 export default function LoginPage() {
   return (
-    <div className="flex h-screen items-center justify-center bg-gradient-to-br from-indigo-50 to-blue-50 px-4">
-      <div className="w-full max-w-sm space-y-6">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-slate-900">Application Tracker</h1>
-          <p className="mt-2 text-sm text-slate-600">
-            Sync your job applications across devices
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-violet-50 px-4">
+      <div className="w-full max-w-sm">
+        <div className="mb-8 text-center">
+          <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 shadow-lg shadow-indigo-200">
+            <span className="text-xl font-bold text-white">A</span>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900">AppTrack</h1>
+          <p className="mt-1.5 text-sm text-gray-500">
+            Track your job applications in one place
           </p>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
           <LoginForm action={loginAction} />
         </div>
-
-        <p className="text-center text-xs text-slate-700">
-          Sign up or sign in with email/password or magic link.
-        </p>
       </div>
     </div>
   );

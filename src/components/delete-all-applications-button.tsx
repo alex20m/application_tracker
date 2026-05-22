@@ -15,7 +15,7 @@ export function DeleteAllApplicationsButton({
   const handleDeleteAll = () => {
     if (
       window.confirm(
-        "Are you sure you want to delete all applications? This cannot be undone."
+        "Delete ALL applications? This cannot be undone."
       )
     ) {
       startTransition(() => {
@@ -29,9 +29,9 @@ export function DeleteAllApplicationsButton({
       type="button"
       onClick={handleDeleteAll}
       disabled={!hasApplications || isPending}
-      className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition bg-red-600 text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+      className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-500 transition hover:border-red-200 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-40"
     >
-      {isPending ? "Deleting..." : "Delete all"}
+      {isPending ? "Deleting…" : "Delete all"}
     </button>
   );
 }

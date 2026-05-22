@@ -15,6 +15,9 @@ type LoginFormProps = {
   action: LoginAction;
 };
 
+const inputClass =
+  "mt-1.5 block w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 transition focus:border-indigo-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100";
+
 export function LoginForm({ action }: LoginFormProps) {
   const [state, formAction, isPending] = useActionState(action, {
     success: false,
@@ -32,40 +35,40 @@ export function LoginForm({ action }: LoginFormProps) {
   return (
     <form action={formAction} className="space-y-4">
       {state.error && (
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm border-l-4 border-rose-500 bg-rose-50 text-sm text-rose-700">
+        <div className="rounded-lg border-l-4 border-red-400 bg-red-50 px-4 py-3 text-sm text-red-700">
           {state.error}
         </div>
       )}
 
       {state.message && (
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm border-l-4 border-emerald-500 bg-emerald-50 text-sm text-emerald-700">
+        <div className="rounded-lg border-l-4 border-emerald-400 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
           {state.message}
         </div>
       )}
 
       <div>
-        <label className="block text-sm font-medium text-slate-700">
+        <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500">
           Email
         </label>
         <input
           type="email"
           name="email"
           required
-          className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400"
+          className={inputClass}
           placeholder="you@example.com"
         />
       </div>
 
       {authMode === "password" && (
         <div>
-          <label className="block text-sm font-medium text-slate-700">
+          <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500">
             Password
           </label>
           <input
             type="password"
             name="password"
             required
-            className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400"
+            className={inputClass}
             placeholder="••••••••"
           />
         </div>
@@ -74,28 +77,28 @@ export function LoginForm({ action }: LoginFormProps) {
       <input type="hidden" name="authMode" value={authMode} />
       <input type="hidden" name="authIntent" value={authIntent} />
 
-      <button type="submit" disabled={isPending} className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 w-full">
-        {isPending ? "Loading..." : primaryLabel}
+      <button
+        type="submit"
+        disabled={isPending}
+        className="w-full rounded-lg bg-indigo-600 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-50"
+      >
+        {isPending ? "Loading…" : primaryLabel}
       </button>
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className="flex items-center justify-between gap-2 pt-1">
         <button
           type="button"
-          onClick={() =>
-            setAuthMode(authMode === "password" ? "magic" : "password")
-          }
-          className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition border border-slate-300 bg-white text-slate-800 hover:bg-slate-100"
+          onClick={() => setAuthMode(authMode === "password" ? "magic" : "password")}
+          className="text-xs text-gray-400 transition hover:text-gray-700"
         >
-          Use {authMode === "password" ? "Magic Link" : "Password"}
+          Use {authMode === "password" ? "magic link" : "password"}
         </button>
         <button
           type="button"
-          onClick={() =>
-            setAuthIntent(authIntent === "signin" ? "signup" : "signin")
-          }
-          className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition border border-slate-300 bg-white text-slate-800 hover:bg-slate-100"
+          onClick={() => setAuthIntent(authIntent === "signin" ? "signup" : "signin")}
+          className="text-xs text-gray-400 transition hover:text-gray-700"
         >
-          {authIntent === "signin" ? "Need account?" : "Have account?"}
+          {authIntent === "signin" ? "Create account" : "Sign in instead"}
         </button>
       </div>
     </form>

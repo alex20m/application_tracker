@@ -13,6 +13,11 @@ type ApplicationFormProps = {
   ) => Promise<{ success: boolean; error?: string }>;
 };
 
+const inputClass =
+  "mt-1.5 block w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100";
+
+const labelClass = "block text-xs font-semibold uppercase tracking-wide text-gray-500";
+
 export function ApplicationForm({ application, action }: ApplicationFormProps) {
   const [state, formAction, isPending] = useActionState(action, {
     success: false,
@@ -20,119 +25,115 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
   const today = new Date().toISOString().split("T")[0];
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form action={formAction} className="space-y-5">
       {state.error && (
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm border-l-4 border-rose-500 bg-rose-50 text-sm text-rose-700">
+        <div className="rounded-lg border-l-4 border-red-400 bg-red-50 px-4 py-3 text-sm text-red-700">
           {state.error}
         </div>
       )}
 
-      <div>
-        <label className="block text-sm font-medium text-slate-700">
-          Company
-        </label>
-        <input
-          type="text"
-          name="company"
-          required
-          defaultValue={application?.company || ""}
-          className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400"
-          placeholder="e.g., Acme Corp"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-slate-700">
-          Role
-        </label>
-        <input
-          type="text"
-          name="role"
-          required
-          defaultValue={application?.role || ""}
-          className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400"
-          placeholder="e.g., Senior Engineer"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-slate-700">Location</label>
-        <input
-          type="text"
-          name="location"
-          required
-          defaultValue={application?.location || ""}
-          className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400"
-          placeholder="e.g., Stockholm / Remote"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-slate-700">
-          Source
-        </label>
-        <input
-          type="text"
-          name="source"
-          defaultValue={application?.source || ""}
-          className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400"
-          placeholder="e.g., LinkedIn, Referral"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-slate-700">
-          Applied On
-        </label>
-        <input
-          type="date"
-          name="applied_on"
-          defaultValue={application?.applied_on?.split("T")[0] || today}
-          className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900"
-        />
-      </div>
-
-      {application ? (
+      <div className="grid gap-5 sm:grid-cols-2">
         <div>
-          <label className="block text-sm font-medium text-slate-700">
-            Status
-          </label>
-          <select
-            name="status"
+          <label className={labelClass}>Company</label>
+          <input
+            type="text"
+            name="company"
             required
-            defaultValue={application.status}
-            className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900"
-          >
-            <option value={application.status}>
-              {STATUS_LABELS[application.status]}
-            </option>
-            {(NEXT_STATUSES[application.status] ?? []).map((status) => (
-              <option key={status} value={status}>
-                {STATUS_LABELS[status]}
-              </option>
-            ))}
-          </select>
+            defaultValue={application?.company || ""}
+            className={inputClass}
+            placeholder="Acme Corp"
+          />
         </div>
-      ) : (
-        <input type="hidden" name="status" value="no_answer" />
-      )}
+
+        <div>
+          <label className={labelClass}>Role</label>
+          <input
+            type="text"
+            name="role"
+            required
+            defaultValue={application?.role || ""}
+            className={inputClass}
+            placeholder="Senior Engineer"
+          />
+        </div>
+
+        <div>
+          <label className={labelClass}>Location</label>
+          <input
+            type="text"
+            name="location"
+            required
+            defaultValue={application?.location || ""}
+            className={inputClass}
+            placeholder="Stockholm / Remote"
+          />
+        </div>
+
+        <div>
+          <label className={labelClass}>Source</label>
+          <input
+            type="text"
+            name="source"
+            defaultValue={application?.source || ""}
+            className={inputClass}
+            placeholder="LinkedIn, Referral…"
+          />
+        </div>
+
+        <div>
+          <label className={labelClass}>Applied On</label>
+          <input
+            type="date"
+            name="applied_on"
+            defaultValue={application?.applied_on?.split("T")[0] || today}
+            className={inputClass}
+          />
+        </div>
+
+        {application ? (
+          <div>
+            <label className={labelClass}>Status</label>
+            <select
+              name="status"
+              required
+              defaultValue={application.status}
+              className={inputClass}
+            >
+              <option value={application.status}>
+                {STATUS_LABELS[application.status]}
+              </option>
+              {(NEXT_STATUSES[application.status] ?? []).map((status) => (
+                <option key={status} value={status}>
+                  {STATUS_LABELS[status]}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : (
+          <input type="hidden" name="status" value="no_answer" />
+        )}
+      </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700">
-          Notes
-        </label>
+        <label className={labelClass}>Notes</label>
         <textarea
           name="notes"
           defaultValue={application?.notes || ""}
-          className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400"
-          rows={3}
-          placeholder="Add any additional notes..."
+          className={inputClass}
+          rows={4}
+          placeholder="Add any notes, contacts, or interview details…"
         />
       </div>
 
-      <button type="submit" disabled={isPending} className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50">
-        {isPending ? "Saving..." : "Save Application"}
-      </button>
+      <div className="flex justify-end pt-1">
+        <button
+          type="submit"
+          disabled={isPending}
+          className="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-50"
+        >
+          {isPending ? "Saving…" : "Save Application"}
+        </button>
+      </div>
     </form>
   );
 }

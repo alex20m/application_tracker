@@ -7,7 +7,6 @@ import {
   STATUS_LABELS,
   type ApplicationStatus,
 } from "@/lib/statuses";
-import { StatusBadge } from "@/components/status-badge";
 
 type ApplicationStatusQuickActionsProps = {
   applicationId: string;
@@ -33,47 +32,43 @@ export function ApplicationStatusQuickActions({
     });
   };
 
-  return (
-    <div className="flex h-full flex-col items-end justify-start gap-2 whitespace-nowrap">
-      <StatusBadge status={currentStatus} />
+  if (nextStatuses.length === 0) {
+    return <span className="text-xs text-gray-300">Final status</span>;
+  }
 
-      {nextStatuses.length > 0 ? (
-        <>
-          {!isOpen ? (
-            <button
-              type="button"
-              onClick={() => setIsOpen(true)}
-              disabled={isPending}
-              className="mt-1 rounded-full border border-slate-300 bg-white px-2 py-1 text-xs text-slate-700 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              Change status
-            </button>
-          ) : (
-            <div className="mt-1 flex flex-wrap justify-end gap-1">
-              {nextStatuses.map((status) => (
-                <button
-                  key={status}
-                  type="button"
-                  onClick={() => handleChangeStatus(status)}
-                  disabled={isPending}
-                  className="rounded-full border border-slate-300 bg-white px-2 py-1 text-xs text-slate-700 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {STATUS_LABELS[status]}
-                </button>
-              ))}
-              <button
-                type="button"
-                onClick={() => setIsOpen(false)}
-                disabled={isPending}
-                className="rounded-full border border-slate-300 bg-slate-100 px-2 py-1 text-xs text-slate-600 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                Cancel
-              </button>
-            </div>
-          )}
-        </>
+  return (
+    <div className="flex flex-col items-end gap-1.5">
+      {!isOpen ? (
+        <button
+          type="button"
+          onClick={() => setIsOpen(true)}
+          disabled={isPending}
+          className="rounded-lg border border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-500 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600 disabled:opacity-50"
+        >
+          {isPending ? "Saving..." : "Move to →"}
+        </button>
       ) : (
-        <p className="mt-1 text-xs text-slate-500">Final status</p>
+        <div className="flex flex-wrap justify-end gap-1">
+          {nextStatuses.map((status) => (
+            <button
+              key={status}
+              type="button"
+              onClick={() => handleChangeStatus(status)}
+              disabled={isPending}
+              className="rounded-lg border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 transition hover:bg-indigo-100 disabled:opacity-50"
+            >
+              {STATUS_LABELS[status]}
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={() => setIsOpen(false)}
+            disabled={isPending}
+            className="rounded-lg border border-gray-200 bg-white px-2.5 py-1 text-xs text-gray-400 transition hover:text-gray-600 disabled:opacity-50"
+          >
+            Cancel
+          </button>
+        </div>
       )}
     </div>
   );

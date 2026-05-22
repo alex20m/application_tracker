@@ -25,11 +25,11 @@ export default async function ApplicationDetailPage({
   if (!application) {
     return (
       <AppShell email={user.email || ""}>
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm text-center">
-          <p className="text-rose-600">Application not found</p>
+        <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center shadow-sm">
+          <p className="text-sm text-red-600">Application not found.</p>
           <Link
             href="/applications"
-            className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition border border-slate-300 bg-white text-slate-800 hover:bg-slate-100 mt-4 inline-block"
+            className="mt-4 inline-block text-sm text-indigo-600 transition hover:text-indigo-800"
           >
             Back to Applications
           </Link>
@@ -43,29 +43,29 @@ export default async function ApplicationDetailPage({
   return (
     <AppShell email={user.email || ""}>
       <div className="space-y-6">
-        <div className="flex items-center gap-2">
-          <Link href="/applications" className="text-sm text-indigo-600 hover:text-indigo-700">
+        <div className="flex items-center gap-2 text-sm">
+          <Link href="/applications" className="text-gray-400 transition hover:text-gray-700">
             Applications
           </Link>
-          <span className="text-slate-400">/</span>
-          <span className="text-sm font-medium text-slate-600">{application.company}</span>
+          <span className="text-gray-300">/</span>
+          <span className="font-medium text-gray-700">{application.company}</span>
         </div>
 
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">{application.company}</h2>
-          <p className="mt-1 text-sm text-slate-600">{application.role}</p>
+          <h1 className="text-xl font-bold text-gray-900">{application.company}</h1>
+          <p className="mt-0.5 text-sm text-gray-400">{application.role}</p>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm max-w-2xl">
+        <div className="max-w-2xl rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
           <ApplicationForm action={boundAction} application={application} />
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm max-w-2xl border-l-4 border-rose-200 bg-rose-50">
+        <div className="max-w-2xl rounded-2xl border border-red-100 bg-red-50 p-5">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-medium text-slate-900">Danger Zone</p>
-              <p className="mt-1 text-xs text-slate-600">
-                Permanently delete this application. This action cannot be undone.
+              <p className="text-sm font-semibold text-gray-800">Danger zone</p>
+              <p className="mt-0.5 text-xs text-gray-500">
+                Permanently delete this application. Cannot be undone.
               </p>
             </div>
             <DeleteApplicationButton applicationId={id} />

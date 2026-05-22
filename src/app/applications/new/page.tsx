@@ -10,22 +10,22 @@ export default async function NewApplicationPage() {
   return (
     <AppShell email={user.email || ""}>
       <div className="space-y-6">
-        <div className="flex items-center gap-2">
-          <Link href="/applications" className="text-sm text-indigo-600 hover:text-indigo-700">
+        <div className="flex items-center gap-2 text-sm">
+          <Link href="/applications" className="text-gray-400 transition hover:text-gray-700">
             Applications
           </Link>
-          <span className="text-slate-400">/</span>
-          <span className="text-sm font-medium text-slate-600">New</span>
+          <span className="text-gray-300">/</span>
+          <span className="font-medium text-gray-700">New</span>
         </div>
 
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Add New Application</h2>
-          <p className="mt-1 text-sm text-slate-600">
-            Create a new job application and track its progress
+          <h1 className="text-xl font-bold text-gray-900">Add Application</h1>
+          <p className="mt-0.5 text-sm text-gray-400">
+            Track a new job application
           </p>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm max-w-2xl">
+        <div className="max-w-2xl rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
           <ApplicationForm action={createApplicationAction} />
         </div>
       </div>
