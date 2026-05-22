@@ -18,7 +18,7 @@ CREATE TABLE public.applications (
   location   TEXT NOT NULL,
   source     TEXT,
   status     TEXT NOT NULL DEFAULT 'no_answer' CHECK (status IN (
-               'wishlist', 'no_answer', 'withdrew', 'rejected',
+               'wishlist', 'no_answer', 'cancelled', 'withdrew', 'rejected',
                'interviews', 'no_offer', 'offer', 'accepted', 'declined'
              )),
   applied_on DATE,

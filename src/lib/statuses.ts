@@ -1,6 +1,7 @@
 export const STATUS = {
   wishlist: "wishlist",
   no_answer: "no_answer",
+  cancelled: "cancelled",
   withdrew: "withdrew",
   rejected: "rejected",
   interviews: "interviews",
@@ -15,6 +16,7 @@ export type ApplicationStatus = (typeof STATUS)[keyof typeof STATUS];
 export const STATUS_NAMES = {
   [STATUS.wishlist]: "Wishlist",
   [STATUS.no_answer]: "No Answer",
+  [STATUS.cancelled]: "Cancelled",
   [STATUS.withdrew]: "Withdrew",
   [STATUS.rejected]: "Rejected",
   [STATUS.interviews]: "Interviews",
@@ -26,7 +28,8 @@ export const STATUS_NAMES = {
 
 export const STATUS_NEXT: Record<ApplicationStatus, ApplicationStatus[]> = {
   [STATUS.wishlist]: [STATUS.no_answer],
-  [STATUS.no_answer]: [STATUS.withdrew, STATUS.rejected, STATUS.interviews],
+  [STATUS.no_answer]: [STATUS.cancelled, STATUS.rejected, STATUS.interviews],
+  [STATUS.cancelled]: [],
   [STATUS.withdrew]: [],
   [STATUS.rejected]: [],
   [STATUS.interviews]: [STATUS.withdrew, STATUS.no_offer, STATUS.offer],
@@ -38,7 +41,7 @@ export const STATUS_NEXT: Record<ApplicationStatus, ApplicationStatus[]> = {
 
 // Ranking is the index position in each depth array (lower index = higher up).
 const DEPTH_ORDER: Record<number, ApplicationStatus[]> = {
-  1: [STATUS.interviews, STATUS.withdrew, STATUS.no_answer, STATUS.rejected],
+  1: [STATUS.interviews, STATUS.cancelled, STATUS.no_answer, STATUS.rejected],
   2: [STATUS.offer, STATUS.withdrew, STATUS.no_offer],
   3: [STATUS.accepted, STATUS.declined],
 };
@@ -49,6 +52,7 @@ export const STATUS_THEME: Record<
 > = {
   [STATUS.wishlist]:   { dot: "bg-slate-400",   border: "bg-slate-300",   badge: "bg-slate-100 text-slate-600",    sankey: "#94a3b8" },
   [STATUS.no_answer]:  { dot: "bg-blue-500",    border: "bg-blue-400",    badge: "bg-blue-50 text-blue-700",       sankey: "#818cf8" },
+  [STATUS.cancelled]:  { dot: "bg-gray-400",    border: "bg-gray-300",    badge: "bg-gray-100 text-gray-500",      sankey: "#9ca3af" },
   [STATUS.withdrew]:   { dot: "bg-gray-400",    border: "bg-gray-300",    badge: "bg-gray-100 text-gray-600",      sankey: "#94a3b8" },
   [STATUS.rejected]:   { dot: "bg-red-500",     border: "bg-red-400",     badge: "bg-red-50 text-red-700",         sankey: "#f87171" },
   [STATUS.interviews]: { dot: "bg-violet-500",  border: "bg-violet-500",  badge: "bg-violet-50 text-violet-700",   sankey: "#a78bfa" },
