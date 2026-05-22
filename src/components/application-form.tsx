@@ -35,7 +35,7 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
             required
             defaultValue={application?.company || ""}
             className={INPUT}
-            placeholder="Acme Corp"
+            placeholder="Example Corporation"
           />
         </div>
 
