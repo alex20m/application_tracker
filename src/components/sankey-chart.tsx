@@ -140,19 +140,17 @@ export function SankeyChart({ data }: SankeyChartProps) {
             const h = Math.max(node.y1 - node.y0, 1);
             const total = node.value || 0;
 
-            // Determine percentage relative to the node before (the strongest predecessor).
-            // Find incoming links to this node, pick the largest incoming link (by value),
-            // then calculate pct = (incomingFromBestParent / parentOutgoingTotal) * 100.
+            // Percentage = flow from best parent / parent's total value (includes apps still in that stage).
+            // Using parent.value (d3-sankey sets this to max(incoming, outgoing)) rather than
+            // summing outgoing links, so apps that haven't transitioned out are still counted.
             const incomingLinks = graph.links.filter((l: any) => (l.target as any) === node);
             let pct = 0;
             if (incomingLinks.length > 0) {
-              const best = incomingLinks.reduce((a: any, b: any) => ( (a.value || 0) >= (b.value || 0) ? a : b));
+              const best = incomingLinks.reduce((a: any, b: any) => ((a.value || 0) >= (b.value || 0) ? a : b));
               const parent = best.source as any;
-              const parentOutgoingTotal = graph.links
-                .filter((l: any) => (l.source as any) === parent)
-                .reduce((s: number, l: any) => s + (l.value || 0), 0);
-              if (parentOutgoingTotal > 0) {
-                pct = Math.round(((best.value || 0) / parentOutgoingTotal) * 100);
+              const parentTotal = parent.value || 0;
+              if (parentTotal > 0) {
+                pct = Math.round(((best.value || 0) / parentTotal) * 100);
               }
             }
 
