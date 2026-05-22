@@ -156,7 +156,7 @@ export function SankeyChart({ data }: SankeyChartProps) {
               }
             }
 
-            const sub = (node.name === "applications" || node.name === "no_answer") ? `${total}` : `${total} · ${pct}%`;
+            const sub = node.name === "applications" ? `${total}` : `${total} · ${pct}%`;
             const rightSide = node.x0 > width / 2;
             const lx = rightSide ? node.x0 - 8 : node.x1 + 8;
             const anchor = rightSide ? "end" : "start";

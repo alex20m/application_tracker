@@ -129,7 +129,7 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-50"
+          className="cursor-pointer rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isPending ? "Saving…" : "Save Application"}
         </button>

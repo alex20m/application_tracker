@@ -80,7 +80,7 @@ export function LoginForm({ action }: LoginFormProps) {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full rounded-lg bg-indigo-600 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-50"
+        className="w-full cursor-pointer rounded-lg bg-indigo-600 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isPending ? "Loading…" : primaryLabel}
       </button>
@@ -89,14 +89,14 @@ export function LoginForm({ action }: LoginFormProps) {
         <button
           type="button"
           onClick={() => setAuthMode(authMode === "password" ? "magic" : "password")}
-          className="text-xs text-gray-400 transition hover:text-gray-700"
+          className="cursor-pointer text-xs text-gray-400 transition hover:text-gray-700"
         >
           Use {authMode === "password" ? "magic link" : "password"}
         </button>
         <button
           type="button"
           onClick={() => setAuthIntent(authIntent === "signin" ? "signup" : "signin")}
-          className="text-xs text-gray-400 transition hover:text-gray-700"
+          className="cursor-pointer text-xs text-gray-400 transition hover:text-gray-700"
         >
           {authIntent === "signin" ? "Create account" : "Sign in instead"}
         </button>

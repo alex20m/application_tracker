@@ -36,7 +36,7 @@ export function AppShell({ email, children }: AppShellProps) {
             <form action="/auth/signout" method="post">
               <button
                 type="submit"
-                className="text-xs font-medium text-gray-500 transition-colors hover:text-gray-900"
+                className="cursor-pointer text-xs font-medium text-gray-500 transition-colors hover:text-gray-900"
               >
                 Sign out
               </button>

@@ -43,7 +43,7 @@ export function ApplicationStatusQuickActions({
           type="button"
           onClick={() => setIsOpen(true)}
           disabled={isPending}
-          className="rounded-lg border border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-500 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600 disabled:opacity-50"
+          className="cursor-pointer rounded-lg border border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-500 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isPending ? "Saving..." : "Move to →"}
         </button>
@@ -55,7 +55,7 @@ export function ApplicationStatusQuickActions({
               type="button"
               onClick={() => handleChangeStatus(status)}
               disabled={isPending}
-              className="rounded-lg border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 transition hover:bg-indigo-100 disabled:opacity-50"
+              className="cursor-pointer rounded-lg border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 transition hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {STATUS_LABELS[status]}
             </button>
@@ -64,7 +64,7 @@ export function ApplicationStatusQuickActions({
             type="button"
             onClick={() => setIsOpen(false)}
             disabled={isPending}
-            className="rounded-lg border border-gray-200 bg-white px-2.5 py-1 text-xs text-gray-400 transition hover:text-gray-600 disabled:opacity-50"
+            className="cursor-pointer rounded-lg border border-gray-200 bg-white px-2.5 py-1 text-xs text-gray-400 transition hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Cancel
           </button>
