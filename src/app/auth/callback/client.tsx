@@ -44,18 +44,18 @@ export function AuthCallback() {
   return (
     <div className="flex h-full items-center justify-center">
       {error ? (
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm max-w-sm text-center">
-          <p className="text-rose-600">{error}</p>
+        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 shadow-sm max-w-sm text-center">
+          <p className="text-rose-600 dark:text-rose-400">{error}</p>
           <a
             href={ROUTES.login}
-            className="mt-4 inline-block rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700"
+            className="mt-4 inline-block rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 dark:hover:bg-indigo-500"
           >
             Back to Sign In
           </a>
         </div>
       ) : (
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm max-w-sm text-center">
-          <p className="text-slate-600">Completing sign-in...</p>
+        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 shadow-sm max-w-sm text-center">
+          <p className="text-slate-600 dark:text-slate-400">Completing sign-in...</p>
         </div>
       )}
     </div>

@@ -79,14 +79,14 @@ export function LoginForm({ action }: LoginFormProps) {
         <button
           type="button"
           onClick={() => setAuthMode(authMode === "password" ? "magic" : "password")}
-          className="cursor-pointer text-xs text-gray-400 transition hover:text-gray-700"
+          className="cursor-pointer text-xs text-gray-400 dark:text-gray-500 transition hover:text-gray-700 dark:hover:text-gray-300"
         >
           Use {authMode === "password" ? "email sign-in link" : "password"}
         </button>
         <button
           type="button"
           onClick={() => setAuthIntent(authIntent === "signin" ? "signup" : "signin")}
-          className="cursor-pointer text-xs text-gray-400 transition hover:text-gray-700"
+          className="cursor-pointer text-xs text-gray-400 dark:text-gray-500 transition hover:text-gray-700 dark:hover:text-gray-300"
         >
           {authIntent === "signin" ? "Create account" : "Sign in instead"}
         </button>

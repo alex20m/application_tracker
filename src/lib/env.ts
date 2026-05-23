@@ -23,6 +23,7 @@ export const ROUTES = {
   applications: "/applications",
   newApplication: "/applications/new",
   sankey: "/sankey",
+  settings: "/settings",
   authCallback: "/api/auth/callback",
   signOut: "/auth/signout",
 } as const;

@@ -20,8 +20,8 @@ export default async function ApplicationsPage() {
       <div className="space-y-6">
         <div className="flex flex-col gap-4 mobile:flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-900 mobile:text-2xl">Applications</h1>
-            <p className="mt-0.5 text-sm text-gray-400 mobile:text-base">
+            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 mobile:text-2xl">Applications</h1>
+            <p className="mt-0.5 text-sm text-gray-400 dark:text-gray-500 mobile:text-base">
               {applications?.length || 0} application{applications?.length !== 1 ? "s" : ""}
             </p>
           </div>

@@ -13,16 +13,16 @@ export default async function NewApplicationPage() {
     <AppShell email={user.email || ""}>
       <div className="space-y-6">
         <div className="flex items-center gap-2 text-sm mobile:text-base">
-          <Link href={ROUTES.applications} className="text-gray-400 transition hover:text-gray-700">
+          <Link href={ROUTES.applications} className="text-gray-400 dark:text-gray-500 transition hover:text-gray-700 dark:hover:text-gray-300">
             Applications
           </Link>
-          <span className="text-gray-300">/</span>
-          <span className="font-medium text-gray-700">New</span>
+          <span className="text-gray-300 dark:text-gray-600">/</span>
+          <span className="font-medium text-gray-700 dark:text-gray-300">New</span>
         </div>
 
         <div>
-          <h1 className="text-xl font-bold text-gray-900 mobile:text-2xl">Add Application</h1>
-          <p className="mt-0.5 text-sm text-gray-400 mobile:text-base">
+          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 mobile:text-2xl">Add Application</h1>
+          <p className="mt-0.5 text-sm text-gray-400 dark:text-gray-500 mobile:text-base">
             Track a new job application
           </p>
         </div>

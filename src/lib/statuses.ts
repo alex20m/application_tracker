@@ -48,22 +48,23 @@ const DEPTH_ORDER: Record<number, ApplicationStatus[]> = {
 
 export const STATUS_THEME: Record<
   ApplicationStatus,
-  { dot: string; border: string; badge: string; sankey: string }
+  { dot: string; border: string; badge: string; sankey: string; sankeyDark: string }
 > = {
-  [STATUS.wishlist]:   { dot: "bg-slate-400",   border: "bg-slate-300",   badge: "bg-slate-100 text-slate-600",    sankey: "#94a3b8" },
-  [STATUS.no_answer]:  { dot: "bg-blue-500",    border: "bg-blue-400",    badge: "bg-blue-50 text-blue-700",       sankey: "#818cf8" },
-  [STATUS.cancelled]:  { dot: "bg-gray-400",    border: "bg-gray-300",    badge: "bg-gray-100 text-gray-500",      sankey: "#9ca3af" },
-  [STATUS.withdrew]:   { dot: "bg-gray-400",    border: "bg-gray-300",    badge: "bg-gray-100 text-gray-600",      sankey: "#94a3b8" },
-  [STATUS.rejected]:   { dot: "bg-red-500",     border: "bg-red-400",     badge: "bg-red-50 text-red-700",         sankey: "#f87171" },
-  [STATUS.interviews]: { dot: "bg-violet-500",  border: "bg-violet-500",  badge: "bg-violet-50 text-violet-700",   sankey: "#a78bfa" },
-  [STATUS.no_offer]:   { dot: "bg-orange-400",  border: "bg-orange-400",  badge: "bg-orange-50 text-orange-700",   sankey: "#fb923c" },
-  [STATUS.offer]:      { dot: "bg-emerald-500", border: "bg-emerald-500", badge: "bg-emerald-50 text-emerald-700", sankey: "#34d399" },
-  [STATUS.accepted]:   { dot: "bg-green-500",   border: "bg-green-500",   badge: "bg-green-50 text-green-700",     sankey: "#22c55e" },
-  [STATUS.declined]:   { dot: "bg-amber-400",   border: "bg-amber-400",   badge: "bg-amber-50 text-amber-700",     sankey: "#fbbf24" },
+  [STATUS.wishlist]:   { dot: "bg-slate-400",   border: "bg-slate-300",   badge: "bg-slate-100 text-slate-600 dark:bg-slate-500/20 dark:text-slate-300",       sankey: "#94a3b8", sankeyDark: "#94a3b8" },
+  [STATUS.no_answer]:  { dot: "bg-blue-500",    border: "bg-blue-400",    badge: "bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300",             sankey: "#818cf8", sankeyDark: "#93c5fd" },
+  [STATUS.cancelled]:  { dot: "bg-gray-400",    border: "bg-gray-300",    badge: "bg-gray-100 text-gray-500 dark:bg-gray-500/20 dark:text-gray-400",            sankey: "#9ca3af", sankeyDark: "#9ca3af" },
+  [STATUS.withdrew]:   { dot: "bg-gray-400",    border: "bg-gray-300",    badge: "bg-gray-100 text-gray-600 dark:bg-gray-500/20 dark:text-gray-400",            sankey: "#94a3b8", sankeyDark: "#94a3b8" },
+  [STATUS.rejected]:   { dot: "bg-red-500",     border: "bg-red-400",     badge: "bg-red-50 text-red-700 dark:bg-red-500/15 dark:text-red-300",                 sankey: "#f87171", sankeyDark: "#fca5a5" },
+  [STATUS.interviews]: { dot: "bg-violet-500",  border: "bg-violet-500",  badge: "bg-violet-50 text-violet-700 dark:bg-violet-500/15 dark:text-violet-300",     sankey: "#a78bfa", sankeyDark: "#c4b5fd" },
+  [STATUS.no_offer]:   { dot: "bg-orange-400",  border: "bg-orange-400",  badge: "bg-orange-50 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300",     sankey: "#fb923c", sankeyDark: "#fdba74" },
+  [STATUS.offer]:      { dot: "bg-emerald-500", border: "bg-emerald-500", badge: "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300", sankey: "#34d399", sankeyDark: "#6ee7b7" },
+  [STATUS.accepted]:   { dot: "bg-green-500",   border: "bg-green-500",   badge: "bg-green-50 text-green-700 dark:bg-green-500/15 dark:text-green-300",         sankey: "#22c55e", sankeyDark: "#86efac" },
+  [STATUS.declined]:   { dot: "bg-amber-400",   border: "bg-amber-400",   badge: "bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",         sankey: "#fbbf24", sankeyDark: "#fcd34d" },
 };
 
 export const SANKEY_ROOT = "applications";
 export const SANKEY_ROOT_COLOR = "#60a5fa";
+export const SANKEY_ROOT_COLOR_DARK = "#93c5fd";
 export const SANKEY_ROOT_LABEL = "Applications";
 
 export function getStatusRankForDepth(status: ApplicationStatus, depth: number): number {
