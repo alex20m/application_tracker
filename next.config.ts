@@ -1,5 +1,16 @@
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV === "development";
+
+const connectSrc = [
+  "'self'",
+  "https://*.supabase.co",
+  "wss://*.supabase.co",
+  ...(isDev
+    ? ["http://127.0.0.1:54321", "ws://127.0.0.1:54321", "http://localhost:54321", "ws://localhost:54321"]
+    : []),
+].join(" ");
+
 const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
   { key: "X-Content-Type-Options", value: "nosniff" },
@@ -13,7 +24,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob:",
       "font-src 'self' data:",
-      "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+      `connect-src ${connectSrc}`,
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
