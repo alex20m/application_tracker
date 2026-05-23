@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTheme } from "next-themes";
 import { sankey, sankeyLinkHorizontal, sankeyLeft } from "d3-sankey";
 import type { SankeyNode, SankeyLink, SankeyLinkMinimal } from "d3-sankey";
 import type { SankeyData } from "@/lib/types";
@@ -9,6 +10,7 @@ import {
   STATUS_THEME,
   SANKEY_ROOT,
   SANKEY_ROOT_COLOR,
+  SANKEY_ROOT_COLOR_DARK,
   SANKEY_ROOT_LABEL,
   getStatusRankForDepth,
   type ApplicationStatus,
@@ -31,15 +33,17 @@ type LayoutLink = SankeyLink<NodeDatum, LinkDatum> & {
 type LayoutGraph = { nodes: LayoutNode[]; links: LayoutLink[] };
 
 const NODE_WIDTH = 16;
-const CHART_FRAME = "rounded-xl border border-slate-200 bg-white p-4 shadow-sm h-[500px] mobile:h-[360px]";
+const CHART_FRAME = "rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 shadow-sm h-[500px] mobile:h-[360px]";
 
 // Module-level typed path generator — avoids an `any` cast in the render.
 type LinkForPath = SankeyLinkMinimal<SankeyNode<NodeDatum, LinkDatum>, LinkDatum>;
 const sankeyPath = sankeyLinkHorizontal<NodeDatum, LinkDatum>();
 
-function nodeColor(name: string): string {
-  if (name === SANKEY_ROOT) return SANKEY_ROOT_COLOR;
-  return STATUS_THEME[name as ApplicationStatus]?.sankey ?? "#6366f1";
+function nodeColor(name: string, dark: boolean): string {
+  if (name === SANKEY_ROOT) return dark ? SANKEY_ROOT_COLOR_DARK : SANKEY_ROOT_COLOR;
+  const theme = STATUS_THEME[name as ApplicationStatus];
+  if (!theme) return dark ? "#818cf8" : "#6366f1";
+  return dark ? theme.sankeyDark : theme.sankey;
 }
 
 function nodeLabel(name: string): string {
@@ -51,7 +55,7 @@ function nodeLabel(name: string): string {
 
 function EmptySankey() {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-8 shadow-sm text-center text-sm text-slate-500">
+    <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-8 shadow-sm text-center text-sm text-slate-500 dark:text-slate-400">
       No applications yet. Create an application to see the flow.
     </div>
   );
@@ -68,11 +72,11 @@ function SingleNodeSankey({
     <div className={CHART_FRAME}>
       <div ref={containerRef} className="relative w-full h-full flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-flex items-center gap-3 rounded-xl border border-slate-300 bg-indigo-50 px-6 py-4">
-            <div className="w-4 h-16 rounded bg-indigo-500" />
+          <div className="inline-flex items-center gap-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-indigo-50 dark:bg-indigo-500/10 px-6 py-4">
+            <div className="w-4 h-16 rounded bg-indigo-500 dark:bg-indigo-400" />
             <div className="text-left">
-              <div className="text-sm font-semibold text-slate-900">{SANKEY_ROOT_LABEL}</div>
-              <div className="text-xs text-slate-600 mt-1">
+              <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{SANKEY_ROOT_LABEL}</div>
+              <div className="text-xs text-slate-600 dark:text-slate-400 mt-1">
                 {node.name === SANKEY_ROOT ? "No transitions yet" : ""}
               </div>
             </div>
@@ -88,11 +92,13 @@ function SankeyNodeShape({
   graph,
   width,
   isMobile,
+  dark,
 }: {
   node: LayoutNode;
   graph: LayoutGraph;
   width: number;
   isMobile: boolean;
+  dark: boolean;
 }) {
   const h = Math.max(node.y1 - node.y0, 1);
   const label = nodeLabel(node.name);
@@ -121,7 +127,7 @@ function SankeyNodeShape({
         width={node.x1 - node.x0}
         height={h}
         rx={3}
-        fill={nodeColor(node.name)}
+        fill={nodeColor(node.name, dark)}
         fillOpacity={0.9}
       />
       <text
@@ -129,7 +135,7 @@ function SankeyNodeShape({
         y={node.y0 + h / 2 - 6}
         textAnchor={anchor}
         fontSize={isMobile ? 10 : 12}
-        fill="#1e293b"
+        fill="var(--foreground)"
         fontWeight={600}
       >
         {label}
@@ -139,7 +145,8 @@ function SankeyNodeShape({
         y={node.y0 + h / 2 + 9}
         textAnchor={anchor}
         fontSize={isMobile ? 9 : 11}
-        fill="#64748b"
+        fill="var(--foreground)"
+        fillOpacity={0.55}
       >
         {sub}
       </text>
@@ -152,11 +159,13 @@ function SankeyDiagram({
   dims,
   containerRef,
   isMobile,
+  dark,
 }: {
   data: SankeyData;
   dims: { w: number; h: number };
   containerRef: React.RefObject<HTMLDivElement | null>;
   isMobile: boolean;
+  dark: boolean;
 }) {
   const { w: width, h: height } = dims;
   const margin = isMobile ? 60 : 120;
@@ -193,14 +202,14 @@ function SankeyDiagram({
               key={i}
               d={sankeyPath(link as unknown as LinkForPath) || ""}
               fill="none"
-              stroke={nodeColor(link.source.name)}
+              stroke={nodeColor(link.source.name, dark)}
               strokeOpacity={0.4}
               strokeWidth={Math.max(2, link.width)}
             />
           ))}
 
           {graph.nodes.map((node, i) => (
-            <SankeyNodeShape key={i} node={node} graph={graph} width={width} isMobile={isMobile} />
+            <SankeyNodeShape key={i} node={node} graph={graph} width={width} isMobile={isMobile} dark={dark} />
           ))}
         </svg>
       </div>
@@ -214,6 +223,7 @@ type SankeyChartProps = { data: SankeyData };
 
 export function SankeyChart({ data }: SankeyChartProps) {
   const isMobile = useIsMobile();
+  const { resolvedTheme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState<{ w: number; h: number } | null>(null);
 
@@ -227,6 +237,8 @@ export function SankeyChart({ data }: SankeyChartProps) {
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
+
+  const dark = resolvedTheme === "dark";
 
   if (!data.nodes.length) {
     return <EmptySankey />;
@@ -242,5 +254,5 @@ export function SankeyChart({ data }: SankeyChartProps) {
     return <SingleNodeSankey node={data.nodes[0]} containerRef={containerRef} />;
   }
 
-  return <SankeyDiagram data={data} dims={dims} containerRef={containerRef} isMobile={isMobile} />;
+  return <SankeyDiagram data={data} dims={dims} containerRef={containerRef} isMobile={isMobile} dark={dark} />;
 }
