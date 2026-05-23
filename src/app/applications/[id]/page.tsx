@@ -45,7 +45,7 @@ export default async function ApplicationDetailPage({
   return (
     <AppShell email={user.email || ""}>
       <div className="space-y-6">
-        <div className="flex items-center gap-2 text-sm">
+        <div className="flex items-center gap-2 text-sm mobile:text-base">
           <Link href={ROUTES.applications} className="text-gray-400 transition hover:text-gray-700">
             Applications
           </Link>
@@ -54,19 +54,19 @@ export default async function ApplicationDetailPage({
         </div>
 
         <div>
-          <h1 className="text-xl font-bold text-gray-900">{application.company}</h1>
-          <p className="mt-0.5 text-sm text-gray-400">{application.role}</p>
+          <h1 className="text-xl font-bold text-gray-900 mobile:text-2xl">{application.company}</h1>
+          <p className="mt-0.5 text-sm text-gray-400 mobile:text-base">{application.role}</p>
         </div>
 
         <div className={`max-w-2xl ${CARD}`}>
           <ApplicationForm action={boundAction} application={application} />
         </div>
 
-        <div className="max-w-2xl rounded-2xl border border-red-100 bg-red-50 p-5">
+        <div className="max-w-2xl rounded-2xl border border-red-100 bg-red-50 p-5 mobile:p-4">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-semibold text-gray-800">Danger zone</p>
-              <p className="mt-0.5 text-xs text-gray-500">
+              <p className="text-sm font-semibold text-gray-800 mobile:text-base">Danger zone</p>
+              <p className="mt-0.5 text-xs text-gray-500 mobile:text-sm">
                 Permanently delete this application. Cannot be undone.
               </p>
             </div>

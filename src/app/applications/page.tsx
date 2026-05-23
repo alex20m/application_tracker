@@ -18,10 +18,10 @@ export default async function ApplicationsPage() {
   return (
     <AppShell email={user.email || ""}>
       <div className="space-y-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 mobile:flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Applications</h1>
-            <p className="mt-0.5 text-sm text-gray-400">
+            <h1 className="text-xl font-bold text-gray-900 mobile:text-2xl">Applications</h1>
+            <p className="mt-0.5 text-sm text-gray-400 mobile:text-base">
               {applications?.length || 0} application{applications?.length !== 1 ? "s" : ""}
             </p>
           </div>

@@ -13,6 +13,7 @@ import {
   getStatusRankForDepth,
   type ApplicationStatus,
 } from "@/lib/statuses";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 
 type NodeDatum = { name: string };
 type LinkDatum = { value: number };
@@ -29,11 +30,8 @@ type LayoutLink = SankeyLink<NodeDatum, LinkDatum> & {
 };
 type LayoutGraph = { nodes: LayoutNode[]; links: LayoutLink[] };
 
-const MARGIN = 120;
 const NODE_WIDTH = 16;
-const NODE_PADDING = 20;
-const CHART_HEIGHT = "h-[500px]";
-const CHART_FRAME = `rounded-xl border border-slate-200 bg-white p-4 shadow-sm ${CHART_HEIGHT}`;
+const CHART_FRAME = "rounded-xl border border-slate-200 bg-white p-4 shadow-sm h-[500px] mobile:h-[360px]";
 
 // Module-level typed path generator — avoids an `any` cast in the render.
 type LinkForPath = SankeyLinkMinimal<SankeyNode<NodeDatum, LinkDatum>, LinkDatum>;
@@ -89,10 +87,12 @@ function SankeyNodeShape({
   node,
   graph,
   width,
+  isMobile,
 }: {
   node: LayoutNode;
   graph: LayoutGraph;
   width: number;
+  isMobile: boolean;
 }) {
   const h = Math.max(node.y1 - node.y0, 1);
   const label = nodeLabel(node.name);
@@ -128,7 +128,7 @@ function SankeyNodeShape({
         x={lx}
         y={node.y0 + h / 2 - 6}
         textAnchor={anchor}
-        fontSize={12}
+        fontSize={isMobile ? 10 : 12}
         fill="#1e293b"
         fontWeight={600}
       >
@@ -138,7 +138,7 @@ function SankeyNodeShape({
         x={lx}
         y={node.y0 + h / 2 + 9}
         textAnchor={anchor}
-        fontSize={11}
+        fontSize={isMobile ? 9 : 11}
         fill="#64748b"
       >
         {sub}
@@ -151,16 +151,20 @@ function SankeyDiagram({
   data,
   dims,
   containerRef,
+  isMobile,
 }: {
   data: SankeyData;
   dims: { w: number; h: number };
   containerRef: React.RefObject<HTMLDivElement | null>;
+  isMobile: boolean;
 }) {
   const { w: width, h: height } = dims;
+  const margin = isMobile ? 60 : 120;
+  const nodePadding = isMobile ? 12 : 20;
 
   const sankeyGen = sankey<NodeDatum, LinkDatum>()
     .nodeWidth(NODE_WIDTH)
-    .nodePadding(NODE_PADDING)
+    .nodePadding(nodePadding)
     .nodeAlign(sankeyLeft)
     .nodeSort((a, b) => {
       if (a.depth !== b.depth) return 0;
@@ -170,8 +174,8 @@ function SankeyDiagram({
       return a.name.localeCompare(b.name);
     })
     .extent([
-      [MARGIN, 20],
-      [width - MARGIN, height - 20],
+      [margin, 20],
+      [width - margin, height - 20],
     ]);
 
   // Cast is needed because d3-sankey types don't distinguish pre/post layout state.
@@ -196,7 +200,7 @@ function SankeyDiagram({
           ))}
 
           {graph.nodes.map((node, i) => (
-            <SankeyNodeShape key={i} node={node} graph={graph} width={width} />
+            <SankeyNodeShape key={i} node={node} graph={graph} width={width} isMobile={isMobile} />
           ))}
         </svg>
       </div>
@@ -209,6 +213,7 @@ function SankeyDiagram({
 type SankeyChartProps = { data: SankeyData };
 
 export function SankeyChart({ data }: SankeyChartProps) {
+  const isMobile = useIsMobile();
   const containerRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState<{ w: number; h: number } | null>(null);
 
@@ -237,5 +242,5 @@ export function SankeyChart({ data }: SankeyChartProps) {
     return <SingleNodeSankey node={data.nodes[0]} containerRef={containerRef} />;
   }
 
-  return <SankeyDiagram data={data} dims={dims} containerRef={containerRef} />;
+  return <SankeyDiagram data={data} dims={dims} containerRef={containerRef} isMobile={isMobile} />;
 }

@@ -17,8 +17,8 @@ export default async function SankeyPage() {
     <AppShell email={user.email || ""}>
       <div className="space-y-6">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Application Flow</h1>
-          <p className="mt-0.5 text-sm text-gray-400">
+          <h1 className="text-xl font-bold text-gray-900 mobile:text-2xl">Application Flow</h1>
+          <p className="mt-0.5 text-sm text-gray-400 mobile:text-base">
             Visualize how your applications move through different stages
           </p>
         </div>
