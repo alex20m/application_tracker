@@ -10,7 +10,6 @@ import {
   STATUS_THEME,
   SANKEY_ROOT,
   SANKEY_ROOT_COLOR,
-  SANKEY_ROOT_COLOR_DARK,
   SANKEY_ROOT_LABEL,
   getStatusRankForDepth,
   type ApplicationStatus,
@@ -39,11 +38,11 @@ const CHART_FRAME = "rounded-xl border border-slate-200 dark:border-slate-700 bg
 type LinkForPath = SankeyLinkMinimal<SankeyNode<NodeDatum, LinkDatum>, LinkDatum>;
 const sankeyPath = sankeyLinkHorizontal<NodeDatum, LinkDatum>();
 
-function nodeColor(name: string, dark: boolean): string {
-  if (name === SANKEY_ROOT) return dark ? SANKEY_ROOT_COLOR_DARK : SANKEY_ROOT_COLOR;
+function nodeColor(name: string): string {
+  if (name === SANKEY_ROOT) return SANKEY_ROOT_COLOR;
   const theme = STATUS_THEME[name as ApplicationStatus];
-  if (!theme) return dark ? "#818cf8" : "#6366f1";
-  return dark ? theme.sankeyDark : theme.sankey;
+  if (!theme) return "#6366f1";
+  return theme.sankey;
 }
 
 function nodeLabel(name: string): string {
@@ -116,9 +115,9 @@ function SankeyNodeShape({
         y={node.y0}
         width={node.x1 - node.x0}
         height={h}
-        rx={3}
-        fill={nodeColor(node.name, dark)}
-        fillOpacity={0.9}
+        rx={4}
+        fill={nodeColor(node.name)}
+        fillOpacity={1}
       />
       <text
         x={lx}
@@ -136,7 +135,7 @@ function SankeyNodeShape({
         textAnchor={anchor}
         fontSize={isMobile ? 9 : 11}
         fill="var(--foreground)"
-        fillOpacity={0.55}
+        fillOpacity={0.85}
       >
         {sub}
       </text>
@@ -189,8 +188,8 @@ function DiagramContent({
             key={i}
             d={sankeyPath(link as unknown as LinkForPath) || ""}
             fill="none"
-            stroke={nodeColor(link.source.name, dark)}
-            strokeOpacity={0.4}
+            stroke={nodeColor(link.source.name)}
+            strokeOpacity={dark ? 0.7 : 0.4}
             strokeWidth={Math.max(2, link.width)}
           />
         ))}
