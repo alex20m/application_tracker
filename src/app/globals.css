@@ -4,10 +4,7 @@
    Mirrors MOBILE_MAX_WIDTH_PX / MOBILE_MAX_HEIGHT_PX in src/lib/responsive.ts
    and useIsMobile in src/hooks/use-is-mobile.ts. Keep in sync. */
 @custom-variant mobile {
-  @media (max-width: 767px) {
-    @slot;
-  }
-  @media (max-height: 499px) {
+  @media (max-width: 767px), (max-height: 499px) {
     @slot;
   }
 }
