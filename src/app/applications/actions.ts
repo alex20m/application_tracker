@@ -21,7 +21,11 @@ export async function createApplicationAction(
   const { supabase, user } = await requireUser();
 
   const appliedOn = formData.get("applied_on") as string | null;
-  const status = (formData.get("status") as ApplicationStatus) || STATUS.no_answer;
+  const statusInput = formData.get("status");
+  const statusResult = z
+    .enum(Object.values(STATUS) as [ApplicationStatus, ...ApplicationStatus[]])
+    .safeParse(statusInput);
+  const status = statusResult.success ? statusResult.data : STATUS.no_answer;
 
   const parsed = ApplicationCreateSchema.safeParse({
     company: formData.get("company"),
