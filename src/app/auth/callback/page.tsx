@@ -1,5 +1,6 @@
-import { AuthCallback } from "./client";
+import { redirect } from "next/navigation";
+import { ROUTES } from "@/lib/env";
 
 export default function AuthCallbackPage() {
-  return <AuthCallback />;
+  redirect(ROUTES.login);
 }

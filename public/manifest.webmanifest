@@ -1,6 +1,6 @@
 {
-  "name": "Application Tracker",
-  "short_name": "App Tracker",
+  "name": "AppTrack",
+  "short_name": "AppTrack",
   "description": "Track job applications across devices with Sankey insights",
   "start_url": "/",
   "display": "standalone",

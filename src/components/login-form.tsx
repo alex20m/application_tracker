@@ -25,7 +25,7 @@ export function LoginForm({ action }: LoginFormProps) {
 
   const primaryLabel =
     authMode === "magic"
-      ? "Send Magic Link"
+      ? "Send Sign-In Link"
       : authIntent === "signup"
         ? "Create Account"
         : "Sign In";
@@ -81,7 +81,7 @@ export function LoginForm({ action }: LoginFormProps) {
           onClick={() => setAuthMode(authMode === "password" ? "magic" : "password")}
           className="cursor-pointer text-xs text-gray-400 transition hover:text-gray-700"
         >
-          Use {authMode === "password" ? "magic link" : "password"}
+          Use {authMode === "password" ? "email sign-in link" : "password"}
         </button>
         <button
           type="button"
