@@ -1,9 +1,11 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 
 import { STATUS, STATUS_NAMES, STATUS_NEXT } from "@/lib/statuses";
-import { BTN_PRIMARY, ERROR_BANNER, INPUT, LABEL } from "@/lib/ui";
+import { BTN_GHOST, BTN_PRIMARY, ERROR_BANNER, INPUT, LABEL } from "@/lib/ui";
+import { ROUTES } from "@/lib/env";
 import type { ApplicationRecord } from "@/lib/types";
 
 type ApplicationFormProps = {
@@ -119,7 +121,8 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
         />
       </div>
 
-      <div className="flex justify-end pt-1">
+      <div className="flex justify-end gap-3 pt-1">
+        <Link href={ROUTES.applications} className={BTN_GHOST}>Cancel</Link>
         <button type="submit" disabled={isPending} className={BTN_PRIMARY}>
           {isPending ? "Saving…" : "Save Application"}
         </button>
