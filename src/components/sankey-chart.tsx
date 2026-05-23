@@ -190,7 +190,7 @@ function DiagramContent({
             d={sankeyPath(link as unknown as LinkForPath) || ""}
             fill="none"
             stroke={nodeColor(link.source.name, dark)}
-            strokeOpacity={dark ? 0.6 : 0.4}
+            strokeOpacity={dark ? 0.7 : 0.4}
             strokeWidth={Math.max(2, link.width)}
           />
         ))}
