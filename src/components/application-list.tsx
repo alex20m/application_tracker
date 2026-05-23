@@ -37,7 +37,7 @@ export function ApplicationList({ applications }: ApplicationListProps) {
             {/* Left: company / role / meta — shrinks to content width on desktop */}
             <div className="min-w-0 shrink-0 mobile:w-full">
               <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate mobile:text-base">{app.company}</h3>
-              <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400 truncate mobile:text-base">{app.role}</p>
+              <p className="mt-0.5 text-sm text-gray-700 dark:text-gray-400 truncate mobile:text-base">{app.role}</p>
               <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-gray-400 dark:text-gray-500 mobile:text-sm">
                 {app.location && <span>{app.location}</span>}
                 {app.applied_on && <span>Applied {formatDate(app.applied_on)}</span>}
