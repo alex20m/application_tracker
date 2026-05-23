@@ -45,3 +45,10 @@ export const INPUT_ON_GRAY =
   "mt-1.5 block w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 transition focus:border-indigo-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100 mobile:py-3 mobile:text-base";
 
 export const LABEL = "block text-xs font-semibold uppercase tracking-wide text-gray-500 mobile:text-sm";
+
+export const GENERIC_ACTION_ERROR = "Something went wrong. Please try again.";
+
+export function sanitizeActionError(err: unknown, context: string): string {
+  console.error(`[${context}]`, err);
+  return GENERIC_ACTION_ERROR;
+}

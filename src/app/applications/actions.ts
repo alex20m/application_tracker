@@ -5,7 +5,10 @@ import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import { STATUS, STATUS_NEXT, type ApplicationStatus } from "@/lib/statuses";
 import { appendStatusEvent, revalidateApplicationViews } from "@/lib/applications";
+import { GENERIC_ACTION_ERROR, sanitizeActionError } from "@/lib/ui";
+import { ApplicationCreateSchema, ApplicationNoteSchema } from "@/lib/schemas";
 import { randomUUID } from "crypto";
+import { z } from "zod";
 import type { StatusEvent } from "@/lib/types";
 
 export async function createApplicationAction(
@@ -17,17 +20,26 @@ export async function createApplicationAction(
 }> {
   const { supabase, user } = await requireUser();
 
-  const company = formData.get("company") as string;
-  const role = formData.get("role") as string;
-  const location = (formData.get("location") as string | null)?.trim() || "";
-  const source = formData.get("source") as string | null;
   const appliedOn = formData.get("applied_on") as string | null;
-  const status = (formData.get("status") as ApplicationStatus) || STATUS.no_answer;
-  const notes = formData.get("notes") as string | null;
+  const statusInput = formData.get("status");
+  const statusResult = z
+    .enum(Object.values(STATUS) as [ApplicationStatus, ...ApplicationStatus[]])
+    .safeParse(statusInput);
+  const status = statusResult.success ? statusResult.data : STATUS.no_answer;
 
-  if (!company || !role || !location) {
-    return { success: false, error: "Company, role, and location are required" };
+  const parsed = ApplicationCreateSchema.safeParse({
+    company: formData.get("company"),
+    role: formData.get("role"),
+    location: formData.get("location"),
+    source: formData.get("source") ?? "",
+    notes: formData.get("notes") ?? "",
+  });
+
+  if (!parsed.success) {
+    return { success: false, error: "Please check your input and try again." };
   }
+
+  const { company, role, location, source, notes } = parsed.data;
 
   const now = new Date().toISOString();
   const appId = randomUUID();
@@ -50,8 +62,7 @@ export async function createApplicationAction(
   ]);
 
   if (appError) {
-    console.error("Application creation error:", appError);
-    return { success: false, error: appError.message };
+    return { success: false, error: sanitizeActionError(appError, "application:create") };
   }
 
   revalidatePath("/sankey");
@@ -67,6 +78,8 @@ export async function transitionApplicationStatusAction(
   const nextStatus = formData.get("next_status") as ApplicationStatus;
 
   if (!applicationId || !nextStatus) return;
+
+  if (!z.string().uuid().safeParse(applicationId).success) return;
 
   const { data: currentApp } = await supabase
     .from("applications")
@@ -86,7 +99,7 @@ export async function transitionApplicationStatusAction(
     (currentApp.events as StatusEvent[]) ?? []
   );
 
-  await supabase
+  const { error } = await supabase
     .from("applications")
     .update({
       status: nextStatus,
@@ -96,6 +109,8 @@ export async function transitionApplicationStatusAction(
     .eq("id", applicationId)
     .eq("user_id", user.id);
 
+  if (error) console.error("[application:transition]", error);
+
   revalidateApplicationViews();
 }
 
@@ -103,14 +118,21 @@ export async function updateApplicationNoteAction(formData: FormData): Promise<v
   const { supabase, user } = await requireUser();
 
   const applicationId = formData.get("application_id") as string;
-  const notes = (formData.get("notes") as string | null) || null;
   if (!applicationId) return;
+  if (!z.string().uuid().safeParse(applicationId).success) return;
 
-  await supabase
+  const parsed = ApplicationNoteSchema.safeParse({
+    notes: formData.get("notes") ?? "",
+  });
+  if (!parsed.success) return;
+
+  const { error } = await supabase
     .from("applications")
-    .update({ notes, updated_at: new Date().toISOString() })
+    .update({ notes: parsed.data.notes || null, updated_at: new Date().toISOString() })
     .eq("id", applicationId)
     .eq("user_id", user.id);
+
+  if (error) console.error("[application:update-note]", error);
 
   revalidatePath("/applications");
 }
@@ -119,12 +141,15 @@ export async function deleteApplicationFromListAction(formData: FormData): Promi
   const { supabase, user } = await requireUser();
   const applicationId = formData.get("application_id") as string;
   if (!applicationId) return;
+  if (!z.string().uuid().safeParse(applicationId).success) return;
 
-  await supabase
+  const { error } = await supabase
     .from("applications")
     .delete()
     .eq("id", applicationId)
     .eq("user_id", user.id);
+
+  if (error) console.error("[application:delete-from-list]", error);
 
   revalidateApplicationViews();
 }
@@ -132,10 +157,12 @@ export async function deleteApplicationFromListAction(formData: FormData): Promi
 export async function deleteAllApplicationsAction(): Promise<void> {
   const { supabase, user } = await requireUser();
 
-  await supabase
+  const { error } = await supabase
     .from("applications")
     .delete()
     .eq("user_id", user.id);
+
+  if (error) console.error("[application:delete-all]", error);
 
   revalidateApplicationViews();
 }
