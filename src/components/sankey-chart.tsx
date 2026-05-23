@@ -136,7 +136,7 @@ function SankeyNodeShape({
         textAnchor={anchor}
         fontSize={isMobile ? 9 : 11}
         fill="var(--foreground)"
-        fillOpacity={0.65}
+        fillOpacity={dark ? 0.85 : 0.65}
       >
         {sub}
       </text>
