@@ -50,16 +50,16 @@ export const STATUS_THEME: Record<
   ApplicationStatus,
   { dot: string; border: string; badge: string; sankey: string; sankeyDark: string }
 > = {
-  [STATUS.wishlist]:   { dot: "bg-slate-400",   border: "bg-slate-400",   badge: "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-100",         sankey: "#94a3b8", sankeyDark: "#94a3b8" },
-  [STATUS.no_answer]:  { dot: "bg-sky-500",     border: "bg-sky-500",     badge: "bg-sky-100 text-sky-800 dark:bg-sky-800 dark:text-sky-100",                   sankey: "#0ea5e9", sankeyDark: "#38bdf8" },
-  [STATUS.cancelled]:  { dot: "bg-gray-500",    border: "bg-gray-400",    badge: "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-200",               sankey: "#9ca3af", sankeyDark: "#9ca3af" },
-  [STATUS.withdrew]:   { dot: "bg-gray-500",    border: "bg-gray-400",    badge: "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-200",               sankey: "#94a3b8", sankeyDark: "#94a3b8" },
-  [STATUS.rejected]:   { dot: "bg-red-500",     border: "bg-red-500",     badge: "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100",                   sankey: "#ef4444", sankeyDark: "#f87171" },
-  [STATUS.interviews]: { dot: "bg-violet-500",  border: "bg-violet-500",  badge: "bg-violet-100 text-violet-800 dark:bg-violet-800 dark:text-violet-100",       sankey: "#8b5cf6", sankeyDark: "#a78bfa" },
-  [STATUS.no_offer]:   { dot: "bg-rose-500",    border: "bg-rose-500",    badge: "bg-rose-100 text-rose-800 dark:bg-rose-800 dark:text-rose-100",               sankey: "#f43f5e", sankeyDark: "#fb7185" },
-  [STATUS.offer]:      { dot: "bg-green-500",   border: "bg-green-500",   badge: "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100",           sankey: "#22c55e", sankeyDark: "#4ade80" },
-  [STATUS.accepted]:   { dot: "bg-emerald-500", border: "bg-emerald-500", badge: "bg-emerald-100 text-emerald-800 dark:bg-emerald-800 dark:text-emerald-100",   sankey: "#10b981", sankeyDark: "#34d399" },
-  [STATUS.declined]:   { dot: "bg-amber-500",   border: "bg-amber-500",   badge: "bg-amber-100 text-amber-800 dark:bg-amber-800 dark:text-amber-100",           sankey: "#f59e0b", sankeyDark: "#fbbf24" },
+  [STATUS.wishlist]:   { dot: "bg-slate-400",   border: "bg-slate-400",   badge: "bg-slate-100 text-slate-700 ring-1 ring-inset ring-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:ring-slate-700",           sankey: "#94a3b8", sankeyDark: "#cbd5e1" },
+  [STATUS.no_answer]:  { dot: "bg-sky-500",     border: "bg-sky-500",     badge: "bg-sky-100 text-sky-800 ring-1 ring-inset ring-sky-200 dark:bg-sky-800 dark:text-sky-100 dark:ring-sky-700",                   sankey: "#0ea5e9", sankeyDark: "#38bdf8" },
+  [STATUS.cancelled]:  { dot: "bg-zinc-500",    border: "bg-zinc-400",    badge: "bg-zinc-100 text-zinc-700 ring-1 ring-inset ring-zinc-200 dark:bg-zinc-800 dark:text-zinc-100 dark:ring-zinc-700",             sankey: "#a1a1aa", sankeyDark: "#d4d4d8" },
+  [STATUS.withdrew]:   { dot: "bg-stone-500",   border: "bg-stone-400",   badge: "bg-stone-100 text-stone-700 ring-1 ring-inset ring-stone-200 dark:bg-stone-800 dark:text-stone-100 dark:ring-stone-700",       sankey: "#a8a29e", sankeyDark: "#d6d3d1" },
+  [STATUS.rejected]:   { dot: "bg-red-500",     border: "bg-red-500",     badge: "bg-red-100 text-red-800 ring-1 ring-inset ring-red-200 dark:bg-red-800 dark:text-red-100 dark:ring-red-700",                   sankey: "#ef4444", sankeyDark: "#f87171" },
+  [STATUS.interviews]: { dot: "bg-violet-500",  border: "bg-violet-500",  badge: "bg-violet-100 text-violet-800 ring-1 ring-inset ring-violet-200 dark:bg-violet-800 dark:text-violet-100 dark:ring-violet-700", sankey: "#8b5cf6", sankeyDark: "#a78bfa" },
+  [STATUS.no_offer]:   { dot: "bg-rose-500",    border: "bg-rose-500",    badge: "bg-rose-100 text-rose-800 ring-1 ring-inset ring-rose-200 dark:bg-rose-800 dark:text-rose-100 dark:ring-rose-700",             sankey: "#f43f5e", sankeyDark: "#fb7185" },
+  [STATUS.offer]:      { dot: "bg-green-500",   border: "bg-green-500",   badge: "bg-green-100 text-green-800 ring-1 ring-inset ring-green-200 dark:bg-green-800 dark:text-green-100 dark:ring-green-700",       sankey: "#22c55e", sankeyDark: "#4ade80" },
+  [STATUS.accepted]:   { dot: "bg-emerald-500", border: "bg-emerald-500", badge: "bg-emerald-100 text-emerald-800 ring-1 ring-inset ring-emerald-200 dark:bg-emerald-800 dark:text-emerald-100 dark:ring-emerald-700", sankey: "#10b981", sankeyDark: "#34d399" },
+  [STATUS.declined]:   { dot: "bg-amber-500",   border: "bg-amber-500",   badge: "bg-amber-100 text-amber-800 ring-1 ring-inset ring-amber-200 dark:bg-amber-800 dark:text-amber-100 dark:ring-amber-700",       sankey: "#f59e0b", sankeyDark: "#fbbf24" },
 };
 
 export const SANKEY_ROOT = "applications";

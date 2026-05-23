@@ -116,9 +116,9 @@ function SankeyNodeShape({
         y={node.y0}
         width={node.x1 - node.x0}
         height={h}
-        rx={3}
+        rx={4}
         fill={nodeColor(node.name, dark)}
-        fillOpacity={dark ? 1 : 0.9}
+        fillOpacity={1}
       />
       <text
         x={lx}
@@ -136,7 +136,7 @@ function SankeyNodeShape({
         textAnchor={anchor}
         fontSize={isMobile ? 9 : 11}
         fill="var(--foreground)"
-        fillOpacity={0.55}
+        fillOpacity={0.65}
       >
         {sub}
       </text>
