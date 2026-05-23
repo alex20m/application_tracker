@@ -24,7 +24,7 @@ export function ApplicationList({ applications }: ApplicationListProps) {
       {applications.map((app) => (
         <div
           key={app.id}
-          className="group flex overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm transition hover:shadow-md hover:border-gray-300 dark:hover:bg-gray-800 dark:hover:border-gray-500 dark:hover:shadow-lg dark:hover:shadow-black/40"
+          className="group flex overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm transition hover:bg-gray-50 hover:border-gray-400 hover:shadow-lg hover:shadow-gray-200/80 dark:hover:bg-gray-800 dark:hover:border-gray-500 dark:hover:shadow-lg dark:hover:shadow-black/40"
         >
           {/* Status color strip */}
           <div className={`w-1 flex-shrink-0 ${STATUS_THEME[app.status].border}`} />
