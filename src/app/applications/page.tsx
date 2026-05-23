@@ -3,7 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { ROUTES } from "@/lib/env";
 import { BTN_PRIMARY_LINK } from "@/lib/ui";
 import { AppShell } from "@/components/app-shell";
-import { ApplicationList } from "@/components/application-list";
+import { ApplicationsSearch } from "@/components/applications-search";
 import { DeleteAllApplicationsButton } from "@/components/delete-all-applications-button";
 
 export default async function ApplicationsPage() {
@@ -33,7 +33,7 @@ export default async function ApplicationsPage() {
           </div>
         </div>
 
-        <ApplicationList applications={applications || []} />
+        <ApplicationsSearch applications={applications || []} />
       </div>
     </AppShell>
   );
