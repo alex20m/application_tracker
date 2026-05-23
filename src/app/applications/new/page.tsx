@@ -12,7 +12,7 @@ export default async function NewApplicationPage() {
   return (
     <AppShell email={user.email || ""}>
       <div className="space-y-6">
-        <div className="flex items-center gap-2 text-sm">
+        <div className="flex items-center gap-2 text-sm mobile:text-base">
           <Link href={ROUTES.applications} className="text-gray-400 transition hover:text-gray-700">
             Applications
           </Link>
@@ -21,8 +21,8 @@ export default async function NewApplicationPage() {
         </div>
 
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Add Application</h1>
-          <p className="mt-0.5 text-sm text-gray-400">
+          <h1 className="text-xl font-bold text-gray-900 mobile:text-2xl">Add Application</h1>
+          <p className="mt-0.5 text-sm text-gray-400 mobile:text-base">
             Track a new job application
           </p>
         </div>

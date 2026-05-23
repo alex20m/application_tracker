@@ -26,7 +26,7 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
         <div className={ERROR_BANNER}>{state.error}</div>
       )}
 
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid gap-5 grid-cols-2 mobile:grid-cols-1">
         <div>
           <label className={LABEL}>Company</label>
           <input
