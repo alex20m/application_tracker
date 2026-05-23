@@ -63,14 +63,16 @@ export default async function ApplicationDetailPage({
         </div>
 
         <div className="max-w-2xl rounded-2xl border border-red-100 dark:border-red-500/20 bg-red-50 dark:bg-red-500/10 p-5 mobile:p-4">
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <div>
               <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 mobile:text-base">Danger zone</p>
               <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400 mobile:text-sm">
                 Permanently delete this application. Cannot be undone.
               </p>
             </div>
-            <DeleteApplicationButton applicationId={id} />
+            <div className="flex-shrink-0 mobile:w-full">
+              <DeleteApplicationButton applicationId={id} />
+            </div>
           </div>
         </div>
       </div>

@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import { STATUS, STATUS_NEXT, type ApplicationStatus } from "@/lib/statuses";
 import { appendStatusEvent, revalidateApplicationViews } from "@/lib/applications";
-import { GENERIC_ACTION_ERROR, sanitizeActionError } from "@/lib/ui";
+import { sanitizeActionError } from "@/lib/ui";
 import { ApplicationCreateSchema, ApplicationNoteSchema } from "@/lib/schemas";
 import { randomUUID } from "crypto";
 import { z } from "zod";
@@ -154,7 +154,7 @@ export async function deleteApplicationFromListAction(formData: FormData): Promi
   revalidateApplicationViews();
 }
 
-export async function deleteAllApplicationsAction(): Promise<void> {
+export async function deleteAllApplicationsAction(): Promise<{ success: boolean; error?: string }> {
   const { supabase, user } = await requireUser();
 
   const { error } = await supabase
@@ -162,7 +162,8 @@ export async function deleteAllApplicationsAction(): Promise<void> {
     .delete()
     .eq("user_id", user.id);
 
-  if (error) console.error("[application:delete-all]", error);
+  if (error) return { success: false, error: sanitizeActionError(error, "application:delete-all") };
 
   revalidateApplicationViews();
+  return { success: true };
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { useTheme } from "next-themes";
 import { sankey, sankeyLinkHorizontal, sankeyLeft } from "d3-sankey";
 import type { SankeyNode, SankeyLink, SankeyLinkMinimal } from "d3-sankey";
@@ -51,35 +51,25 @@ function nodeLabel(name: string): string {
   return STATUS_NAMES[name as ApplicationStatus] ?? name;
 }
 
-// --- Sub-components ---
+// --- Inner content components (no outer frame — rendered inside the stable CHART_FRAME div) ---
 
-function EmptySankey() {
+function EmptyContent() {
   return (
-    <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-8 shadow-sm text-center text-sm text-slate-500 dark:text-slate-400">
+    <div className="flex h-full items-center justify-center text-center text-sm text-slate-500 dark:text-slate-400">
       No applications yet. Create an application to see the flow.
     </div>
   );
 }
 
-function SingleNodeSankey({
-  node,
-  containerRef,
-}: {
-  node: NodeDatum;
-  containerRef: React.RefObject<HTMLDivElement | null>;
-}) {
+function SingleNodeContent({ node }: { node: NodeDatum }) {
   return (
-    <div className={CHART_FRAME}>
-      <div ref={containerRef} className="relative w-full h-full flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-flex items-center gap-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-indigo-50 dark:bg-indigo-500/10 px-6 py-4">
-            <div className="w-4 h-16 rounded bg-indigo-500 dark:bg-indigo-400" />
-            <div className="text-left">
-              <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{SANKEY_ROOT_LABEL}</div>
-              <div className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                {node.name === SANKEY_ROOT ? "No transitions yet" : ""}
-              </div>
-            </div>
+    <div className="flex h-full items-center justify-center">
+      <div className="inline-flex items-center gap-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-indigo-50 dark:bg-indigo-500/10 px-6 py-4">
+        <div className="w-4 h-16 rounded bg-indigo-500 dark:bg-indigo-400" />
+        <div className="text-left">
+          <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{SANKEY_ROOT_LABEL}</div>
+          <div className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+            {node.name === SANKEY_ROOT ? "No transitions yet" : ""}
           </div>
         </div>
       </div>
@@ -154,16 +144,14 @@ function SankeyNodeShape({
   );
 }
 
-function SankeyDiagram({
+function DiagramContent({
   data,
   dims,
-  containerRef,
   isMobile,
   dark,
 }: {
   data: SankeyData;
   dims: { w: number; h: number };
-  containerRef: React.RefObject<HTMLDivElement | null>;
   isMobile: boolean;
   dark: boolean;
 }) {
@@ -194,25 +182,23 @@ function SankeyDiagram({
   }) as unknown as LayoutGraph;
 
   return (
-    <div className={CHART_FRAME}>
-      <div ref={containerRef} className="relative w-full h-full">
-        <svg width={width} height={height}>
-          {graph.links.map((link, i) => (
-            <path
-              key={i}
-              d={sankeyPath(link as unknown as LinkForPath) || ""}
-              fill="none"
-              stroke={nodeColor(link.source.name, dark)}
-              strokeOpacity={0.4}
-              strokeWidth={Math.max(2, link.width)}
-            />
-          ))}
+    <div className="relative w-full h-full">
+      <svg width={width} height={height}>
+        {graph.links.map((link, i) => (
+          <path
+            key={i}
+            d={sankeyPath(link as unknown as LinkForPath) || ""}
+            fill="none"
+            stroke={nodeColor(link.source.name, dark)}
+            strokeOpacity={0.4}
+            strokeWidth={Math.max(2, link.width)}
+          />
+        ))}
 
-          {graph.nodes.map((node, i) => (
-            <SankeyNodeShape key={i} node={node} graph={graph} width={width} isMobile={isMobile} dark={dark} />
-          ))}
-        </svg>
-      </div>
+        {graph.nodes.map((node, i) => (
+          <SankeyNodeShape key={i} node={node} graph={graph} width={width} isMobile={isMobile} dark={dark} />
+        ))}
+      </svg>
     </div>
   );
 }
@@ -224,11 +210,13 @@ type SankeyChartProps = { data: SankeyData };
 export function SankeyChart({ data }: SankeyChartProps) {
   const isMobile = useIsMobile();
   const { resolvedTheme } = useTheme();
-  const containerRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState<{ w: number; h: number } | null>(null);
+  const dark = resolvedTheme === "dark";
 
-  useEffect(() => {
-    const el = containerRef.current;
+  // Callback ref (React 19): attaches ResizeObserver when the container mounts,
+  // returns cleanup that disconnects it. The outer CHART_FRAME div is always
+  // rendered so this ref fires exactly once regardless of data/dims state.
+  const containerRef = useCallback((el: HTMLDivElement | null) => {
     if (!el) return;
     const ro = new ResizeObserver(([e]) => {
       const { width, height } = e.contentRect;
@@ -238,21 +226,20 @@ export function SankeyChart({ data }: SankeyChartProps) {
     return () => ro.disconnect();
   }, []);
 
-  const dark = resolvedTheme === "dark";
-
+  let content: React.ReactNode;
   if (!data.nodes.length) {
-    return <EmptySankey />;
+    content = <EmptyContent />;
+  } else if (!dims) {
+    content = null;
+  } else if (!data.links.length && data.nodes.length === 1) {
+    content = <SingleNodeContent node={data.nodes[0]} />;
+  } else {
+    content = <DiagramContent data={data} dims={dims} isMobile={isMobile} dark={dark} />;
   }
 
-  if (!dims) {
-    return (
-      <div className={CHART_FRAME} ref={containerRef} />
-    );
-  }
-
-  if (!data.links.length && data.nodes.length === 1) {
-    return <SingleNodeSankey node={data.nodes[0]} containerRef={containerRef} />;
-  }
-
-  return <SankeyDiagram data={data} dims={dims} containerRef={containerRef} isMobile={isMobile} dark={dark} />;
+  return (
+    <div className={CHART_FRAME} ref={containerRef}>
+      {content}
+    </div>
+  );
 }
