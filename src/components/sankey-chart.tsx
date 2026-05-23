@@ -118,7 +118,7 @@ function SankeyNodeShape({
         height={h}
         rx={3}
         fill={nodeColor(node.name, dark)}
-        fillOpacity={0.9}
+        fillOpacity={dark ? 1 : 0.9}
       />
       <text
         x={lx}
@@ -190,7 +190,7 @@ function DiagramContent({
             d={sankeyPath(link as unknown as LinkForPath) || ""}
             fill="none"
             stroke={nodeColor(link.source.name, dark)}
-            strokeOpacity={0.4}
+            strokeOpacity={dark ? 0.6 : 0.4}
             strokeWidth={Math.max(2, link.width)}
           />
         ))}
