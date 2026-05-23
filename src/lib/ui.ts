@@ -17,10 +17,10 @@ export const BTN_PRIMARY =
   "cursor-pointer rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 mobile:min-h-11 mobile:px-4 mobile:py-2.5 mobile:text-base";
 
 export const BTN_PRIMARY_LINK =
-  "rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 mobile:min-h-11 mobile:px-4 mobile:py-2.5 mobile:text-base";
+  "inline-flex items-center justify-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 mobile:min-h-11 mobile:px-4 mobile:py-2.5 mobile:text-base";
 
 export const BTN_GHOST =
-  "cursor-pointer rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 mobile:min-h-11 mobile:px-3 mobile:py-2.5 mobile:text-base";
+  "inline-flex items-center justify-center cursor-pointer rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 mobile:min-h-11 mobile:px-3 mobile:py-2.5 mobile:text-base";
 
 // ─── Cards & containers ───────────────────────────────────────────────────────
 
