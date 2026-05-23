@@ -39,11 +39,11 @@ const CHART_FRAME = "rounded-xl border border-slate-200 dark:border-slate-700 bg
 type LinkForPath = SankeyLinkMinimal<SankeyNode<NodeDatum, LinkDatum>, LinkDatum>;
 const sankeyPath = sankeyLinkHorizontal<NodeDatum, LinkDatum>();
 
-function nodeColor(name: string, dark: boolean): string {
-  if (name === SANKEY_ROOT) return dark ? SANKEY_ROOT_COLOR_DARK : SANKEY_ROOT_COLOR;
+function nodeColor(name: string): string {
+  if (name === SANKEY_ROOT) return SANKEY_ROOT_COLOR;
   const theme = STATUS_THEME[name as ApplicationStatus];
-  if (!theme) return dark ? "#818cf8" : "#6366f1";
-  return dark ? theme.sankeyDark : theme.sankey;
+  if (!theme) return "#6366f1";
+  return theme.sankey;
 }
 
 function nodeLabel(name: string): string {
@@ -117,7 +117,7 @@ function SankeyNodeShape({
         width={node.x1 - node.x0}
         height={h}
         rx={4}
-        fill={nodeColor(node.name, dark)}
+        fill={nodeColor(node.name)}
         fillOpacity={1}
       />
       <text
@@ -189,7 +189,7 @@ function DiagramContent({
             key={i}
             d={sankeyPath(link as unknown as LinkForPath) || ""}
             fill="none"
-            stroke={nodeColor(link.source.name, dark)}
+            stroke={nodeColor(link.source.name)}
             strokeOpacity={dark ? 0.7 : 0.4}
             strokeWidth={Math.max(2, link.width)}
           />
