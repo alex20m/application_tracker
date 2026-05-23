@@ -10,7 +10,6 @@ import {
   STATUS_THEME,
   SANKEY_ROOT,
   SANKEY_ROOT_COLOR,
-  SANKEY_ROOT_COLOR_DARK,
   SANKEY_ROOT_LABEL,
   getStatusRankForDepth,
   type ApplicationStatus,
