@@ -2,22 +2,23 @@
 
 ## Core Principle
 
-All work must be isolated, reproducible, and branch-based.
+All work must be isolated, reproducible, and branch-based:
 
 - Do not commit directly to `main`.
-- Do all changes in dedicated branches/worktrees.
+- Do all work in a dedicated branch/worktree.
 - Keep changes scoped to one task.
 
 ---
 
-## 1. Worktrees
+## Worktrees
 
-- Always use Git worktrees for any task
-- Create one worktree per feature/fix/task
-- Never reuse a worktree for unrelated work
-- Delete unused worktrees after the task is done
-- Rebase new code on top of `origin/main`
-- At the end, create an MR to `main`
+- Always use Git worktrees for any task.
+- Create one worktree per feature/fix/task.
+- Never reuse a worktree for unrelated work.
+- Rebase new code on top of `origin/main`.
+- At the end, create an MR to `main`.
+- Remove the worktree when the task is finished.
+- If changes are requested later, create a fresh worktree from the same branch.
 
 ### Create worktree
 
@@ -35,6 +36,28 @@ git push -u origin <branch-name>
 ```
 
 Then open an MR from `<branch-name>` to `main`.
+
+### Delete worktree
+
+```bash
+git worktree remove ../<task-name>
+git worktree prune
+```
+
+Run this from the main repo, not from inside the worktree.
+
+### Follow-up changes later
+
+```bash
+git fetch origin
+git worktree add ../<task-name>-followup <branch-name>
+```
+
+Use the same `<branch-name>` as before, but create a new worktree instead of reopening the old one.
+
+Goal:
+
+The user should always be able to inspect, delete, or switch branches without encountering “used by worktree” errors.
 
 ## Efficiency rules
 
