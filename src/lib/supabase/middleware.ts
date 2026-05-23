@@ -2,8 +2,8 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, ROUTES } from "@/lib/env";
 
-export async function updateSession(request: NextRequest) {
-  const response = NextResponse.next({ request });
+export async function updateSession(request: NextRequest, extraHeaders?: Headers) {
+  const response = NextResponse.next({ request: { headers: extraHeaders ?? request.headers } });
 
   const supabase = createServerClient(NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, {
     cookies: {

@@ -51,11 +51,15 @@ export async function loginAction(
   }
 
   if (authIntent === "signup") {
-    const { error } = await supabase.auth.signUp({ email, password });
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: `${APP_URL}${ROUTES.authCallback}` },
+    });
 
     if (error) {
       console.error("[login] signup error:", error);
-      return genericAuthError();
+      return { success: false, error: error.message };
     }
 
     return { success: true, message: "Account created. Check your email if confirmation is required." };
