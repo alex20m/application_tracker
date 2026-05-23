@@ -37,7 +37,7 @@ export async function loginAction(
       return { success: false, error: error.message };
     }
 
-    return { success: true, message: "Magic link sent. Check your email." };
+    return { success: true, message: "Sign-in link sent. Check your email." };
   }
 
   // Password flow
