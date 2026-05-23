@@ -4,6 +4,10 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { APP_URL, ROUTES } from "@/lib/env";
 
+function genericAuthError() {
+  return { success: false as const, error: "Invalid credentials or request failed." };
+}
+
 export async function loginAction(
   _prevState: unknown,
   formData: FormData
@@ -34,7 +38,8 @@ export async function loginAction(
     });
 
     if (error) {
-      return { success: false, error: error.message };
+      console.error("[login] magic-link error:", error);
+      return genericAuthError();
     }
 
     return { success: true, message: "Sign-in link sent. Check your email." };
@@ -49,7 +54,8 @@ export async function loginAction(
     const { error } = await supabase.auth.signUp({ email, password });
 
     if (error) {
-      return { success: false, error: error.message };
+      console.error("[login] signup error:", error);
+      return genericAuthError();
     }
 
     return { success: true, message: "Account created. Check your email if confirmation is required." };
@@ -58,7 +64,8 @@ export async function loginAction(
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    return { success: false, error: error.message };
+    console.error("[login] signin error:", error);
+    return genericAuthError();
   }
 
   redirect(ROUTES.applications);

@@ -5,6 +5,9 @@ import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import { STATUS, type ApplicationStatus } from "@/lib/statuses";
 import { appendStatusEvent } from "@/lib/applications";
+import { GENERIC_ACTION_ERROR, sanitizeActionError } from "@/lib/ui";
+import { ApplicationUpdateSchema } from "@/lib/schemas";
+import { z } from "zod";
 import type { StatusEvent } from "@/lib/types";
 
 export async function updateApplicationAction(
@@ -17,17 +20,25 @@ export async function updateApplicationAction(
 }> {
   const { supabase, user } = await requireUser();
 
-  const company = (formData.get("company") as string | null)?.trim() || "";
-  const role = (formData.get("role") as string | null)?.trim() || "";
-  const location = (formData.get("location") as string | null)?.trim() || "";
-  const source = (formData.get("source") as string | null)?.trim() || "";
-  const appliedOn = (formData.get("applied_on") as string | null) || null;
-  const newStatus = (formData.get("status") as ApplicationStatus) || STATUS.no_answer;
-  const notes = formData.get("notes") as string | null;
-
-  if (!company || !role || !location) {
-    return { success: false, error: "Company, role, and location are required" };
+  if (!z.string().uuid().safeParse(applicationId).success) {
+    return { success: false, error: GENERIC_ACTION_ERROR };
   }
+
+  const parsed = ApplicationUpdateSchema.safeParse({
+    company: (formData.get("company") as string | null)?.trim() ?? "",
+    role: (formData.get("role") as string | null)?.trim() ?? "",
+    location: (formData.get("location") as string | null)?.trim() ?? "",
+    source: (formData.get("source") as string | null)?.trim() ?? "",
+    notes: formData.get("notes") ?? "",
+    status: (formData.get("status") as string) || STATUS.no_answer,
+  });
+
+  if (!parsed.success) {
+    return { success: false, error: "Please check your input and try again." };
+  }
+
+  const { company, role, location, source, notes, status: newStatus } = parsed.data;
+  const appliedOn = (formData.get("applied_on") as string | null) || null;
 
   const { data: currentApp } = await supabase
     .from("applications")
@@ -67,8 +78,7 @@ export async function updateApplicationAction(
     .eq("user_id", user.id);
 
   if (appError) {
-    console.error("Application update error:", appError);
-    return { success: false, error: appError.message };
+    return { success: false, error: sanitizeActionError(appError, "application:update") };
   }
 
   revalidatePath("/sankey");
@@ -83,6 +93,10 @@ export async function deleteApplicationAction(
 }> {
   const { supabase, user } = await requireUser();
 
+  if (!z.string().uuid().safeParse(applicationId).success) {
+    return { success: false, error: GENERIC_ACTION_ERROR };
+  }
+
   const { error } = await supabase
     .from("applications")
     .delete()
@@ -90,8 +104,7 @@ export async function deleteApplicationAction(
     .eq("user_id", user.id);
 
   if (error) {
-    console.error("Delete error:", error);
-    return { success: false, error: error.message };
+    return { success: false, error: sanitizeActionError(error, "application:delete") };
   }
 
   revalidatePath("/sankey");

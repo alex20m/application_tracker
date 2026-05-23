@@ -42,11 +42,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="AppTrack" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `if ("serviceWorker" in navigator) { navigator.serviceWorker.register("/sw.js").catch(e => console.error("SW registration failed:", e)); }`,
-          }}
-        />
+        <script src="/sw-register.js" defer />
       </head>
       <body className="min-h-full flex flex-col bg-slate-50 text-slate-900">
         {children}
