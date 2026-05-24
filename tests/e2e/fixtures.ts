@@ -28,9 +28,6 @@ export const test = base.extend<Fixtures>({
       // Find the new card link
       const link = page.getByRole("link", { name: new RegExp(company, "i") }).first();
       await expect(link).toBeVisible();
-      const href = await link.getAttribute("aria-label")
-        ? await page.locator(`a[aria-label*="${company}"]`).getAttribute("href")
-        : null;
 
       // Navigate to the app to get its ID from the URL
       await page.locator(`text=${company}`).first().click();

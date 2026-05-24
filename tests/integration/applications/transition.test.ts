@@ -64,18 +64,8 @@ describe("transitionApplicationStatusAction", () => {
     const fd = makeFormData(VALID_APP_ID, STATUS.interviews);
     await transitionApplicationStatusAction(fd);
 
-    // update should not have been called
-    const updateCalls = mockSupabase.from.mock.calls.filter((call) => {
-      const instance = mockSupabase.from.mock.results[
-        mockSupabase.from.mock.calls.indexOf(call)
-      ];
-      return instance?.value?.update !== undefined;
-    });
-    // The from().update() chain should not have been called on the write path.
-    // Since our mock always sets up update, we verify via a different signal:
-    // no .eq chain after update was triggered. We check that from was only called
-    // for the select (to fetch current app), not a second time for update.
-    // Easier: verify the total from() calls — illegal should only make 1 (select).
+    // The from().update() chain should not have been called for an illegal transition;
+    // only one from() call for the initial select.
     expect(mockSupabase.from).toHaveBeenCalledTimes(1);
   });
 

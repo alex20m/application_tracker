@@ -26,7 +26,7 @@ test.describe("Authentication flows", () => {
     await expect(page).toHaveURL(/\/applications/, { timeout: 15000 });
   });
 
-  test("visiting /login while signed in redirects to /applications", async ({ page, context }) => {
+  test("visiting /login while signed in redirects to /applications", async ({ page }) => {
     // Sign in first
     await page.goto("/login");
     await page.getByLabel(/email/i).fill(E2E_USER);
