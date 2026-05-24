@@ -25,24 +25,24 @@ export function ApplicationList({ applications }: ApplicationListProps) {
       {applications.map((app) => (
         <div
           key={app.id}
-          className="group flex overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm transition hover:bg-gray-50 hover:border-gray-400 hover:shadow-lg hover:shadow-gray-200/80 dark:hover:bg-gray-800 dark:hover:border-gray-500 dark:hover:shadow-lg dark:hover:shadow-black/40"
+          className="group relative flex overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm transition hover:bg-gray-50 hover:border-gray-400 hover:shadow-lg hover:shadow-gray-200/80 dark:hover:bg-gray-800 dark:hover:border-gray-500 dark:hover:shadow-lg dark:hover:shadow-black/40"
         >
+          {/* Stretched link — makes entire card clickable except status section */}
+          <Link href={`/applications/${app.id}`} className="absolute inset-0" aria-label={`${app.company} – ${app.role}`} />
+
           {/* Status color strip */}
           <div className={`w-1 flex-shrink-0 ${STATUS_THEME[app.status].border}`} />
 
           {/* Content: single flex row on desktop, wraps to two rows on mobile */}
           <div className="flex flex-1 min-w-0 items-start gap-3 px-4 py-2.5 mobile:flex-wrap mobile:px-3 mobile:py-2">
-            <Link
-              href={`/applications/${app.id}`}
-              className="min-w-0 order-1 mobile:flex-1"
-            >
+            <div className="min-w-0 order-1 mobile:flex-1">
               <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{app.company}</h3>
               <p className={`mt-0.5 ${TEXT_BODY} truncate`}>{app.role}</p>
               <div className={`mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 ${TEXT_META}`}>
                 {app.location && <span>{app.location}</span>}
                 {app.applied_on && <span>Applied {formatDate(app.applied_on)}</span>}
               </div>
-            </Link>
+            </div>
 
             {/* Notes — center column on desktop, full-width row below on mobile */}
             {app.notes && (
@@ -53,8 +53,8 @@ export function ApplicationList({ applications }: ApplicationListProps) {
               </div>
             )}
 
-            {/* Badge + actions — always right-aligned */}
-            <div className="flex flex-shrink-0 flex-col items-end gap-1.5 ml-auto order-3 mobile:order-2">
+            {/* Badge + actions — above the stretched link so buttons remain clickable */}
+            <div className="relative z-10 flex flex-shrink-0 flex-col items-end gap-1.5 ml-auto order-3 mobile:order-2">
               <StatusBadge status={app.status} />
               <ApplicationStatusQuickActions
                 applicationId={app.id}
