@@ -62,63 +62,49 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-      # Resolves the Supabase preview branch that the Supabase GitHub App creates
-      # automatically when this PR is opened. Fails loudly (set -e + jq -e) if the
-      # branch isn't ready yet — re-run the job after ~1 min to give the App time
-      # to provision it. No fallback to production credentials.
-      #
-      # Required repo secrets (Settings → Secrets and variables → Actions):
-      #   SUPABASE_ACCESS_TOKEN  — generate at supabase.com/dashboard/account/tokens
-      #   SUPABASE_PROJECT_ID    — the project ref (e.g. nmytkebeywruhzehohcb)
-      - name: Resolve Supabase preview branch
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      # Starts a local Supabase stack (Postgres + Auth + API) inside Docker on
+      # the runner. Migrations in supabase/migrations/ are applied automatically.
+      # No secrets needed — credentials are read from `supabase status` below.
+      - name: Start local Supabase
+        run: supabase start
+
+      - name: Get local Supabase credentials
         id: supabase
         run: |
           set -euo pipefail
-          BRANCH=$(curl -sf \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_ACCESS_TOKEN }}" \
-            "https://api.supabase.com/v1/projects/${{ secrets.SUPABASE_PROJECT_ID }}/branches" \
-            | jq -e --arg b "${{ github.head_ref }}" \
-              'map(select(.git_branch == $b)) | first // error("no preview branch for \($b)")')
-          PREVIEW_REF=$(echo "$BRANCH" | jq -r '.ref')
-
-          KEYS=$(curl -sf \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_ACCESS_TOKEN }}" \
-            "https://api.supabase.com/v1/projects/${PREVIEW_REF}/api-keys")
-          ANON=$(echo "$KEYS" | jq -er '.[] | select(.name == "anon") | .api_key')
-          SERVICE=$(echo "$KEYS" | jq -er '.[] | select(.name == "service_role") | .api_key')
-
-          URL="https://${PREVIEW_REF}.supabase.co"
-          echo "url=$URL"         >> "$GITHUB_OUTPUT"
-          echo "::add-mask::$ANON"
-          echo "::add-mask::$SERVICE"
+          STATUS=$(supabase status -o env)
+          ANON=$(echo "$STATUS" | grep '^ANON_KEY=' | cut -d= -f2-)
+          SERVICE=$(echo "$STATUS" | grep '^SERVICE_ROLE_KEY=' | cut -d= -f2-)
           echo "anon=$ANON"       >> "$GITHUB_OUTPUT"
           echo "service=$SERVICE" >> "$GITHUB_OUTPUT"
-          echo "Resolved preview branch: $PREVIEW_REF"
 
-      # Preview branches start with an empty auth.users table. Seed the E2E test
-      # user via the Auth Admin API using the service_role key so it bypasses email
-      # confirmation and is immediately usable by Playwright's global setup.
-      - name: Seed E2E test user on preview branch
+      # auth.users is empty on a fresh local instance. Create the E2E test user
+      # via the Auth Admin API using the service_role key (bypasses confirmation).
+      - name: Seed E2E test user
         run: |
           set -euo pipefail
           curl -sf -X POST \
             -H "apikey: ${{ steps.supabase.outputs.service }}" \
             -H "Authorization: Bearer ${{ steps.supabase.outputs.service }}" \
             -H "Content-Type: application/json" \
-            "${{ steps.supabase.outputs.url }}/auth/v1/admin/users" \
+            "http://localhost:54321/auth/v1/admin/users" \
             -d "{\"email\":\"${E2E_USER}\",\"password\":\"${E2E_PASSWORD}\",\"email_confirm\":true}"
 
       - name: Build
         run: npm run build
         env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ steps.supabase.outputs.url }}
+          NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ steps.supabase.outputs.anon }}
           NEXT_PUBLIC_APP_URL: http://localhost:3000
 
       - name: Write .env.local for runtime server
         run: |
           cat > .env.local <<EOF
-          NEXT_PUBLIC_SUPABASE_URL=${{ steps.supabase.outputs.url }}
+          NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
           NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ steps.supabase.outputs.anon }}
           NEXT_PUBLIC_APP_URL=http://localhost:3000
           EOF
