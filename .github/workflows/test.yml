@@ -14,7 +14,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install dependencies
@@ -56,7 +56,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install dependencies
@@ -65,10 +65,64 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
+      # For PRs: resolve the Supabase preview branch DB so E2E tests run against
+      # an isolated copy of the schema instead of production.
+      #
+      # Required repo configuration (Settings → Secrets/Variables):
+      #   Secret:   SUPABASE_ACCESS_TOKEN  — generate at supabase.com/dashboard/account/tokens
+      #   Variable: SUPABASE_PROJECT_ID    — value: nmytkebeywruhzehohcb
+      #
+      # Falls back to the production NEXT_PUBLIC_SUPABASE_* secrets when:
+      #   - the event is a push to main (no PR branch)
+      #   - the preview branch hasn't been created yet
+      #   - SUPABASE_ACCESS_TOKEN is not configured
+      - name: Resolve Supabase credentials
+        run: |
+          SUPABASE_URL="${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}"
+          SUPABASE_KEY="${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}"
+
+          if [[ "${{ github.event_name }}" == "pull_request" && -n "${{ secrets.SUPABASE_ACCESS_TOKEN }}" ]]; then
+            BRANCH_DATA=$(curl -sf \
+              -H "Authorization: Bearer ${{ secrets.SUPABASE_ACCESS_TOKEN }}" \
+              "https://api.supabase.com/v1/projects/${{ vars.SUPABASE_PROJECT_ID }}/branches" \
+              | jq -r --arg b "${{ github.head_ref }}" \
+                'map(select(.git_branch == $b)) | first // empty' 2>/dev/null || echo "")
+
+            if [[ -n "$BRANCH_DATA" ]]; then
+              PREVIEW_REF=$(echo "$BRANCH_DATA" | jq -r '.ref')
+              PREVIEW_KEY=$(curl -sf \
+                -H "Authorization: Bearer ${{ secrets.SUPABASE_ACCESS_TOKEN }}" \
+                "https://api.supabase.com/v1/projects/${PREVIEW_REF}/api-keys" \
+                | jq -r '.[] | select(.name == "anon") | .api_key' 2>/dev/null || echo "")
+
+              if [[ -n "$PREVIEW_REF" && -n "$PREVIEW_KEY" ]]; then
+                SUPABASE_URL="https://${PREVIEW_REF}.supabase.co"
+                SUPABASE_KEY="$PREVIEW_KEY"
+                echo "Using Supabase preview branch: $PREVIEW_REF"
+              else
+                echo "Preview branch found but credentials unavailable, falling back to production"
+              fi
+            else
+              echo "No preview branch for '${{ github.head_ref }}', using production credentials"
+            fi
+          fi
+
+          echo "NEXT_PUBLIC_SUPABASE_URL=$SUPABASE_URL" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$SUPABASE_KEY" >> $GITHUB_ENV
+
+      # Build against the resolved credentials so NEXT_PUBLIC_* vars are baked in.
+      # Playwright then starts the compiled server with `npm run start` (set in
+      # playwright.config.ts when CI=true), avoiding the lazy-compilation delay
+      # that caused the 30 s global-setup timeout with `npm run dev`.
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_APP_URL: http://localhost:3000
+
       - name: Create .env.local
         run: |
-          echo "NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" >> .env.local
-          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" >> .env.local
+          echo "NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL" >> .env.local
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY" >> .env.local
           echo "NEXT_PUBLIC_APP_URL=http://localhost:3000" >> .env.local
 
       - name: Run Playwright tests
