@@ -69,8 +69,8 @@ jobs:
       # an isolated copy of the schema instead of production.
       #
       # Required repo configuration (Settings → Secrets/Variables):
-      #   Secret:   SUPABASE_ACCESS_TOKEN  — generate at supabase.com/dashboard/account/tokens
-      #   Variable: SUPABASE_PROJECT_ID    — value: nmytkebeywruhzehohcb
+      #   SUPABASE_ACCESS_TOKEN  — generate at supabase.com/dashboard/account/tokens
+      #   SUPABASE_PROJECT_ID    — the project ref (e.g. nmytkebeywruhzehohcb)
       #
       # Falls back to the production NEXT_PUBLIC_SUPABASE_* secrets when:
       #   - the event is a push to main (no PR branch)
@@ -84,7 +84,7 @@ jobs:
           if [[ "${{ github.event_name }}" == "pull_request" && -n "${{ secrets.SUPABASE_ACCESS_TOKEN }}" ]]; then
             BRANCH_DATA=$(curl -sf \
               -H "Authorization: Bearer ${{ secrets.SUPABASE_ACCESS_TOKEN }}" \
-              "https://api.supabase.com/v1/projects/${{ vars.SUPABASE_PROJECT_ID }}/branches" \
+              "https://api.supabase.com/v1/projects/${{ secrets.SUPABASE_PROJECT_ID }}/branches" \
               | jq -r --arg b "${{ github.head_ref }}" \
                 'map(select(.git_branch == $b)) | first // empty' 2>/dev/null || echo "")
 
