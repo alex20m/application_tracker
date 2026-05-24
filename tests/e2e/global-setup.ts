@@ -1,8 +1,9 @@
 import { test as setup, expect } from "@playwright/test";
 import path from "path";
 
-const E2E_USER = process.env.E2E_USER ?? "admin@outlook.com";
-const E2E_PASSWORD = process.env.E2E_PASSWORD ?? "admin@outlook.com";
+// Validated at config load time (playwright.config.ts) — safe to assert here
+const E2E_USER = process.env.E2E_USER!;
+const E2E_PASSWORD = process.env.E2E_PASSWORD!;
 
 const authFile = path.join(__dirname, ".auth/user.json");
 

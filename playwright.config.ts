@@ -1,7 +1,10 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const E2E_USER = process.env.E2E_USER ?? "admin@outlook.com";
-const E2E_PASSWORD = process.env.E2E_PASSWORD ?? "admin@outlook.com";
+const E2E_USER = process.env.E2E_USER;
+const E2E_PASSWORD = process.env.E2E_PASSWORD;
+if (!E2E_USER || !E2E_PASSWORD) {
+  throw new Error("E2E_USER and E2E_PASSWORD must be set (via env or .env.local)");
+}
 
 export default defineConfig({
   testDir: "./tests/e2e",
