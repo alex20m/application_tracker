@@ -19,9 +19,9 @@ export const test = base.extend<Fixtures>({
       const location = opts.location ?? "Remote";
 
       await page.goto("/applications/new");
-      await page.getByPlaceholder(/example corporation/i).fill(company);
-      await page.getByPlaceholder(/senior engineer/i).fill(role);
-      await page.getByPlaceholder(/stockholm/i).fill(location);
+      await page.getByLabel(/company/i).fill(company);
+      await page.getByLabel(/role/i).fill(role);
+      await page.getByLabel(/location/i).fill(location);
       await page.getByRole("button", { name: /save application/i }).click();
 
       await expect(page).toHaveURL("/applications");

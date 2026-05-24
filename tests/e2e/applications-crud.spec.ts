@@ -7,9 +7,9 @@ const LOCATION = "Helsinki";
 test.describe("Application CRUD", () => {
   test("create a new application — appears in the list", async ({ page }) => {
     await page.goto("/applications/new");
-    await page.getByPlaceholder(/example corporation/i).fill(COMPANY);
-    await page.getByPlaceholder(/senior engineer/i).fill(ROLE);
-    await page.getByPlaceholder(/stockholm/i).fill(LOCATION);
+    await page.getByLabel(/company/i).fill(COMPANY);
+    await page.getByLabel(/role/i).fill(ROLE);
+    await page.getByLabel(/location/i).fill(LOCATION);
     await page.getByRole("button", { name: /save application/i }).click();
 
     await expect(page).toHaveURL("/applications");
@@ -27,8 +27,8 @@ test.describe("Application CRUD", () => {
     const { url } = await withApplication({ company: "EditMe Co", role: "Junior Dev" });
 
     await page.goto(url);
-    await page.locator('input[name="company"]').fill("Edited Corp");
-    await page.locator('input[name="role"]').fill("Senior Dev");
+    await page.getByLabel(/company/i).fill("Edited Corp");
+    await page.getByLabel(/role/i).fill("Senior Dev");
     await page.getByRole("button", { name: /save application/i }).click();
 
     await expect(page).toHaveURL("/applications");
@@ -40,7 +40,7 @@ test.describe("Application CRUD", () => {
     const { url } = await withApplication({ company: "NoteTest Co" });
 
     await page.goto(url);
-    await page.getByPlaceholder(/add any notes/i).fill("This is a test note.");
+    await page.getByLabel(/notes/i).fill("This is a test note.");
     await page.getByRole("button", { name: /save application/i }).click();
 
     await expect(page).toHaveURL("/applications");
@@ -54,9 +54,9 @@ test.describe("Application CRUD", () => {
     // Create via UI
     const company = `DeleteFromList ${Date.now()}`;
     await page.goto("/applications/new");
-    await page.getByPlaceholder(/example corporation/i).fill(company);
-    await page.getByPlaceholder(/senior engineer/i).fill("Test Role");
-    await page.getByPlaceholder(/stockholm/i).fill("Remote");
+    await page.getByLabel(/company/i).fill(company);
+    await page.getByLabel(/role/i).fill("Test Role");
+    await page.getByLabel(/location/i).fill("Remote");
     await page.getByRole("button", { name: /save application/i }).click();
     await expect(page).toHaveURL("/applications");
     await expect(page.getByText(company)).toBeVisible();

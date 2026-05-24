@@ -26,9 +26,9 @@ describe("ApplicationForm — create mode (no application prop)", () => {
 
   it("renders Company, Role, Location inputs", () => {
     render(<ApplicationForm action={noopAction} />);
-    expect(screen.getByPlaceholderText(/example corporation/i)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/senior engineer/i)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/stockholm/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/company/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/role/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/location/i)).toBeInTheDocument();
   });
 
   it("shows Save Application submit button", () => {

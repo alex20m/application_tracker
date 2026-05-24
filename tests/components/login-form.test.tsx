@@ -8,12 +8,12 @@ const noopAction = vi.fn().mockResolvedValue({ success: false });
 describe("LoginForm", () => {
   it("renders email field always", () => {
     render(<LoginForm action={noopAction} />);
-    expect(screen.getByPlaceholderText(/you@example\.com/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
   });
 
   it("renders password field in default (password) mode", () => {
     render(<LoginForm action={noopAction} />);
-    expect(screen.getByPlaceholderText(/•{4,}/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
   });
 
   it("shows 'Sign In' submit button by default", () => {
@@ -28,7 +28,7 @@ describe("LoginForm", () => {
     await user.click(screen.getByRole("button", { name: /use email sign-in link/i }));
 
     // Password field should be hidden
-    expect(screen.queryByPlaceholderText(/•{4,}/)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/password/i)).not.toBeInTheDocument();
     // Submit label changes
     expect(screen.getByRole("button", { name: /send sign-in link/i })).toBeInTheDocument();
   });
@@ -40,7 +40,7 @@ describe("LoginForm", () => {
     await user.click(screen.getByRole("button", { name: /use email sign-in link/i }));
     await user.click(screen.getByRole("button", { name: /use password/i }));
 
-    expect(screen.getByPlaceholderText(/•{4,}/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
   });
 
   it("switches to signup mode when 'Create account' is clicked", async () => {

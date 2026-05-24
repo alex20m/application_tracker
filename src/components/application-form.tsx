@@ -30,8 +30,9 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
 
       <div className="grid gap-5 mobile:gap-4 grid-cols-2 mobile:grid-cols-1">
         <div className="flex flex-col gap-1.5">
-          <label className={LABEL}>Company</label>
+          <label htmlFor="company" className={LABEL}>Company</label>
           <input
+            id="company"
             type="text"
             name="company"
             required
@@ -42,8 +43,9 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className={LABEL}>Role</label>
+          <label htmlFor="role" className={LABEL}>Role</label>
           <input
+            id="role"
             type="text"
             name="role"
             required
@@ -54,8 +56,9 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className={LABEL}>Location</label>
+          <label htmlFor="location" className={LABEL}>Location</label>
           <input
+            id="location"
             type="text"
             name="location"
             required
@@ -66,8 +69,9 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className={LABEL}>Source</label>
+          <label htmlFor="source" className={LABEL}>Source</label>
           <input
+            id="source"
             type="text"
             name="source"
             defaultValue={application?.source || ""}
@@ -77,8 +81,9 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className={LABEL}>Applied On</label>
+          <label htmlFor="applied-on" className={LABEL}>Applied On</label>
           <input
+            id="applied-on"
             type="date"
             name="applied_on"
             defaultValue={application?.applied_on?.split("T")[0] || today}
@@ -88,8 +93,9 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
 
         {application ? (
           <div className="flex flex-col gap-1.5">
-            <label className={LABEL}>Status</label>
+            <label htmlFor="status" className={LABEL}>Status</label>
             <select
+              id="status"
               name="status"
               required
               defaultValue={application.status}
@@ -111,8 +117,9 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className={LABEL}>Notes</label>
+        <label htmlFor="notes" className={LABEL}>Notes</label>
         <textarea
+          id="notes"
           name="notes"
           defaultValue={application?.notes || ""}
           className={INPUT}
