@@ -35,10 +35,10 @@ export function ApplicationList({ applications }: ApplicationListProps) {
             {/* Clickable area */}
             <Link
               href={`/applications/${app.id}`}
-              className="flex flex-1 min-w-0 items-center gap-4 px-4 py-3 mobile:flex-col mobile:items-start mobile:gap-1.5 mobile:py-2.5"
+              className="flex flex-1 min-w-0 items-center gap-4 px-4 py-3 mobile:block mobile:py-2.5"
             >
               {/* Company / role / meta */}
-              <div className="min-w-0 shrink-0 mobile:w-full">
+              <div className="min-w-0 shrink-0">
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{app.company}</h3>
                 <p className={`mt-0.5 ${TEXT_BODY} truncate`}>{app.role}</p>
                 <div className={`mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 ${TEXT_META}`}>
@@ -47,9 +47,9 @@ export function ApplicationList({ applications }: ApplicationListProps) {
                 </div>
               </div>
 
-              {/* Notes */}
+              {/* Notes — full-width block below company on mobile */}
               {app.notes && (
-                <div className="flex-1 min-w-0 rounded-lg bg-gray-50 dark:bg-gray-800 px-3 py-2 mobile:w-full mobile:py-1.5">
+                <div className="flex-1 min-w-0 rounded-lg bg-gray-50 dark:bg-gray-800 px-3 py-2 mobile:mt-2 mobile:py-1.5">
                   <p className={`${TEXT_META} leading-relaxed line-clamp-3`}>{app.notes}</p>
                 </div>
               )}
