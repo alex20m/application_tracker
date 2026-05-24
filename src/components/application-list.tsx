@@ -53,8 +53,8 @@ export function ApplicationList({ applications }: ApplicationListProps) {
               </div>
             )}
 
-            {/* Badge + actions — right column on desktop, stays top-right on mobile */}
-            <div className="flex flex-shrink-0 flex-col items-end gap-1.5 order-3 mobile:order-2">
+            {/* Badge + actions — always right-aligned */}
+            <div className="flex flex-shrink-0 flex-col items-end gap-1.5 ml-auto order-3 mobile:order-2">
               <StatusBadge status={app.status} />
               <ApplicationStatusQuickActions
                 applicationId={app.id}
