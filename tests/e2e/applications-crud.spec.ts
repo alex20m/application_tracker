@@ -16,7 +16,7 @@ test.describe("Application CRUD", () => {
     await expect(page.getByText(COMPANY)).toBeVisible();
 
     // Cleanup — find and delete
-    await page.getByText(COMPANY).click();
+    await page.getByRole("link", { name: new RegExp(COMPANY) }).click();
     await expect(page).toHaveURL(/\/applications\//);
     page.once("dialog", (d) => d.accept());
     await page.getByRole("button", { name: /delete/i }).click();
@@ -62,7 +62,7 @@ test.describe("Application CRUD", () => {
     await expect(page.getByText(company)).toBeVisible();
 
     // Navigate to detail and delete
-    await page.getByText(company).click();
+    await page.getByRole("link", { name: new RegExp(company) }).click();
     await expect(page).toHaveURL(/\/applications\//);
     page.once("dialog", (d) => d.accept());
     await page.getByRole("button", { name: /^delete$/i }).click();

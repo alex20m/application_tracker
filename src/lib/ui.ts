@@ -22,7 +22,7 @@ export const TEXT_BODY =
 export const TEXT_META =
   "text-xs text-gray-500 dark:text-gray-400 mobile:text-[11px]";
 export const TEXT_MUTED =
-  "text-xs text-gray-400 dark:text-gray-500 mobile:text-[11px]";
+  "text-xs text-gray-500 dark:text-gray-500 mobile:text-[11px]";
 
 // Kept for backward compatibility — prefer TEXT_H3/TEXT_BODY/TEXT_META above
 export const TEXT_HEADING =

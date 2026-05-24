@@ -30,7 +30,7 @@ export const test = base.extend<Fixtures>({
       await expect(link).toBeVisible();
 
       // Navigate to the app to get its ID from the URL
-      await page.locator(`text=${company}`).first().click();
+      await link.click();
       const url = page.url();
       const id = url.split("/applications/")[1]?.split("?")[0] ?? "";
       created.push(id);

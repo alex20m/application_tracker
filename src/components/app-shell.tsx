@@ -54,7 +54,7 @@ export function AppShell({ email, children }: AppShellProps) {
             ))}
           </nav>
           <div className="flex items-center gap-3 mobile:hidden">
-            <span className="text-xs text-gray-400 dark:text-gray-500">{email}</span>
+            <span className="text-xs text-gray-500 dark:text-gray-500">{email}</span>
             <form action={ROUTES.signOut} method="post">
               <button
                 type="submit"
