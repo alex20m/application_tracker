@@ -42,9 +42,9 @@ export const BTN_PRIMARY_LINK =
 export const BTN_GHOST =
   "inline-flex items-center justify-center cursor-pointer rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 mobile:min-h-11 mobile:px-3 mobile:py-2.5 mobile:text-base";
 
-// Compact button for quick-action rows (no full 44px height needed at desktop)
+// Compact button for quick-action rows — stays small on all screen sizes
 export const BTN_SMALL =
-  "cursor-pointer rounded-lg border px-2.5 py-1 text-xs font-medium transition disabled:cursor-not-allowed disabled:opacity-50 mobile:px-3 mobile:py-1.5 mobile:text-[13px]";
+  "cursor-pointer rounded-lg border px-2.5 py-1 text-xs font-medium transition disabled:cursor-not-allowed disabled:opacity-50";
 
 // ─── Cards & containers ───────────────────────────────────────────────────────
 

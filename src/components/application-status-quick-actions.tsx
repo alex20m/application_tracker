@@ -38,7 +38,7 @@ export function ApplicationStatusQuickActions({
   }
 
   return (
-    <div className="flex flex-col items-end gap-1.5 mobile:items-start">
+    <div className="flex flex-col items-end gap-1.5">
       {!isOpen ? (
         <button
           type="button"
@@ -49,7 +49,7 @@ export function ApplicationStatusQuickActions({
           {isPending ? "Saving..." : "Move to →"}
         </button>
       ) : (
-        <div className="flex flex-wrap justify-end gap-1 mobile:justify-start">
+        <div className="flex flex-wrap justify-end gap-1">
           {nextStatuses.map((status) => (
             <button
               key={status}

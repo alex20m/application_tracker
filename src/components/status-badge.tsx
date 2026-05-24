@@ -7,7 +7,7 @@ export function StatusBadge({ status }: { status: ApplicationStatus }) {
   return (
     <span
       className={clsx(
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium mobile:text-sm mobile:px-3 mobile:py-1.5",
+        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium",
         theme.badge
       )}
     >
