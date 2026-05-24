@@ -30,40 +30,37 @@ export function ApplicationList({ applications }: ApplicationListProps) {
           {/* Status color strip */}
           <div className={`w-1 flex-shrink-0 ${STATUS_THEME[app.status].border}`} />
 
-          {/* Content column */}
-          <div className="flex flex-1 min-w-0 flex-col">
-            {/* Top row: company/role/meta (left) + badge/actions (right) */}
-            <div className="flex items-start gap-3 px-4 py-2.5 mobile:px-3 mobile:py-2">
-              <Link
-                href={`/applications/${app.id}`}
-                className="flex-1 min-w-0"
-              >
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{app.company}</h3>
-                <p className={`mt-0.5 ${TEXT_BODY} truncate`}>{app.role}</p>
-                <div className={`mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 ${TEXT_META}`}>
-                  {app.location && <span>{app.location}</span>}
-                  {app.applied_on && <span>Applied {formatDate(app.applied_on)}</span>}
-                </div>
-              </Link>
-
-              {/* Badge + actions always on the right */}
-              <div className="flex flex-shrink-0 flex-col items-end gap-1.5">
-                <StatusBadge status={app.status} />
-                <ApplicationStatusQuickActions
-                  applicationId={app.id}
-                  currentStatus={app.status}
-                />
+          {/* Content: single flex row on desktop, wraps to two rows on mobile */}
+          <div className="flex flex-1 min-w-0 items-start gap-3 px-4 py-2.5 mobile:flex-wrap mobile:px-3 mobile:py-2">
+            <Link
+              href={`/applications/${app.id}`}
+              className="min-w-0 order-1 mobile:flex-1"
+            >
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{app.company}</h3>
+              <p className={`mt-0.5 ${TEXT_BODY} truncate`}>{app.role}</p>
+              <div className={`mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 ${TEXT_META}`}>
+                {app.location && <span>{app.location}</span>}
+                {app.applied_on && <span>Applied {formatDate(app.applied_on)}</span>}
               </div>
-            </div>
+            </Link>
 
-            {/* Notes — full-width gray pill below the top row */}
+            {/* Notes — center column on desktop, full-width row below on mobile */}
             {app.notes && (
-              <div className="px-4 pb-3 mobile:px-3 mobile:pb-2.5">
+              <div className="min-w-0 flex-1 order-2 mobile:order-3 mobile:basis-full">
                 <div className="rounded-lg bg-gray-100 dark:bg-gray-700/70 px-3 py-2 mobile:py-1.5">
                   <p className={`${TEXT_META} leading-relaxed whitespace-pre-wrap break-words`}>{app.notes}</p>
                 </div>
               </div>
             )}
+
+            {/* Badge + actions — right column on desktop, stays top-right on mobile */}
+            <div className="flex flex-shrink-0 flex-col items-end gap-1.5 order-3 mobile:order-2">
+              <StatusBadge status={app.status} />
+              <ApplicationStatusQuickActions
+                applicationId={app.id}
+                currentStatus={app.status}
+              />
+            </div>
           </div>
         </div>
       ))}
