@@ -29,13 +29,21 @@ git worktree add ../<task-name> -b <branch-name> origin/main
 
 ### Finish task
 
+Before pushing, ensure all changes are tested:
+
+- Add unit/integration/UI tests for new functionality.
+- Do not modify existing tests unless functionality changed.
+- Run tests locally to confirm they pass.
+
+Then commit and push:
+
 ```bash
 git add -A
 git commit -m "<message>"
 git push -u origin <branch-name>
 ```
 
-Then open an MR from `<branch-name>` to `main`.
+Open an MR from `<branch-name>` to `main`. Ensure CI/CD pipeline passes before completing the task.
 
 ### Delete worktree
 
