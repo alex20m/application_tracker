@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { ROUTES } from "@/lib/env";
-import { BTN_PRIMARY_LINK } from "@/lib/ui";
+import { BTN_PRIMARY_LINK, PAGE_HEADER, SECTION_STACK, TEXT_H1, TEXT_MUTED } from "@/lib/ui";
 import { AppShell } from "@/components/app-shell";
 import { ApplicationsSearch } from "@/components/applications-search";
 import { DeleteAllApplicationsButton } from "@/components/delete-all-applications-button";
@@ -17,11 +17,11 @@ export default async function ApplicationsPage() {
 
   return (
     <AppShell email={user.email || ""}>
-      <div className="space-y-6">
-        <div className="flex flex-col gap-4 mobile:flex-col sm:flex-row sm:items-center sm:justify-between">
+      <div className={SECTION_STACK}>
+        <div className={PAGE_HEADER}>
           <div>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 mobile:text-2xl">Applications</h1>
-            <p className="mt-0.5 text-sm text-gray-400 dark:text-gray-500 mobile:text-base">
+            <h1 className={TEXT_H1}>Applications</h1>
+            <p className={`mt-0.5 ${TEXT_MUTED}`}>
               {applications?.length || 0} application{applications?.length !== 1 ? "s" : ""}
             </p>
           </div>

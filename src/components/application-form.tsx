@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import Link from "next/link";
 
 import { STATUS, STATUS_NAMES, STATUS_NEXT } from "@/lib/statuses";
-import { BTN_GHOST, BTN_PRIMARY, ERROR_BANNER, INPUT, LABEL } from "@/lib/ui";
+import { BTN_GHOST, BTN_PRIMARY, ERROR_BANNER, FORM_STACK, INPUT, LABEL } from "@/lib/ui";
 import { ROUTES } from "@/lib/env";
 import type { ApplicationRecord } from "@/lib/types";
 
@@ -23,13 +23,13 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
   const today = new Date().toISOString().split("T")[0];
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form action={formAction} className={FORM_STACK}>
       {state.error && (
         <div className={ERROR_BANNER}>{state.error}</div>
       )}
 
-      <div className="grid gap-5 grid-cols-2 mobile:grid-cols-1">
-        <div>
+      <div className="grid gap-5 mobile:gap-4 grid-cols-2 mobile:grid-cols-1">
+        <div className="flex flex-col gap-1.5">
           <label className={LABEL}>Company</label>
           <input
             type="text"
@@ -41,7 +41,7 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
           />
         </div>
 
-        <div>
+        <div className="flex flex-col gap-1.5">
           <label className={LABEL}>Role</label>
           <input
             type="text"
@@ -53,7 +53,7 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
           />
         </div>
 
-        <div>
+        <div className="flex flex-col gap-1.5">
           <label className={LABEL}>Location</label>
           <input
             type="text"
@@ -65,7 +65,7 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
           />
         </div>
 
-        <div>
+        <div className="flex flex-col gap-1.5">
           <label className={LABEL}>Source</label>
           <input
             type="text"
@@ -76,7 +76,7 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
           />
         </div>
 
-        <div>
+        <div className="flex flex-col gap-1.5">
           <label className={LABEL}>Applied On</label>
           <input
             type="date"
@@ -87,7 +87,7 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
         </div>
 
         {application ? (
-          <div>
+          <div className="flex flex-col gap-1.5">
             <label className={LABEL}>Status</label>
             <select
               name="status"
@@ -110,7 +110,7 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
         )}
       </div>
 
-      <div>
+      <div className="flex flex-col gap-1.5">
         <label className={LABEL}>Notes</label>
         <textarea
           name="notes"

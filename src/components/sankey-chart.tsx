@@ -155,7 +155,7 @@ function DiagramContent({
   dark: boolean;
 }) {
   const { w: width, h: height } = dims;
-  const margin = isMobile ? 60 : 120;
+  const margin = isMobile ? 40 : 120;
   const nodePadding = isMobile ? 12 : 20;
 
   const sankeyGen = sankey<NodeDatum, LinkDatum>()
@@ -237,8 +237,10 @@ export function SankeyChart({ data }: SankeyChartProps) {
   }
 
   return (
-    <div className={CHART_FRAME} ref={containerRef}>
-      {content}
+    <div className="overflow-x-auto">
+      <div className={CHART_FRAME} ref={containerRef}>
+        {content}
+      </div>
     </div>
   );
 }
