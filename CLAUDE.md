@@ -29,7 +29,7 @@ git worktree add ../<task-name> -b <branch-name> origin/main
 
 ### Finish task
 
-Before pushing, ensure all changes are tested:
+Before pushing, ensure all core changes are tested:
 
 - Add unit/integration/UI tests for new functionality.
 - Do not modify existing tests unless functionality changed.
