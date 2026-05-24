@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import type { ApplicationRecord } from "@/lib/types";
-import { INPUT } from "@/lib/ui";
+import { INPUT, TEXT_MUTED } from "@/lib/ui";
 import { ApplicationList } from "@/components/application-list";
 
 type ApplicationsSearchProps = {
@@ -30,14 +30,14 @@ export function ApplicationsSearch({ applications }: ApplicationsSearchProps) {
         placeholder="Search by company or role"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className={INPUT.replace("mt-1.5", "mt-0")}
+        className={INPUT}
       />
       {query.trim() && filtered.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-8 py-16 text-center mobile:px-4 mobile:py-10">
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mobile:text-base">
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
             No matches for &ldquo;{query.trim()}&rdquo;
           </p>
-          <p className="mt-1 text-xs text-gray-400 dark:text-gray-500 mobile:text-sm">
+          <p className={`mt-1 ${TEXT_MUTED}`}>
             Try a different company name or role.
           </p>
         </div>

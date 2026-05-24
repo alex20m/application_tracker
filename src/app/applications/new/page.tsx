@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { ROUTES } from "@/lib/env";
-import { CARD } from "@/lib/ui";
+import { CARD, SECTION_STACK, TEXT_H1, TEXT_MUTED } from "@/lib/ui";
 import { AppShell } from "@/components/app-shell";
 import { ApplicationForm } from "@/components/application-form";
 import { createApplicationAction } from "@/app/applications/actions";
@@ -11,9 +11,9 @@ export default async function NewApplicationPage() {
 
   return (
     <AppShell email={user.email || ""}>
-      <div className="space-y-6">
-        <div className="flex items-center gap-2 text-sm mobile:text-base">
-          <Link href={ROUTES.applications} className="text-gray-400 dark:text-gray-500 transition hover:text-gray-700 dark:hover:text-gray-300">
+      <div className={SECTION_STACK}>
+        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+          <Link href={ROUTES.applications} className="transition hover:text-gray-700 dark:hover:text-gray-300">
             Applications
           </Link>
           <span className="text-gray-300 dark:text-gray-600">/</span>
@@ -21,8 +21,8 @@ export default async function NewApplicationPage() {
         </div>
 
         <div>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 mobile:text-2xl">Add Application</h1>
-          <p className="mt-0.5 text-sm text-gray-400 dark:text-gray-500 mobile:text-base">
+          <h1 className={TEXT_H1}>Add Application</h1>
+          <p className={`mt-0.5 ${TEXT_MUTED}`}>
             Track a new job application
           </p>
         </div>

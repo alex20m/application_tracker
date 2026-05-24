@@ -2,6 +2,7 @@ import { requireUser } from "@/lib/auth";
 import { AppShell } from "@/components/app-shell";
 import { SankeyChart } from "@/components/sankey-chart";
 import { buildSankeyData } from "@/lib/sankey-builder";
+import { SECTION_STACK, TEXT_H1, TEXT_MUTED } from "@/lib/ui";
 
 export default async function SankeyPage() {
   const { supabase, user } = await requireUser();
@@ -15,10 +16,10 @@ export default async function SankeyPage() {
 
   return (
     <AppShell email={user.email || ""}>
-      <div className="space-y-6">
+      <div className={SECTION_STACK}>
         <div>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 mobile:text-2xl">Application Flow</h1>
-          <p className="mt-0.5 text-sm text-gray-400 dark:text-gray-500 mobile:text-base">
+          <h1 className={TEXT_H1}>Application Flow</h1>
+          <p className={`mt-0.5 ${TEXT_MUTED}`}>
             Visualize how your applications move through different stages
           </p>
         </div>

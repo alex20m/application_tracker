@@ -2,12 +2,17 @@
 
 import { useState, useTransition } from "react";
 import { transitionApplicationStatusAction } from "@/app/applications/actions";
+import { BTN_SMALL, TEXT_MUTED } from "@/lib/ui";
 import { STATUS_NEXT, STATUS_NAMES, type ApplicationStatus } from "@/lib/statuses";
 
 type ApplicationStatusQuickActionsProps = {
   applicationId: string;
   currentStatus: ApplicationStatus;
 };
+
+const BTN_MOVE = `${BTN_SMALL} border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400 hover:border-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-500/15 hover:text-indigo-600 dark:hover:text-indigo-300`;
+const BTN_STATUS = `${BTN_SMALL} border-indigo-200 dark:border-indigo-500/40 bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-500/25`;
+const BTN_CANCEL = `${BTN_SMALL} border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300`;
 
 export function ApplicationStatusQuickActions({
   applicationId,
@@ -29,29 +34,29 @@ export function ApplicationStatusQuickActions({
   };
 
   if (nextStatuses.length === 0) {
-    return <span className="text-xs text-gray-300 dark:text-gray-600 mobile:text-sm">Final status</span>;
+    return <span className={TEXT_MUTED}>Final status</span>;
   }
 
   return (
-    <div className="flex flex-col items-end gap-1.5">
+    <div className="flex flex-col items-end gap-1.5 mobile:items-start">
       {!isOpen ? (
         <button
           type="button"
           onClick={() => setIsOpen(true)}
           disabled={isPending}
-          className="cursor-pointer rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-2.5 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 transition hover:border-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-500/15 hover:text-indigo-600 dark:hover:text-indigo-300 disabled:cursor-not-allowed disabled:opacity-50 mobile:text-sm mobile:min-h-11 mobile:px-3"
+          className={BTN_MOVE}
         >
           {isPending ? "Saving..." : "Move to →"}
         </button>
       ) : (
-        <div className="flex flex-wrap justify-end gap-1">
+        <div className="flex flex-wrap justify-end gap-1 mobile:justify-start">
           {nextStatuses.map((status) => (
             <button
               key={status}
               type="button"
               onClick={() => handleChangeStatus(status)}
               disabled={isPending}
-              className="cursor-pointer rounded-lg border border-indigo-200 dark:border-indigo-500/40 bg-indigo-50 dark:bg-indigo-500/15 px-2.5 py-1 text-xs font-medium text-indigo-700 dark:text-indigo-300 transition hover:bg-indigo-100 dark:hover:bg-indigo-500/25 disabled:cursor-not-allowed disabled:opacity-50 mobile:text-sm mobile:min-h-11 mobile:px-3"
+              className={BTN_STATUS}
             >
               {STATUS_NAMES[status]}
             </button>
@@ -60,7 +65,7 @@ export function ApplicationStatusQuickActions({
             type="button"
             onClick={() => setIsOpen(false)}
             disabled={isPending}
-            className="cursor-pointer rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-2.5 py-1 text-xs text-gray-400 dark:text-gray-500 transition hover:text-gray-600 dark:hover:text-gray-300 disabled:cursor-not-allowed disabled:opacity-50 mobile:text-sm mobile:min-h-11 mobile:px-3"
+            className={BTN_CANCEL}
           >
             Cancel
           </button>
