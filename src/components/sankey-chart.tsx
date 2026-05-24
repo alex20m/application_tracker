@@ -32,7 +32,7 @@ type LayoutLink = SankeyLink<NodeDatum, LinkDatum> & {
 type LayoutGraph = { nodes: LayoutNode[]; links: LayoutLink[] };
 
 const NODE_WIDTH = 16;
-const CHART_FRAME = "rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 shadow-sm h-[500px] mobile:h-[360px]";
+const CHART_FRAME = "rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 shadow-sm h-[500px] mobile:h-[440px] mobile:min-w-[640px]";
 
 // Module-level typed path generator — avoids an `any` cast in the render.
 type LinkForPath = SankeyLinkMinimal<SankeyNode<NodeDatum, LinkDatum>, LinkDatum>;
@@ -80,13 +80,11 @@ function SankeyNodeShape({
   node,
   graph,
   width,
-  isMobile,
   dark,
 }: {
   node: LayoutNode;
   graph: LayoutGraph;
   width: number;
-  isMobile: boolean;
   dark: boolean;
 }) {
   const h = Math.max(node.y1 - node.y0, 1);
@@ -123,7 +121,7 @@ function SankeyNodeShape({
         x={lx}
         y={node.y0 + h / 2 - 6}
         textAnchor={anchor}
-        fontSize={isMobile ? 10 : 12}
+        fontSize={12}
         fill="var(--foreground)"
         fontWeight={600}
       >
@@ -133,7 +131,7 @@ function SankeyNodeShape({
         x={lx}
         y={node.y0 + h / 2 + 9}
         textAnchor={anchor}
-        fontSize={isMobile ? 9 : 11}
+        fontSize={11}
         fill="var(--foreground)"
         fillOpacity={0.85}
       >
@@ -155,8 +153,8 @@ function DiagramContent({
   dark: boolean;
 }) {
   const { w: width, h: height } = dims;
-  const margin = isMobile ? 40 : 120;
-  const nodePadding = isMobile ? 12 : 20;
+  const margin = isMobile ? 60 : 120;
+  const nodePadding = isMobile ? 16 : 20;
 
   const sankeyGen = sankey<NodeDatum, LinkDatum>()
     .nodeWidth(NODE_WIDTH)
@@ -195,7 +193,7 @@ function DiagramContent({
         ))}
 
         {graph.nodes.map((node, i) => (
-          <SankeyNodeShape key={i} node={node} graph={graph} width={width} isMobile={isMobile} dark={dark} />
+          <SankeyNodeShape key={i} node={node} graph={graph} width={width} dark={dark} />
         ))}
       </svg>
     </div>
