@@ -74,11 +74,10 @@ describe("deleteAllApplicationsAction", () => {
 
   it("should exclude wishlisted roles", async () => {
     await deleteAllApplicationsAction();
-    const eqCalls = mockSupabase.from.mock.results[0].value.eq.mock.calls;
-    const statusCalls = eqCalls.filter((call) => call[0] === "status");
-    // Should NOT use equality filter on status
-    expect(statusCalls.some((call) => call[1] === STATUS.wishlist)).toBe(false);
-    // Should still apply a status condition (neq-based exclusion)
-    expect(statusCalls.length).toBe(1);
+    const deleteBuilder = mockSupabase.from.mock.results[0].value.delete.mock.results[0].value;
+    const eqCalls = deleteBuilder.eq.mock.calls;
+    const neqCalls = deleteBuilder.neq.mock.calls;
+    expect(eqCalls.some((call: any) => call[0] === "status")).toBe(false);
+    expect(neqCalls.some((call: any) => call[0] === "status" && call[1] === STATUS.wishlist)).toBe(true);
   });
 });
