@@ -1,7 +1,9 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { ChangePasswordSchema } from "@/lib/schemas";
+import { ChangePasswordSchema, DeleteAccountSchema } from "@/lib/schemas";
+import { ROUTES } from "@/lib/env";
 
 export async function changePasswordAction(
   _prevState: unknown,
@@ -43,4 +45,41 @@ export async function changePasswordAction(
   }
 
   return { success: true, message: "Password updated." };
+}
+
+export async function deleteAccountAction(
+  _prevState: unknown,
+  formData: FormData
+): Promise<{ success: boolean; error?: string }> {
+  const { supabase, user } = await requireUser();
+
+  if (!user.email) {
+    return { success: false, error: "Account deletion is not available for this account." };
+  }
+
+  const parsed = DeleteAccountSchema.safeParse({ password: formData.get("password") });
+
+  if (!parsed.success) {
+    const first = parsed.error.issues[0];
+    return { success: false, error: first?.message ?? "Invalid input." };
+  }
+
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password: parsed.data.password,
+  });
+
+  if (signInError) {
+    return { success: false, error: "Incorrect password." };
+  }
+
+  const { error: deleteError } = await supabase.rpc("delete_user");
+
+  if (deleteError) {
+    console.error("[delete-account] delete_user rpc error:", deleteError);
+    return { success: false, error: "Failed to delete account. Please try again." };
+  }
+
+  await supabase.auth.signOut({ scope: "local" });
+  redirect(ROUTES.login);
 }

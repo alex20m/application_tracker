@@ -103,7 +103,7 @@ describe("loginAction", () => {
   });
 
   describe("signup mode", () => {
-    it("calls signUp and returns success message", async () => {
+    it("calls signUp and returns neutral confirmation message", async () => {
       const fd = makeFormData({
         email: "newuser@example.com",
         password: "newpass",
@@ -113,6 +113,9 @@ describe("loginAction", () => {
       const result = await loginAction(null, fd);
       expect(mockSupabase.auth.signUp).toHaveBeenCalledOnce();
       expect(result.success).toBe(true);
+      // Must not claim a new account was created (would mislead on duplicate emails)
+      expect(result.message).not.toMatch(/account created/i);
+      expect(result.message).toMatch(/check your inbox/i);
     });
 
     it("returns error when signUp fails", async () => {
