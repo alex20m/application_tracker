@@ -10,7 +10,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: "AppTrack",
-  description: "Track job applications across devices",
+  description: "Track job applications using advanced analytics to optimize your job search.",
   manifest: "/manifest.webmanifest",
   icons: {
     icon: "/icon-512.png",
@@ -18,14 +18,14 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "AppTrack",
-    description: "Track job applications across devices",
+    description: "Track job applications using advanced analytics to optimize your job search.",
     siteName: "AppTrack",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "AppTrack",
-    description: "Track job applications across devices",
+    description: "Track job applications using advanced analytics to optimize your job search.",
   },
   appleWebApp: {
     capable: true,

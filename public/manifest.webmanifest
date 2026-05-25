@@ -1,7 +1,7 @@
 {
   "name": "AppTrack",
   "short_name": "AppTrack",
-  "description": "Track job applications across devices with Sankey insights",
+  "description": "Track job applications using advanced analytics to optimize your job search.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
