@@ -34,7 +34,7 @@ CREATE POLICY "Users can delete their own applications" ON public.applications F
 -- Allows an authenticated user to delete their own auth.users row.
 -- SECURITY DEFINER runs with owner privileges so it can write to auth.users.
 -- The WHERE clause pins deletion to the caller's own ID (auth.uid()).
-CREATE OR REPLACE FUNCTION public.delete_user()
+CREATE FUNCTION public.delete_user()
 RETURNS void
 LANGUAGE plpgsql
 SECURITY DEFINER
