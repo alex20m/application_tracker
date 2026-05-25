@@ -12,6 +12,10 @@ export const metadata: Metadata = {
   title: "AppTrack",
   description: "Track job applications across devices",
   manifest: "/manifest.webmanifest",
+  icons: {
+    icon: "/icon-512.png",
+    apple: "/icon-192.png",
+  },
   openGraph: {
     title: "AppTrack",
     description: "Track job applications across devices",
