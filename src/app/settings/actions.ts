@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { createSupabaseAdminClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { ChangePasswordSchema, DeleteAccountSchema } from "@/lib/schemas";
 import { ROUTES } from "@/lib/env";
 

@@ -20,6 +20,9 @@ vi.mock("@/lib/auth", () => ({
 
 vi.mock("@/lib/supabase/server", () => ({
   createSupabaseServerClient: vi.fn(),
+}));
+
+vi.mock("@/lib/supabase/admin", () => ({
   createSupabaseAdminClient: vi.fn(),
 }));
 
@@ -41,7 +44,7 @@ vi.mock("@/lib/env", () => ({
 
 import { deleteAccountAction } from "@/app/settings/actions";
 import { requireUser } from "@/lib/auth";
-import { createSupabaseAdminClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 const requireUserMock = vi.mocked(requireUser);
 const createAdminClientMock = vi.mocked(createSupabaseAdminClient);

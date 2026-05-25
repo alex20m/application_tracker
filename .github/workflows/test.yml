@@ -103,17 +103,19 @@ jobs:
 
       - name: Write .env.local for runtime server
         run: |
-          cat > .env.local <<EOF
-          NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
-          NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ steps.supabase.outputs.anon }}
-          NEXT_PUBLIC_APP_URL=http://localhost:3000
-          SUPABASE_SERVICE_ROLE_KEY=${{ steps.supabase.outputs.service }}
-          EOF
+          printf 'NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321\n' >> .env.local
+          printf 'NEXT_PUBLIC_SUPABASE_ANON_KEY=%s\n' "$ANON_KEY" >> .env.local
+          printf 'NEXT_PUBLIC_APP_URL=http://localhost:3000\n' >> .env.local
+          printf 'SUPABASE_SERVICE_ROLE_KEY=%s\n' "$SERVICE_KEY" >> .env.local
+        env:
+          ANON_KEY: ${{ steps.supabase.outputs.anon }}
+          SERVICE_KEY: ${{ steps.supabase.outputs.service }}
 
       - name: Run Playwright tests
         run: npm run test:e2e
         env:
           CI: true
+          SUPABASE_SERVICE_ROLE_KEY: ${{ steps.supabase.outputs.service }}
 
       - name: Upload Playwright report on failure
         if: failure()
