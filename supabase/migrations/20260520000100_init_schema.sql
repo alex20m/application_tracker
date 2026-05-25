@@ -30,3 +30,17 @@ CREATE POLICY "Users can read their own applications"   ON public.applications F
 CREATE POLICY "Users can create their own applications" ON public.applications FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can update their own applications" ON public.applications FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can delete their own applications" ON public.applications FOR DELETE USING (auth.uid() = user_id);
+
+-- Allows an authenticated user to delete their own auth.users row.
+-- SECURITY DEFINER runs with owner privileges so it can write to auth.users.
+-- The WHERE clause pins deletion to the caller's own ID (auth.uid()).
+CREATE OR REPLACE FUNCTION public.delete_user()
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+BEGIN
+  DELETE FROM auth.users WHERE id = auth.uid();
+END;
+$$;
