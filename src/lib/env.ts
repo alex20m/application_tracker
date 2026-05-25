@@ -22,6 +22,8 @@ export const ROUTES = {
   login: "/login",
   applications: "/applications",
   newApplication: "/applications/new",
+  wishlist: "/wishlist",
+  newWishlist: "/wishlist/new",
   sankey: "/sankey",
   settings: "/settings",
   authCallback: "/api/auth/callback",

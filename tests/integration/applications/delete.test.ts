@@ -18,6 +18,7 @@ import {
   deleteAllApplicationsAction,
 } from "@/app/applications/actions";
 import { requireUser } from "@/lib/auth";
+import { STATUS } from "@/lib/statuses";
 
 const requireUserMock = vi.mocked(requireUser);
 const VALID_APP_ID = "a1b2c3d4-e5f6-4000-a000-000000000003";
@@ -69,5 +70,14 @@ describe("deleteAllApplicationsAction", () => {
     const result = await deleteAllApplicationsAction();
     expect(result.success).toBe(false);
     expect(result.error).toBeTruthy();
+  });
+
+  it("should exclude wishlisted roles", async () => {
+    await deleteAllApplicationsAction();
+    const deleteBuilder = mockSupabase.from.mock.results[0].value.delete.mock.results[0].value;
+    const eqCalls = deleteBuilder.eq.mock.calls as [string, unknown][];
+    const neqCalls = deleteBuilder.neq.mock.calls as [string, unknown][];
+    expect(eqCalls.some((call) => call[0] === "status")).toBe(false);
+    expect(neqCalls.some((call) => call[0] === "status" && call[1] === STATUS.wishlist)).toBe(true);
   });
 });

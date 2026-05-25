@@ -4,6 +4,7 @@ import type { StatusEvent } from "./types";
 
 export function revalidateApplicationViews() {
   revalidatePath("/applications");
+  revalidatePath("/wishlist");
   revalidatePath("/sankey");
 }
 

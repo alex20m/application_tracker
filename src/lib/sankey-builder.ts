@@ -16,7 +16,7 @@ export function buildSankeyData(applications: ApplicationRecord[]): SankeyData {
     (app.events || []).forEach((event) => {
       const from = event.from_status ?? SANKEY_ROOT;
       const to = event.to_status;
-      if (!to || to === "wishlist") return;
+      if (!to || to === "wishlist" || from === "wishlist") return;
       if (from === to) return;
       const key = `${from}→${to}`;
       transitionCounts.set(key, (transitionCounts.get(key) || 0) + 1);
