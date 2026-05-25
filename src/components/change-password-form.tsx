@@ -23,7 +23,6 @@ export function ChangePasswordForm({ action }: ChangePasswordFormProps) {
   useEffect(() => {
     if (state.success) {
       formRef.current?.reset();
-      setNewPassword("");
     }
   }, [state.success]);
 
@@ -49,7 +48,7 @@ export function ChangePasswordForm({ action }: ChangePasswordFormProps) {
   const displayError = clientError ?? state.error;
 
   return (
-    <form ref={formRef} action={formAction} onSubmit={handleSubmit} className="space-y-4">
+    <form ref={formRef} action={formAction} onSubmit={handleSubmit} onReset={() => setNewPassword("")} className="space-y-4">
       {displayError && <div className={ERROR_BANNER}>{displayError}</div>}
       {state.message && <div className={SUCCESS_BANNER}>{state.message}</div>}
 
