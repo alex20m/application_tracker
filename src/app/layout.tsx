@@ -5,10 +5,24 @@ import { headers } from "next/headers";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "AppTrack",
   description: "Track job applications across devices",
   manifest: "/manifest.webmanifest",
+  openGraph: {
+    title: "AppTrack",
+    description: "Track job applications across devices",
+    siteName: "AppTrack",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AppTrack",
+    description: "Track job applications across devices",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
