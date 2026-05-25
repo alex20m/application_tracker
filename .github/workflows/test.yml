@@ -99,6 +99,7 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ steps.supabase.outputs.anon }}
           NEXT_PUBLIC_APP_URL: http://localhost:3000
+          SUPABASE_SERVICE_ROLE_KEY: ${{ steps.supabase.outputs.service }}
 
       - name: Write .env.local for runtime server
         run: |
@@ -106,6 +107,7 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
           NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ steps.supabase.outputs.anon }}
           NEXT_PUBLIC_APP_URL=http://localhost:3000
+          SUPABASE_SERVICE_ROLE_KEY=${{ steps.supabase.outputs.service }}
           EOF
 
       - name: Run Playwright tests
