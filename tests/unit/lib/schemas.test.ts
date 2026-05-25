@@ -3,6 +3,10 @@ import {
   ApplicationCreateSchema,
   ApplicationUpdateSchema,
   ApplicationNoteSchema,
+  PasswordSchema,
+  ForgotPasswordSchema,
+  ResetPasswordSchema,
+  ChangePasswordSchema,
 } from "@/lib/schemas";
 import { STATUS } from "@/lib/statuses";
 
@@ -113,5 +117,98 @@ describe("ApplicationNoteSchema", () => {
 
   it("rejects notes over 5000 chars", () => {
     expect(ApplicationNoteSchema.safeParse({ notes: "a".repeat(5001) }).success).toBe(false);
+  });
+});
+
+describe("PasswordSchema", () => {
+  it("accepts a password of exactly 8 characters", () => {
+    expect(PasswordSchema.safeParse("12345678").success).toBe(true);
+  });
+
+  it("rejects a password shorter than 8 characters", () => {
+    expect(PasswordSchema.safeParse("short").success).toBe(false);
+  });
+
+  it("rejects a password longer than 72 characters", () => {
+    expect(PasswordSchema.safeParse("a".repeat(73)).success).toBe(false);
+  });
+});
+
+describe("ForgotPasswordSchema", () => {
+  it("accepts a valid email", () => {
+    expect(ForgotPasswordSchema.safeParse({ email: "user@example.com" }).success).toBe(true);
+  });
+
+  it("rejects an invalid email", () => {
+    expect(ForgotPasswordSchema.safeParse({ email: "not-an-email" }).success).toBe(false);
+  });
+});
+
+describe("ResetPasswordSchema", () => {
+  it("accepts matching passwords of sufficient length", () => {
+    expect(
+      ResetPasswordSchema.safeParse({ password: "newpassword1", confirmPassword: "newpassword1" }).success
+    ).toBe(true);
+  });
+
+  it("rejects when passwords do not match", () => {
+    const result = ResetPasswordSchema.safeParse({ password: "newpassword1", confirmPassword: "different1" });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues.some((i) => i.path.includes("confirmPassword"))).toBe(true);
+    }
+  });
+
+  it("rejects when password is too short", () => {
+    expect(
+      ResetPasswordSchema.safeParse({ password: "short", confirmPassword: "short" }).success
+    ).toBe(false);
+  });
+});
+
+describe("ChangePasswordSchema", () => {
+  const validChange = {
+    currentPassword: "current1234",
+    newPassword: "newpassword1",
+    confirmPassword: "newpassword1",
+  };
+
+  it("accepts valid input where new differs from current", () => {
+    expect(ChangePasswordSchema.safeParse(validChange).success).toBe(true);
+  });
+
+  it("rejects when new password equals current password", () => {
+    const result = ChangePasswordSchema.safeParse({
+      ...validChange,
+      newPassword: "current1234",
+      confirmPassword: "current1234",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues.some((i) => i.path.includes("newPassword"))).toBe(true);
+    }
+  });
+
+  it("rejects when new passwords do not match", () => {
+    const result = ChangePasswordSchema.safeParse({
+      ...validChange,
+      confirmPassword: "different1",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues.some((i) => i.path.includes("confirmPassword"))).toBe(true);
+    }
+  });
+
+  it("rejects when new password is too short", () => {
+    expect(
+      ChangePasswordSchema.safeParse({ ...validChange, newPassword: "short", confirmPassword: "short" }).success
+    ).toBe(false);
+  });
+
+  it("rejects when currentPassword is empty", () => {
+    expect(
+      ChangePasswordSchema.safeParse({ ...validChange, currentPassword: "" }).success
+    ).toBe(false);
   });
 });

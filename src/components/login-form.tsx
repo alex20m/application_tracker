@@ -1,7 +1,9 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import Link from "next/link";
 import { BTN_PRIMARY, ERROR_BANNER, INPUT_ON_GRAY, LABEL, SUCCESS_BANNER } from "@/lib/ui";
+import { ROUTES } from "@/lib/env";
 
 type LoginAction = (
   prevState: unknown,
@@ -54,7 +56,17 @@ export function LoginForm({ action }: LoginFormProps) {
 
       {authMode === "password" && (
         <div>
-          <label htmlFor="password" className={LABEL}>Password</label>
+          <div className="flex items-baseline justify-between">
+            <label htmlFor="password" className={LABEL}>Password</label>
+            {authIntent === "signin" && (
+              <Link
+                href={ROUTES.forgotPassword}
+                className="text-xs text-gray-500 dark:text-gray-500 transition hover:text-gray-700 dark:hover:text-gray-300"
+              >
+                Forgot password?
+              </Link>
+            )}
+          </div>
           <input
             id="password"
             type="password"

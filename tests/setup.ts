@@ -1,5 +1,6 @@
 import "@testing-library/jest-dom";
 import { vi } from "vitest";
+import React from "react";
 
 // Stub browser APIs — only in jsdom environments
 if (typeof window !== "undefined") {
@@ -42,6 +43,11 @@ vi.mock("next/navigation", () => ({
 vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
   revalidateTag: vi.fn(),
+}));
+
+vi.mock("next/link", () => ({
+  default: ({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) =>
+    React.createElement("a", { href, className }, children),
 }));
 
 // next-themes stub
