@@ -4,21 +4,11 @@ import { ROUTES } from "@/lib/env";
 import { ResetPasswordForm } from "@/components/reset-password-form";
 import { resetPasswordAction } from "./actions";
 
-type Props = {
-  searchParams: Promise<{ code?: string }>;
-};
-
-export default async function ResetPasswordPage({ searchParams }: Props) {
-  const { code } = await searchParams;
-
-  if (!code) {
-    redirect(`${ROUTES.login}?error=auth`);
-  }
-
+export default async function ResetPasswordPage() {
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.auth.exchangeCodeForSession(code);
+  const { data: { user } } = await supabase.auth.getUser();
 
-  if (error) {
+  if (!user) {
     redirect(`${ROUTES.login}?error=auth`);
   }
 

@@ -14,6 +14,7 @@ vi.mock("@/lib/env", () => ({
     signOut: "/auth/signout",
     forgotPassword: "/forgot-password",
     resetPassword: "/auth/reset-password",
+    resetPasswordCallback: "/api/auth/reset-password",
   },
 }));
 

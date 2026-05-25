@@ -19,7 +19,7 @@ export async function forgotPasswordAction(
   try {
     const supabase = await createSupabaseServerClient();
     await supabase.auth.resetPasswordForEmail(parsed.data.email, {
-      redirectTo: `${APP_URL}${ROUTES.resetPassword}`,
+      redirectTo: `${APP_URL}${ROUTES.resetPasswordCallback}`,
     });
   } catch (err) {
     sanitizeActionError(err, "forgot-password");

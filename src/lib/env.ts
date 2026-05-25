@@ -30,4 +30,5 @@ export const ROUTES = {
   signOut: "/auth/signout",
   forgotPassword: "/forgot-password",
   resetPassword: "/auth/reset-password",
+  resetPasswordCallback: "/api/auth/reset-password",
 } as const;

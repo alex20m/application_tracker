@@ -18,6 +18,7 @@ vi.mock("@/lib/env", () => ({
     signOut: "/auth/signout",
     forgotPassword: "/forgot-password",
     resetPassword: "/auth/reset-password",
+    resetPasswordCallback: "/api/auth/reset-password",
   },
 }));
 
@@ -46,12 +47,12 @@ describe("forgotPasswordAction", () => {
     expect(result.error).toBeTruthy();
   });
 
-  it("calls resetPasswordForEmail with correct redirectTo on valid email", async () => {
+  it("calls resetPasswordForEmail with redirectTo pointing to the callback route handler", async () => {
     const fd = makeFormData({ email: "user@example.com" });
     await forgotPasswordAction(null, fd);
     expect(mockSupabase.auth.resetPasswordForEmail).toHaveBeenCalledWith(
       "user@example.com",
-      expect.objectContaining({ redirectTo: expect.stringContaining("/auth/reset-password") })
+      expect.objectContaining({ redirectTo: expect.stringContaining("/api/auth/reset-password") })
     );
   });
 
