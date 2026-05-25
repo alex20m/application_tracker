@@ -92,7 +92,8 @@ describe("applyWishlistAction", () => {
     expect(result.success).toBe(true);
 
     const updateCall = wishlistSupabase.from.mock.results.find(
-      (r: { value: { update?: unknown } }) => r.value?.update !== undefined
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (r: any) => r.value?.update !== undefined
     );
     expect(updateCall).toBeDefined();
   });
@@ -145,7 +146,8 @@ describe("updateWishlistAction", () => {
     });
 
     const updateCall = mockSupabase.from.mock.results.find(
-      (r: { value: { update?: unknown } }) => r.value?.update !== undefined
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (r: any) => r.value?.update !== undefined
     );
     expect(updateCall).toBeDefined();
   });
