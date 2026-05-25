@@ -37,7 +37,26 @@ describe("ResetPasswordForm", () => {
     await user.type(screen.getByLabelText("Confirm new password"), "short");
     await user.click(screen.getByRole("button", { name: /set new password/i }));
 
-    expect(screen.getByText(/at least 8 characters/i)).toBeInTheDocument();
+    expect(screen.getByText(/password must be at least 8 characters/i)).toBeInTheDocument();
     expect(noopAction).not.toHaveBeenCalled();
+  });
+
+  it("shows client-side error when password has no number", async () => {
+    const user = userEvent.setup();
+    render(<ResetPasswordForm action={noopAction} />);
+
+    await user.type(screen.getByLabelText("New password"), "newpassword");
+    await user.type(screen.getByLabelText("Confirm new password"), "newpassword");
+    await user.click(screen.getByRole("button", { name: /set new password/i }));
+
+    expect(screen.getByText(/must contain a number/i)).toBeInTheDocument();
+    expect(noopAction).not.toHaveBeenCalled();
+  });
+
+  it("shows password criteria checklist below the password field", () => {
+    render(<ResetPasswordForm action={noopAction} />);
+    expect(screen.getByText("At least 8 characters")).toBeInTheDocument();
+    expect(screen.getByText("Contains a letter")).toBeInTheDocument();
+    expect(screen.getByText("Contains a number")).toBeInTheDocument();
   });
 });

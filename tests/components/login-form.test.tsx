@@ -87,6 +87,24 @@ describe("LoginForm", () => {
     expect(authMode.value).toBe("magic");
   });
 
+  describe("Password criteria (signup mode)", () => {
+    it("shows criteria checklist when in signup mode", async () => {
+      const user = userEvent.setup();
+      render(<LoginForm action={noopAction} />);
+
+      await user.click(screen.getByRole("button", { name: /create account/i }));
+
+      expect(screen.getByText("At least 8 characters")).toBeInTheDocument();
+      expect(screen.getByText("Contains a letter")).toBeInTheDocument();
+      expect(screen.getByText("Contains a number")).toBeInTheDocument();
+    });
+
+    it("does not show criteria in signin mode", () => {
+      render(<LoginForm action={noopAction} />);
+      expect(screen.queryByText("At least 8 characters")).not.toBeInTheDocument();
+    });
+  });
+
   describe("Forgot password link", () => {
     it("shows 'Forgot password?' link in default password+signin mode", () => {
       render(<LoginForm action={noopAction} />);

@@ -122,16 +122,32 @@ describe("ApplicationNoteSchema", () => {
 });
 
 describe("PasswordSchema", () => {
-  it("accepts a password of exactly 8 characters", () => {
-    expect(PasswordSchema.safeParse("12345678").success).toBe(true);
+  it("accepts a password of exactly 8 characters with a letter and a number", () => {
+    expect(PasswordSchema.safeParse("pass1234").success).toBe(true);
   });
 
   it("rejects a password shorter than 8 characters", () => {
-    expect(PasswordSchema.safeParse("short").success).toBe(false);
+    expect(PasswordSchema.safeParse("pass1").success).toBe(false);
   });
 
   it("rejects a password longer than 72 characters", () => {
-    expect(PasswordSchema.safeParse("a".repeat(73)).success).toBe(false);
+    expect(PasswordSchema.safeParse("a1".repeat(37)).success).toBe(false);
+  });
+
+  it("rejects a password with no letters", () => {
+    const result = PasswordSchema.safeParse("12345678");
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues.some((i) => i.message.toLowerCase().includes("letter"))).toBe(true);
+    }
+  });
+
+  it("rejects a password with no numbers", () => {
+    const result = PasswordSchema.safeParse("password");
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues.some((i) => i.message.toLowerCase().includes("number"))).toBe(true);
+    }
   });
 });
 

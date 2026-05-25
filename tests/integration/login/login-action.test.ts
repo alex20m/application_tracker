@@ -106,7 +106,7 @@ describe("loginAction", () => {
     it("calls signUp and returns neutral confirmation message", async () => {
       const fd = makeFormData({
         email: "newuser@example.com",
-        password: "newpass",
+        password: "newpass1",
         authMode: "password",
         authIntent: "signup",
       });
@@ -118,12 +118,51 @@ describe("loginAction", () => {
       expect(result.message).toMatch(/check your inbox/i);
     });
 
+    it("rejects a password that is too short", async () => {
+      const fd = makeFormData({
+        email: "newuser@example.com",
+        password: "pass1",
+        authMode: "password",
+        authIntent: "signup",
+      });
+      const result = await loginAction(null, fd);
+      expect(result.success).toBe(false);
+      expect(result.error).toMatch(/at least 8 characters/i);
+      expect(mockSupabase.auth.signUp).not.toHaveBeenCalled();
+    });
+
+    it("rejects a password with no number", async () => {
+      const fd = makeFormData({
+        email: "newuser@example.com",
+        password: "password",
+        authMode: "password",
+        authIntent: "signup",
+      });
+      const result = await loginAction(null, fd);
+      expect(result.success).toBe(false);
+      expect(result.error).toMatch(/number/i);
+      expect(mockSupabase.auth.signUp).not.toHaveBeenCalled();
+    });
+
+    it("rejects a password with no letter", async () => {
+      const fd = makeFormData({
+        email: "newuser@example.com",
+        password: "12345678",
+        authMode: "password",
+        authIntent: "signup",
+      });
+      const result = await loginAction(null, fd);
+      expect(result.success).toBe(false);
+      expect(result.error).toMatch(/letter/i);
+      expect(mockSupabase.auth.signUp).not.toHaveBeenCalled();
+    });
+
     it("returns error when signUp fails", async () => {
       const errorSupabase = buildSupabaseMock({ signUpError: { message: "already registered" } });
       createClientMock.mockResolvedValue(errorSupabase as never);
       const fd = makeFormData({
         email: "user@example.com",
-        password: "pass",
+        password: "validpass1",
         authMode: "password",
         authIntent: "signup",
       });

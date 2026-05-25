@@ -2,6 +2,8 @@
 
 import { useActionState, useState } from "react";
 import { BTN_PRIMARY, ERROR_BANNER, INPUT_ON_GRAY, LABEL } from "@/lib/ui";
+import { PasswordSchema } from "@/lib/schemas";
+import { PasswordCriteria } from "./password-criteria";
 
 type ResetPasswordAction = (
   prevState: unknown,
@@ -15,15 +17,17 @@ type ResetPasswordFormProps = {
 export function ResetPasswordForm({ action }: ResetPasswordFormProps) {
   const [state, formAction, isPending] = useActionState(action, { success: false });
   const [clientError, setClientError] = useState<string | null>(null);
+  const [password, setPassword] = useState("");
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     const fd = new FormData(e.currentTarget);
     const pw = fd.get("password") as string;
     const cpw = fd.get("confirmPassword") as string;
 
-    if (pw.length < 8) {
+    const parsed = PasswordSchema.safeParse(pw);
+    if (!parsed.success) {
       e.preventDefault();
-      setClientError("Password must be at least 8 characters.");
+      setClientError(parsed.error.issues[0]?.message ?? "Invalid password.");
       return;
     }
     if (pw !== cpw) {
@@ -47,10 +51,12 @@ export function ResetPasswordForm({ action }: ResetPasswordFormProps) {
           type="password"
           name="password"
           required
-          minLength={8}
           className={INPUT_ON_GRAY}
           placeholder="••••••••"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
+        <PasswordCriteria value={password} />
       </div>
 
       <div>

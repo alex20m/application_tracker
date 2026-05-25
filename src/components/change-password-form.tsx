@@ -2,6 +2,8 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { BTN_PRIMARY, ERROR_BANNER, INPUT_ON_GRAY, LABEL, SUCCESS_BANNER } from "@/lib/ui";
+import { PasswordSchema } from "@/lib/schemas";
+import { PasswordCriteria } from "./password-criteria";
 
 type ChangePasswordAction = (
   prevState: unknown,
@@ -15,6 +17,7 @@ type ChangePasswordFormProps = {
 export function ChangePasswordForm({ action }: ChangePasswordFormProps) {
   const [state, formAction, isPending] = useActionState(action, { success: false });
   const [clientError, setClientError] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -28,9 +31,10 @@ export function ChangePasswordForm({ action }: ChangePasswordFormProps) {
     const newPw = fd.get("newPassword") as string;
     const confirmPw = fd.get("confirmPassword") as string;
 
-    if (newPw.length < 8) {
+    const parsed = PasswordSchema.safeParse(newPw);
+    if (!parsed.success) {
       e.preventDefault();
-      setClientError("New password must be at least 8 characters.");
+      setClientError(parsed.error.issues[0]?.message ?? "Invalid password.");
       return;
     }
     if (newPw !== confirmPw) {
@@ -44,7 +48,7 @@ export function ChangePasswordForm({ action }: ChangePasswordFormProps) {
   const displayError = clientError ?? state.error;
 
   return (
-    <form ref={formRef} action={formAction} onSubmit={handleSubmit} className="space-y-4">
+    <form ref={formRef} action={formAction} onSubmit={handleSubmit} onReset={() => setNewPassword("")} className="space-y-4">
       {displayError && <div className={ERROR_BANNER}>{displayError}</div>}
       {state.message && <div className={SUCCESS_BANNER}>{state.message}</div>}
 
@@ -68,11 +72,13 @@ export function ChangePasswordForm({ action }: ChangePasswordFormProps) {
           type="password"
           name="newPassword"
           required
-          minLength={8}
           autoComplete="new-password"
           className={INPUT_ON_GRAY}
           placeholder="••••••••"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
         />
+        <PasswordCriteria value={newPassword} />
       </div>
 
       <div>
