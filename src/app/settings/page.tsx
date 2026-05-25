@@ -22,7 +22,7 @@ export default async function SettingsPage() {
 
         {user.email && (
           <div className={CARD}>
-            <h2 className={`${TEXT_H3} mb-4`}>Security</h2>
+            <h2 className={`${TEXT_H3} mb-4`}>Change Password</h2>
             <ChangePasswordForm action={changePasswordAction} />
           </div>
         )}
