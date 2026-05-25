@@ -3,6 +3,21 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { LoginForm } from "@/components/login-form";
 
+vi.mock("@/lib/env", () => ({
+  NEXT_PUBLIC_SUPABASE_URL: "https://test.supabase.co",
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: "test-anon-key",
+  APP_URL: "http://localhost:3000",
+  ROUTES: {
+    login: "/login",
+    applications: "/applications",
+    authCallback: "/api/auth/callback",
+    signOut: "/auth/signout",
+    forgotPassword: "/forgot-password",
+    resetPassword: "/auth/reset-password",
+    resetPasswordCallback: "/api/auth/reset-password",
+  },
+}));
+
 const noopAction = vi.fn().mockResolvedValue({ success: false });
 
 describe("LoginForm", () => {
@@ -70,5 +85,34 @@ describe("LoginForm", () => {
 
     const authMode = container.querySelector('input[name="authMode"]') as HTMLInputElement;
     expect(authMode.value).toBe("magic");
+  });
+
+  describe("Forgot password link", () => {
+    it("shows 'Forgot password?' link in default password+signin mode", () => {
+      render(<LoginForm action={noopAction} />);
+      expect(screen.getByRole("link", { name: /forgot password/i })).toBeInTheDocument();
+    });
+
+    it("links to /forgot-password", () => {
+      render(<LoginForm action={noopAction} />);
+      expect(screen.getByRole("link", { name: /forgot password/i })).toHaveAttribute(
+        "href",
+        "/forgot-password"
+      );
+    });
+
+    it("hides 'Forgot password?' link in magic link mode", async () => {
+      const user = userEvent.setup();
+      render(<LoginForm action={noopAction} />);
+      await user.click(screen.getByRole("button", { name: /use email sign-in link/i }));
+      expect(screen.queryByRole("link", { name: /forgot password/i })).not.toBeInTheDocument();
+    });
+
+    it("hides 'Forgot password?' link in signup mode", async () => {
+      const user = userEvent.setup();
+      render(<LoginForm action={noopAction} />);
+      await user.click(screen.getByRole("button", { name: /create account/i }));
+      expect(screen.queryByRole("link", { name: /forgot password/i })).not.toBeInTheDocument();
+    });
   });
 });

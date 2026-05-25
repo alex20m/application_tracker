@@ -1,7 +1,14 @@
 import { LoginForm } from "@/components/login-form";
 import { loginAction } from "./actions";
+import { SUCCESS_BANNER, ERROR_BANNER } from "@/lib/ui";
 
-export default function LoginPage() {
+type Props = {
+  searchParams: Promise<{ reset?: string; error?: string }>;
+};
+
+export default async function LoginPage({ searchParams }: Props) {
+  const { reset, error } = await searchParams;
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-violet-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 px-4 mobile:items-start mobile:pt-12">
       <div className="w-full max-w-sm">
@@ -14,6 +21,17 @@ export default function LoginPage() {
             Track your job applications in one place
           </p>
         </div>
+
+        {reset === "ok" && (
+          <div className={`mb-4 ${SUCCESS_BANNER}`}>
+            Password updated. Sign in with your new password.
+          </div>
+        )}
+        {error === "auth" && (
+          <div className={`mb-4 ${ERROR_BANNER}`}>
+            This link is invalid or has expired. Please try again.
+          </div>
+        )}
 
         <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-sm mobile:p-5">
           <LoginForm action={loginAction} />

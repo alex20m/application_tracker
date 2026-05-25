@@ -19,3 +19,31 @@ export const ApplicationUpdateSchema = ApplicationCreateSchema.extend({
 export const ApplicationNoteSchema = z.object({
   notes: z.string().max(5000),
 });
+
+export const PasswordSchema = z.string().min(8, "Password must be at least 8 characters").max(72);
+
+export const ForgotPasswordSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+});
+
+export const ResetPasswordSchema = z
+  .object({ password: PasswordSchema, confirmPassword: z.string() })
+  .refine((d) => d.password === d.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Passwords do not match",
+  });
+
+export const ChangePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Current password is required"),
+    newPassword: PasswordSchema,
+    confirmPassword: z.string(),
+  })
+  .refine((d) => d.newPassword === d.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Passwords do not match",
+  })
+  .refine((d) => d.newPassword !== d.currentPassword, {
+    path: ["newPassword"],
+    message: "New password must differ from the current password",
+  });
