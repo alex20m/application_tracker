@@ -12,6 +12,7 @@ type MockOptions = {
   signInWithOtpError?: unknown;
   resetPasswordForEmailError?: unknown;
   updateUserError?: unknown;
+  rpcError?: unknown;
 };
 
 /**
@@ -31,6 +32,7 @@ export function buildSupabaseMock(opts: MockOptions = {}) {
     signInWithOtpError = null,
     resetPasswordForEmailError = null,
     updateUserError = null,
+    rpcError = null,
   } = opts;
 
   // Chain builder: returns an object mimicking the Supabase query builder
@@ -66,6 +68,7 @@ export function buildSupabaseMock(opts: MockOptions = {}) {
       updateUser: vi.fn().mockResolvedValue({ data: {}, error: updateUserError }),
       exchangeCodeForSession: vi.fn().mockResolvedValue({ data: {}, error: null }),
     },
+    rpc: vi.fn().mockResolvedValue({ data: null, error: rpcError }),
   };
 
   return supabase;

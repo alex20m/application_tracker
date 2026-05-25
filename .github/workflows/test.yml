@@ -82,7 +82,7 @@ jobs:
           echo "service=$SERVICE" >> "$GITHUB_OUTPUT"
 
       # auth.users is empty on a fresh local instance. Create the E2E test user
-      # via the Auth Admin API using the service_role key (bypasses confirmation).
+      # via the Auth Admin API using the service_role key (bypasses email confirmation).
       - name: Seed E2E test user
         run: |
           set -euo pipefail
@@ -99,23 +99,11 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ steps.supabase.outputs.anon }}
           NEXT_PUBLIC_APP_URL: http://localhost:3000
-          SUPABASE_SERVICE_ROLE_KEY: ${{ steps.supabase.outputs.service }}
-
-      - name: Write .env.local for runtime server
-        run: |
-          printf 'NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321\n' >> .env.local
-          printf 'NEXT_PUBLIC_SUPABASE_ANON_KEY=%s\n' "$ANON_KEY" >> .env.local
-          printf 'NEXT_PUBLIC_APP_URL=http://localhost:3000\n' >> .env.local
-          printf 'SUPABASE_SERVICE_ROLE_KEY=%s\n' "$SERVICE_KEY" >> .env.local
-        env:
-          ANON_KEY: ${{ steps.supabase.outputs.anon }}
-          SERVICE_KEY: ${{ steps.supabase.outputs.service }}
 
       - name: Run Playwright tests
         run: npm run test:e2e
         env:
           CI: true
-          SUPABASE_SERVICE_ROLE_KEY: ${{ steps.supabase.outputs.service }}
 
       - name: Upload Playwright report on failure
         if: failure()

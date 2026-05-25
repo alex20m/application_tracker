@@ -2,7 +2,6 @@
 
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { ChangePasswordSchema, DeleteAccountSchema } from "@/lib/schemas";
 import { ROUTES } from "@/lib/env";
 
@@ -74,11 +73,10 @@ export async function deleteAccountAction(
     return { success: false, error: "Incorrect password." };
   }
 
-  const admin = createSupabaseAdminClient();
-  const { error: deleteError } = await admin.auth.admin.deleteUser(user.id);
+  const { error: deleteError } = await supabase.rpc("delete_user");
 
   if (deleteError) {
-    console.error("[delete-account] deleteUser error:", deleteError);
+    console.error("[delete-account] delete_user rpc error:", deleteError);
     return { success: false, error: "Failed to delete account. Please try again." };
   }
 
