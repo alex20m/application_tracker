@@ -62,7 +62,10 @@ export async function loginAction(
       return { success: false, error: error.message };
     }
 
-    return { success: true, message: "Account created. Check your email if confirmation is required." };
+    // Supabase silently succeeds for duplicate emails (anti-enumeration) by returning
+    // a user with an empty identities array instead of an error. Use the same neutral
+    // message for both cases to avoid leaking whether an email is registered.
+    return { success: true, message: "If this email isn't already registered, check your inbox to confirm your account." };
   }
 
   const { error } = await supabase.auth.signInWithPassword({ email, password });

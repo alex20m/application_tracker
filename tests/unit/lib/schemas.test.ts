@@ -7,6 +7,7 @@ import {
   ForgotPasswordSchema,
   ResetPasswordSchema,
   ChangePasswordSchema,
+  DeleteAccountSchema,
 } from "@/lib/schemas";
 import { STATUS } from "@/lib/statuses";
 
@@ -210,5 +211,23 @@ describe("ChangePasswordSchema", () => {
     expect(
       ChangePasswordSchema.safeParse({ ...validChange, currentPassword: "" }).success
     ).toBe(false);
+  });
+});
+
+describe("DeleteAccountSchema", () => {
+  it("accepts a non-empty password", () => {
+    expect(DeleteAccountSchema.safeParse({ password: "anypassword" }).success).toBe(true);
+  });
+
+  it("rejects an empty password", () => {
+    const result = DeleteAccountSchema.safeParse({ password: "" });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0]?.message).toMatch(/required/i);
+    }
+  });
+
+  it("rejects when password field is missing", () => {
+    expect(DeleteAccountSchema.safeParse({}).success).toBe(false);
   });
 });

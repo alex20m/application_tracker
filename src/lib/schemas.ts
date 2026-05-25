@@ -33,6 +33,10 @@ export const ResetPasswordSchema = z
     message: "Passwords do not match",
   });
 
+export const DeleteAccountSchema = z.object({
+  password: z.string().min(1, "Password is required"),
+});
+
 export const ChangePasswordSchema = z
   .object({
     currentPassword: z.string().min(1, "Current password is required"),
