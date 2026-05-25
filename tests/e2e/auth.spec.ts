@@ -10,7 +10,7 @@ test.describe("Authentication flows", () => {
   test("unauthenticated /applications redirects to /login with next param", async ({ page }) => {
     await page.goto("/applications");
     await expect(page).toHaveURL(/\/login/);
-    expect(page.url()).toContain("next=/applications");
+    expect(decodeURIComponent(page.url())).toContain("next=/applications");
   });
 
   test("unauthenticated /sankey redirects to /login", async ({ page }) => {

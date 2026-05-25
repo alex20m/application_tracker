@@ -29,10 +29,11 @@ export const test = base.extend<Fixtures>({
       const link = page.getByRole("link", { name: new RegExp(company, "i") }).first();
       await expect(link).toBeVisible();
 
-      // Navigate to the app to get its ID from the URL
-      await link.click();
-      const url = page.url();
-      const id = url.split("/applications/")[1]?.split("?")[0] ?? "";
+      // Extract id from the link's href to avoid a navigation race
+      const href = await link.getAttribute("href");
+      const id = href?.split("/applications/")[1]?.split("?")[0] ?? "";
+      if (!id) throw new Error(`Could not extract id from link href: ${href}`);
+      const url = href!;
       created.push(id);
       return { id, url };
     };

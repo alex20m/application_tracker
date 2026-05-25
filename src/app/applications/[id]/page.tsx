@@ -45,7 +45,7 @@ export default async function ApplicationDetailPage({
   return (
     <AppShell email={user.email || ""}>
       <div className={SECTION_STACK}>
-        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
           <Link href={ROUTES.applications} className="transition hover:text-gray-700 dark:hover:text-gray-300">
             Applications
           </Link>
