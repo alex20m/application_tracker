@@ -2,7 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { applyWishlistAction } from "@/app/wishlist/actions";
-import { BTN_GHOST, BTN_PRIMARY, BTN_SMALL, ERROR_BANNER, INPUT, LABEL } from "@/lib/ui";
+import { BTN_GHOST, BTN_PRIMARY, BTN_SMALL, ERROR_BANNER, INPUT, LABEL, TEXT_H3 } from "@/lib/ui";
 
 type WishlistApplyActionProps = {
   applicationId: string;
@@ -44,9 +44,9 @@ export function WishlistApplyAction({ applicationId }: WishlistApplyActionProps)
 
       <dialog
         ref={dialogRef}
-        className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-xl backdrop:bg-black/40 w-full max-w-sm"
+        className="m-auto rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-xl backdrop:bg-black/40 w-full max-w-sm"
       >
-        <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-4">
+        <h2 className={`${TEXT_H3} mb-4`}>
           Mark as Applied
         </h2>
 

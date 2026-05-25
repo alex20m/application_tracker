@@ -169,3 +169,18 @@ export async function deleteWishlistAction(formData: FormData): Promise<void> {
 
   revalidateApplicationViews();
 }
+
+export async function deleteAllWishlistAction(): Promise<{ success: boolean; error?: string }> {
+  const { supabase, user } = await requireUser();
+
+  const { error } = await supabase
+    .from("applications")
+    .delete()
+    .eq("user_id", user.id)
+    .eq("status", STATUS.wishlist);
+
+  if (error) return { success: false, error: sanitizeActionError(error, "wishlist:delete-all") };
+
+  revalidateApplicationViews();
+  return { success: true };
+}
