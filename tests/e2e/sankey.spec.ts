@@ -21,10 +21,12 @@ test.describe("Sankey chart page", () => {
 
     // Navigate to Sankey
     await page.goto("/sankey");
-    await expect(page.locator("svg")).toBeVisible({ timeout: 10000 });
+    // Filter to the chart SVG specifically — the page also contains small icon SVGs
+    const chart = page.locator("svg").filter({ hasText: SANKEY_ROOT_LABEL });
+    await expect(chart).toBeVisible({ timeout: 10000 });
 
     // The root "Applications" node label should be in the SVG
-    const svgText = await page.locator("svg").textContent();
+    const svgText = await chart.textContent();
     expect(svgText).toContain(SANKEY_ROOT_LABEL);
   });
 });
