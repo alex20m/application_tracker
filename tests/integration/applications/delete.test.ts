@@ -75,9 +75,9 @@ describe("deleteAllApplicationsAction", () => {
   it("should exclude wishlisted roles", async () => {
     await deleteAllApplicationsAction();
     const deleteBuilder = mockSupabase.from.mock.results[0].value.delete.mock.results[0].value;
-    const eqCalls = deleteBuilder.eq.mock.calls;
-    const neqCalls = deleteBuilder.neq.mock.calls;
-    expect(eqCalls.some((call: any) => call[0] === "status")).toBe(false);
-    expect(neqCalls.some((call: any) => call[0] === "status" && call[1] === STATUS.wishlist)).toBe(true);
+    const eqCalls = deleteBuilder.eq.mock.calls as [string, unknown][];
+    const neqCalls = deleteBuilder.neq.mock.calls as [string, unknown][];
+    expect(eqCalls.some((call) => call[0] === "status")).toBe(false);
+    expect(neqCalls.some((call) => call[0] === "status" && call[1] === STATUS.wishlist)).toBe(true);
   });
 });

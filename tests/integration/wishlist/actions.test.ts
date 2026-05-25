@@ -180,10 +180,10 @@ describe("deleteAllWishlistAction", () => {
     const result = await deleteAllWishlistAction();
     expect(result.success).toBe(true);
 
-    const eqCalls = mockSupabase.from.mock.results[0].value.delete.mock.results[0].value.eq.mock.calls;
+    const eqCalls = mockSupabase.from.mock.results[0].value.delete.mock.results[0].value.eq.mock.calls as [string, unknown][];
 
-    const userFilter = eqCalls.find((call: any) => call[0] === "user_id");
-    const statusFilter = eqCalls.find((call: any) => call[0] === "status");
+    const userFilter = eqCalls.find((call) => call[0] === "user_id");
+    const statusFilter = eqCalls.find((call) => call[0] === "status");
 
     expect(userFilter).toBeDefined();
     expect(statusFilter?.[1]).toBe(STATUS.wishlist);
