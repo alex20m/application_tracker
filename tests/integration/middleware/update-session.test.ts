@@ -15,6 +15,8 @@ vi.mock("@/lib/env", () => ({
     applications: "/applications",
     authCallback: "/api/auth/callback",
     signOut: "/auth/signout",
+    forgotPassword: "/forgot-password",
+    resetPasswordCallback: "/api/auth/reset-password",
   },
 }));
 
@@ -80,6 +82,22 @@ describe("updateSession", () => {
   it("passes through unauthenticated request to /api/auth/callback (public path)", async () => {
     createServerClientMock.mockReturnValue(makeSupabaseMockClient(null) as never);
     const request = makeRequest("/api/auth/callback");
+    const response = await updateSession(request);
+
+    expect(response.status).toBe(200);
+  });
+
+  it("passes through unauthenticated request to /forgot-password (public path)", async () => {
+    createServerClientMock.mockReturnValue(makeSupabaseMockClient(null) as never);
+    const request = makeRequest("/forgot-password");
+    const response = await updateSession(request);
+
+    expect(response.status).toBe(200);
+  });
+
+  it("passes through unauthenticated request to /api/auth/reset-password (public path)", async () => {
+    createServerClientMock.mockReturnValue(makeSupabaseMockClient(null) as never);
+    const request = makeRequest("/api/auth/reset-password");
     const response = await updateSession(request);
 
     expect(response.status).toBe(200);
