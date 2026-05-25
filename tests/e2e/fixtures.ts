@@ -45,9 +45,8 @@ export const test = base.extend<Fixtures>({
       await page.goto(`/applications/${id}`);
       const deleteBtn = page.getByRole("button", { name: /delete/i }).first();
       if (await deleteBtn.isVisible()) {
-        await deleteBtn.click();
-        // Confirm if a dialog appears
         page.once("dialog", (d) => d.accept());
+        await deleteBtn.click();
         await expect(page).toHaveURL("/applications", { timeout: 10000 });
       }
     }

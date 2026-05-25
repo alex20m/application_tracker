@@ -32,8 +32,8 @@ test.describe("Application CRUD", () => {
     await page.getByRole("button", { name: /save application/i }).click();
 
     await expect(page).toHaveURL("/applications");
-    await expect(page.getByText("Edited Corp")).toBeVisible();
-    await expect(page.getByText("Senior Dev")).toBeVisible();
+    await expect(page.getByText("Edited Corp").first()).toBeVisible();
+    await expect(page.getByText("Senior Dev").first()).toBeVisible();
   });
 
   test("add a note and verify it persists after reload", async ({ page, withApplication }) => {
@@ -47,7 +47,7 @@ test.describe("Application CRUD", () => {
 
     // Reload the application list and check the note appears in the card
     await page.reload();
-    await expect(page.getByText("This is a test note.")).toBeVisible();
+    await expect(page.getByText("This is a test note.").first()).toBeVisible();
   });
 
   test("delete application from the list (inline delete button)", async ({ page }) => {
