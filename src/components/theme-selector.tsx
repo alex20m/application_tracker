@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 const options = [
   { value: "light", label: "Light" },
@@ -11,10 +11,13 @@ const options = [
 
 export function ThemeSelector() {
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  // Avoid hydration mismatch — only render the active state after mount
-  useEffect(() => setMounted(true), []);
+  // useSyncExternalStore returns false on the server and true on the client,
+  // avoiding hydration mismatch without calling setState inside an effect.
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
 
   return (
     <div className="flex gap-2 mobile:flex-col">

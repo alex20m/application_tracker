@@ -80,12 +80,10 @@ function SankeyNodeShape({
   node,
   graph,
   width,
-  dark,
 }: {
   node: LayoutNode;
   graph: LayoutGraph;
   width: number;
-  dark: boolean;
 }) {
   const h = Math.max(node.y1 - node.y0, 1);
   const label = nodeLabel(node.name);
@@ -193,7 +191,7 @@ function DiagramContent({
         ))}
 
         {graph.nodes.map((node, i) => (
-          <SankeyNodeShape key={i} node={node} graph={graph} width={width} dark={dark} />
+          <SankeyNodeShape key={i} node={node} graph={graph} width={width} />
         ))}
       </svg>
     </div>

@@ -1,0 +1,123 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  quality:
+    name: Lint · Typecheck · Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit & integration tests
+        run: npm run test:coverage
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
+          NEXT_PUBLIC_APP_URL: http://localhost:3000
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/
+          retention-days: 14
+
+  e2e:
+    name: E2E (Playwright)
+    runs-on: ubuntu-latest
+    needs: quality
+    if: github.event_name == 'pull_request'
+    env:
+      E2E_USER: e2e@test.local
+      E2E_PASSWORD: e2e-test-password-do-not-use-in-prod
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      # Starts a local Supabase stack (Postgres + Auth + API) inside Docker on
+      # the runner. Migrations in supabase/migrations/ are applied automatically.
+      # No secrets needed — credentials are read from `supabase status` below.
+      - name: Start local Supabase
+        run: supabase start
+
+      - name: Get local Supabase credentials
+        id: supabase
+        run: |
+          set -euo pipefail
+          STATUS=$(supabase status -o env)
+          ANON=$(echo "$STATUS" | grep '^ANON_KEY=' | cut -d= -f2-)
+          SERVICE=$(echo "$STATUS" | grep '^SERVICE_ROLE_KEY=' | cut -d= -f2-)
+          echo "anon=$ANON"       >> "$GITHUB_OUTPUT"
+          echo "service=$SERVICE" >> "$GITHUB_OUTPUT"
+
+      # auth.users is empty on a fresh local instance. Create the E2E test user
+      # via the Auth Admin API using the service_role key (bypasses confirmation).
+      - name: Seed E2E test user
+        run: |
+          set -euo pipefail
+          curl -sf -X POST \
+            -H "apikey: ${{ steps.supabase.outputs.service }}" \
+            -H "Authorization: Bearer ${{ steps.supabase.outputs.service }}" \
+            -H "Content-Type: application/json" \
+            "http://localhost:54321/auth/v1/admin/users" \
+            -d "{\"email\":\"${E2E_USER}\",\"password\":\"${E2E_PASSWORD}\",\"email_confirm\":true}"
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ steps.supabase.outputs.anon }}
+          NEXT_PUBLIC_APP_URL: http://localhost:3000
+
+      - name: Write .env.local for runtime server
+        run: |
+          cat > .env.local <<EOF
+          NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ steps.supabase.outputs.anon }}
+          NEXT_PUBLIC_APP_URL=http://localhost:3000
+          EOF
+
+      - name: Run Playwright tests
+        run: npm run test:e2e
+        env:
+          CI: true
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
