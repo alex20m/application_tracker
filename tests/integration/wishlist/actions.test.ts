@@ -14,7 +14,7 @@ vi.mock("@/lib/supabase/server", () => ({
   createSupabaseServerClient: vi.fn(),
 }));
 
-import { createWishlistAction, applyWishlistAction, updateWishlistAction } from "@/app/wishlist/actions";
+import { createWishlistAction, applyWishlistAction, updateWishlistAction, deleteAllWishlistAction } from "@/app/wishlist/actions";
 import { requireUser } from "@/lib/auth";
 
 const requireUserMock = vi.mocked(requireUser);
@@ -172,5 +172,23 @@ describe("updateWishlistAction", () => {
 
     const result = await updateWishlistAction(null, fd);
     expect(result.success).toBe(false);
+  });
+});
+
+describe("deleteAllWishlistAction", () => {
+  it("deletes only wishlist rows for the user", async () => {
+    const result = await deleteAllWishlistAction();
+    expect(result.success).toBe(true);
+
+    const eqCalls = mockSupabase.from.mock.results[0].value.eq.mock.calls;
+
+    const userFilter = eqCalls.find((c) => c[0] === "user_id");
+    const statusFilter = eqCalls.find((c) => c[0] === "status");
+
+    expect(userFilter).toBeDefined();
+    expect(statusFilter?.[1]).toBe(STATUS.wishlist);
+
+    expect(mockSupabase.from).toHaveBeenCalledWith("applications");
+    expect(mockSupabase.from.mock.results[0].value.delete).toHaveBeenCalled();
   });
 });

@@ -18,6 +18,8 @@ import {
   deleteAllApplicationsAction,
 } from "@/app/applications/actions";
 import { requireUser } from "@/lib/auth";
+import { STATUS } from "@/lib/statuses";
+import { deleteAllWishlistAction } from "@/app/wishlist/actions";
 
 const requireUserMock = vi.mocked(requireUser);
 const VALID_APP_ID = "a1b2c3d4-e5f6-4000-a000-000000000003";
@@ -69,5 +71,15 @@ describe("deleteAllApplicationsAction", () => {
     const result = await deleteAllApplicationsAction();
     expect(result.success).toBe(false);
     expect(result.error).toBeTruthy();
+  });
+
+  it("deleteAllApplicationsAction should exclude wishlisted roles", async () => {
+    await deleteAllApplicationsAction();
+    const eqCalls = mockSupabase.from.mock.results[0].value.eq.mock.calls;
+    const statusCalls = eqCalls.filter((call) => call[0] === "status");
+    // Should NOT use equality filter on status
+    expect(statusCalls.some((call) => call[1] === STATUS.wishlist)).toBe(false);
+    // Should still apply a status condition (neq-based exclusion)
+    expect(statusCalls.length).toBe(1);
   });
 });

@@ -160,7 +160,8 @@ export async function deleteAllApplicationsAction(): Promise<{ success: boolean;
   const { error } = await supabase
     .from("applications")
     .delete()
-    .eq("user_id", user.id);
+    .eq("user_id", user.id)
+    .neq("status", STATUS.wishlist);
 
   if (error) return { success: false, error: sanitizeActionError(error, "application:delete-all") };
 
