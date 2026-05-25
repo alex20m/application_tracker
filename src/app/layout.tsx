@@ -4,6 +4,7 @@ import { GeistMono } from "geist/font/mono";
 import { headers } from "next/headers";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Analytics } from "@vercel/analytics/next";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
@@ -61,6 +62,7 @@ export default async function RootLayout({
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ThemeProvider nonce={nonce}>{children}</ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
