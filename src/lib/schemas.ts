@@ -20,7 +20,21 @@ export const ApplicationNoteSchema = z.object({
   notes: z.string().max(5000),
 });
 
-export const PasswordSchema = z.string().min(8, "Password must be at least 8 characters").max(72);
+export const PASSWORD_MIN = 8;
+export const PASSWORD_MAX = 72;
+
+export const PASSWORD_RULES = [
+  { id: "length", label: "At least 8 characters", test: (v: string) => v.length >= PASSWORD_MIN },
+  { id: "letter", label: "Contains a letter", test: (v: string) => /[A-Za-z]/.test(v) },
+  { id: "number", label: "Contains a number", test: (v: string) => /\d/.test(v) },
+] as const;
+
+export const PasswordSchema = z
+  .string()
+  .max(PASSWORD_MAX)
+  .refine((v) => v.length >= PASSWORD_MIN, "Password must be at least 8 characters")
+  .refine((v) => /[A-Za-z]/.test(v), "Password must contain a letter")
+  .refine((v) => /\d/.test(v), "Password must contain a number");
 
 export const ForgotPasswordSchema = z.object({
   email: z.string().email("Please enter a valid email address"),

@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import Link from "next/link";
 import { BTN_PRIMARY, ERROR_BANNER, INPUT_ON_GRAY, LABEL, SUCCESS_BANNER } from "@/lib/ui";
 import { ROUTES } from "@/lib/env";
+import { PasswordCriteria } from "./password-criteria";
 
 type LoginAction = (
   prevState: unknown,
@@ -24,6 +25,7 @@ export function LoginForm({ action }: LoginFormProps) {
   });
   const [authMode, setAuthMode] = useState<"password" | "magic">("password");
   const [authIntent, setAuthIntent] = useState<"signin" | "signup">("signin");
+  const [password, setPassword] = useState("");
 
   const primaryLabel =
     authMode === "magic"
@@ -31,6 +33,8 @@ export function LoginForm({ action }: LoginFormProps) {
       : authIntent === "signup"
         ? "Create Account"
         : "Sign In";
+
+  const showCriteria = authMode === "password" && authIntent === "signup";
 
   return (
     <form action={formAction} className="space-y-4">
@@ -74,7 +78,10 @@ export function LoginForm({ action }: LoginFormProps) {
             required
             className={INPUT_ON_GRAY}
             placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
+          {showCriteria && <PasswordCriteria value={password} />}
         </div>
       )}
 
@@ -92,14 +99,20 @@ export function LoginForm({ action }: LoginFormProps) {
       <div className="flex items-center justify-between gap-2 pt-1">
         <button
           type="button"
-          onClick={() => setAuthMode(authMode === "password" ? "magic" : "password")}
+          onClick={() => {
+            setAuthMode(authMode === "password" ? "magic" : "password");
+            setPassword("");
+          }}
           className="cursor-pointer text-xs text-gray-500 dark:text-gray-500 transition hover:text-gray-700 dark:hover:text-gray-300"
         >
           Use {authMode === "password" ? "email sign-in link" : "password"}
         </button>
         <button
           type="button"
-          onClick={() => setAuthIntent(authIntent === "signin" ? "signup" : "signin")}
+          onClick={() => {
+            setAuthIntent(authIntent === "signin" ? "signup" : "signin");
+            setPassword("");
+          }}
           className="cursor-pointer text-xs text-gray-500 dark:text-gray-500 transition hover:text-gray-700 dark:hover:text-gray-300"
         >
           {authIntent === "signin" ? "Create account" : "Sign in instead"}

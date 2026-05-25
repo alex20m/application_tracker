@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { APP_URL, ROUTES } from "@/lib/env";
+import { PasswordSchema } from "@/lib/schemas";
 
 function genericAuthError() {
   return { success: false as const, error: "Invalid credentials or request failed." };
@@ -51,6 +52,11 @@ export async function loginAction(
   }
 
   if (authIntent === "signup") {
+    const parsed = PasswordSchema.safeParse(password);
+    if (!parsed.success) {
+      return { success: false, error: parsed.error.issues[0]?.message };
+    }
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
