@@ -71,7 +71,8 @@ test.describe("Wishlist", () => {
 
     // Apply with a specific date
     await page.getByRole("button", { name: /^apply$/i }).first().click();
-    await page.getByLabel(/applied on/i).fill("2026-01-15");
+    // Fill the hidden date input inside the open dialog (the visible element is a trigger button)
+    await page.locator("dialog[open] input[name='applied_on']").fill("2026-01-15", { force: true });
     await page.getByRole("button", { name: /confirm/i }).click();
 
     // Row should no longer be on /wishlist

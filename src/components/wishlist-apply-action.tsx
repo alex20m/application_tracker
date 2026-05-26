@@ -59,27 +59,30 @@ export function WishlistApplyAction({ applicationId }: WishlistApplyActionProps)
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={`applied-on-${applicationId}`} className={LABEL}>Applied On</label>
-            {/* Button triggers showPicker() on the hidden input — avoids auto-focus
-                opening the picker when the dialog first appears on mobile Chrome */}
-            <button
-              id={`applied-on-${applicationId}`}
-              type="button"
-              onClick={() => dateInputRef.current?.showPicker()}
-              className={`${INPUT} date-picker-btn text-left cursor-pointer`}
-            >
-              <FormattedDate dateString={selectedDate} />
-            </button>
-            <input
-              ref={dateInputRef}
-              type="date"
-              name="applied_on"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              required
-              aria-hidden="true"
-              tabIndex={-1}
-              className="sr-only"
-            />
+            {/* Overlay pattern: a visual button sits beneath a transparent date input.
+                tabIndex={-1} keeps the input out of sequential focus order so showModal()
+                auto-focus skips it (no picker on dialog open). Direct taps hit the
+                input directly — no showPicker() needed, works on all mobile browsers. */}
+            <div className="relative">
+              <button
+                id={`applied-on-${applicationId}`}
+                type="button"
+                className={`${INPUT} date-picker-btn text-left cursor-pointer w-full`}
+              >
+                <FormattedDate dateString={selectedDate} />
+              </button>
+              <input
+                ref={dateInputRef}
+                type="date"
+                name="applied_on"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                required
+                tabIndex={-1}
+                aria-hidden="true"
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+            </div>
           </div>
 
           <div className="flex justify-end gap-3 pt-1">
