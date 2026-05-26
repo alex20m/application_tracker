@@ -1,5 +1,5 @@
 import type { ApplicationRecord } from "@/lib/types";
-import { formatDate } from "@/lib/date";
+import { FormattedDate } from "@/lib/date";
 import { STATUS_THEME } from "@/lib/statuses";
 import { TEXT_BODY, TEXT_META, TEXT_MUTED, ROW_STACK } from "@/lib/ui";
 import { ApplicationStatusQuickActions } from "@/components/application-status-quick-actions";
@@ -40,7 +40,7 @@ export function ApplicationList({ applications }: ApplicationListProps) {
               <p className={`mt-0.5 ${TEXT_BODY} truncate`}>{app.role}</p>
               <div className={`mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 ${TEXT_META}`}>
                 {app.location && <span>{app.location}</span>}
-                {app.applied_on && <span>Applied {formatDate(app.applied_on)}</span>}
+                {app.applied_on && <span>Applied <FormattedDate dateString={app.applied_on} /></span>}
               </div>
             </div>
 

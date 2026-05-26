@@ -62,7 +62,7 @@ export function WishlistApplyAction({ applicationId }: WishlistApplyActionProps)
               type="date"
               name="applied_on"
               defaultValue={today}
-              className={INPUT}
+              className={`${INPUT} min-w-0`}
               required
             />
           </div>
