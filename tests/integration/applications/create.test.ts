@@ -25,9 +25,9 @@ function makeFormData(overrides: Record<string, string> = {}): FormData {
   fd.set("company", overrides.company ?? "Acme");
   fd.set("role", overrides.role ?? "Engineer");
   fd.set("location", overrides.location ?? "Remote");
+  fd.set("applied_on", overrides.applied_on ?? "2026-05-01");
   if (overrides.source !== undefined) fd.set("source", overrides.source);
   if (overrides.notes !== undefined) fd.set("notes", overrides.notes);
-  if (overrides.applied_on !== undefined) fd.set("applied_on", overrides.applied_on);
   return fd;
 }
 
