@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useRef, useState, useTransition, useCallback } from "react";
 import { applyWishlistAction } from "@/app/wishlist/actions";
 import { BTN_GHOST, BTN_PRIMARY, BTN_SMALL, ERROR_BANNER, INPUT, LABEL, TEXT_H3 } from "@/lib/ui";
 
@@ -14,12 +14,17 @@ export function WishlistApplyAction({ applicationId }: WishlistApplyActionProps)
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const confirmButtonRef = useRef<HTMLButtonElement>(null);
   const today = new Date().toISOString().split("T")[0];
 
-  const handleOpen = () => {
+  const handleOpen = useCallback(() => {
     setError(null);
     dialogRef.current?.showModal();
-  };
+    // Move focus to the confirm button so the date picker doesn't auto-open on iOS.
+    requestAnimationFrame(() => {
+      confirmButtonRef.current?.focus();
+    });
+  }, []);
 
   const handleClose = () => {
     dialogRef.current?.close();
@@ -55,7 +60,7 @@ export function WishlistApplyAction({ applicationId }: WishlistApplyActionProps)
         <form action={handleConfirm} className="space-y-4">
           <input type="hidden" name="application_id" value={applicationId} />
 
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5 min-w-0 overflow-hidden">
             <label htmlFor={`applied-on-${applicationId}`} className={LABEL}>Applied On</label>
             <input
               id={`applied-on-${applicationId}`}
@@ -76,7 +81,7 @@ export function WishlistApplyAction({ applicationId }: WishlistApplyActionProps)
             >
               Cancel
             </button>
-            <button type="submit" disabled={isPending} className={BTN_PRIMARY}>
+            <button ref={confirmButtonRef} type="submit" disabled={isPending} className={BTN_PRIMARY}>
               {isPending ? "Saving…" : "Confirm"}
             </button>
           </div>

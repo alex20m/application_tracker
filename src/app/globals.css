@@ -51,3 +51,9 @@ body {
   outline-offset: 2px;
   border-radius: 4px;
 }
+
+/* Fix date input overflow on iOS Chrome: left-align the date text so the
+   native calendar icon fits within the input's own border box. */
+input[type="date"]::-webkit-date-and-time-value {
+  text-align: left;
+}
