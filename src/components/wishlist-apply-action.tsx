@@ -65,7 +65,7 @@ export function WishlistApplyAction({ applicationId }: WishlistApplyActionProps)
               id={`applied-on-${applicationId}`}
               type="button"
               onClick={() => dateInputRef.current?.showPicker()}
-              className={`${INPUT} date-picker-btn text-left`}
+              className={`${INPUT} date-picker-btn text-left cursor-pointer`}
             >
               <FormattedDate dateString={selectedDate} />
             </button>
