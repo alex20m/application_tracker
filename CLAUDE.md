@@ -8,6 +8,8 @@ All work must be isolated, reproducible, and branch-based:
 - Do all work in a dedicated branch/worktree.
 - Keep changes scoped to one task.
 
+Do not stop after planning. Start implementing immediately and only ask if blocked.
+
 ---
 
 ## Worktrees
