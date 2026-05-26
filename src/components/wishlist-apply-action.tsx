@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useState, useTransition, useCallback } from "react";
+import { useRef, useState, useTransition } from "react";
 import { applyWishlistAction } from "@/app/wishlist/actions";
-import { BTN_GHOST, BTN_PRIMARY, BTN_SMALL, ERROR_BANNER, INPUT, LABEL, TEXT_H3 } from "@/lib/ui";
+import { BTN_GHOST, BTN_PRIMARY, BTN_SMALL, ERROR_BANNER, LABEL, TEXT_H3 } from "@/lib/ui";
+import { DatePicker } from "@/components/date-picker";
 
 type WishlistApplyActionProps = {
   applicationId: string;
@@ -14,17 +15,12 @@ export function WishlistApplyAction({ applicationId }: WishlistApplyActionProps)
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const confirmButtonRef = useRef<HTMLButtonElement>(null);
   const today = new Date().toISOString().split("T")[0];
 
-  const handleOpen = useCallback(() => {
+  const handleOpen = () => {
     setError(null);
     dialogRef.current?.showModal();
-    // Move focus to the confirm button so the date picker doesn't auto-open on iOS.
-    requestAnimationFrame(() => {
-      confirmButtonRef.current?.focus();
-    });
-  }, []);
+  };
 
   const handleClose = () => {
     dialogRef.current?.close();
@@ -60,14 +56,12 @@ export function WishlistApplyAction({ applicationId }: WishlistApplyActionProps)
         <form action={handleConfirm} className="space-y-4">
           <input type="hidden" name="application_id" value={applicationId} />
 
-          <div className="grid grid-cols-1 gap-1.5 min-w-0">
+          <div className="flex flex-col gap-1.5">
             <label htmlFor={`applied-on-${applicationId}`} className={LABEL}>Applied On</label>
-            <input
+            <DatePicker
               id={`applied-on-${applicationId}`}
-              type="date"
               name="applied_on"
               defaultValue={today}
-              className={`${INPUT} min-w-0`}
               required
             />
           </div>
@@ -81,7 +75,7 @@ export function WishlistApplyAction({ applicationId }: WishlistApplyActionProps)
             >
               Cancel
             </button>
-            <button ref={confirmButtonRef} type="submit" disabled={isPending} className={BTN_PRIMARY}>
+            <button type="submit" disabled={isPending} className={BTN_PRIMARY}>
               {isPending ? "Saving…" : "Confirm"}
             </button>
           </div>

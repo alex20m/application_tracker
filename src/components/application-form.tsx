@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { STATUS, STATUS_NAMES, STATUS_NEXT } from "@/lib/statuses";
 import { BTN_GHOST, BTN_PRIMARY, ERROR_BANNER, FORM_STACK, INPUT, LABEL } from "@/lib/ui";
+import { DatePicker } from "@/components/date-picker";
 import { ROUTES } from "@/lib/env";
 import type { ApplicationRecord } from "@/lib/types";
 
@@ -80,14 +81,12 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-1.5 min-w-0">
+        <div className="flex flex-col gap-1.5">
           <label htmlFor="applied-on" className={LABEL}>Applied On</label>
-          <input
+          <DatePicker
             id="applied-on"
-            type="date"
             name="applied_on"
             defaultValue={application?.applied_on?.split("T")[0] || today}
-            className={`${INPUT} min-w-0`}
           />
         </div>
 
