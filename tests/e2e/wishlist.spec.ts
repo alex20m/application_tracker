@@ -69,9 +69,8 @@ test.describe("Wishlist", () => {
     await page.getByRole("button", { name: /add to wishlist/i }).click();
     await expect(page).toHaveURL("/wishlist");
 
-    // Apply with a specific date
+    // Apply — today's date is pre-filled in the custom picker, just confirm
     await page.getByRole("button", { name: /^apply$/i }).first().click();
-    await page.getByLabel(/applied on/i).fill("2026-01-15");
     await page.getByRole("button", { name: /confirm/i }).click();
 
     // Row should no longer be on /wishlist

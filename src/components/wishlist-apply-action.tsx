@@ -2,7 +2,8 @@
 
 import { useRef, useState, useTransition } from "react";
 import { applyWishlistAction } from "@/app/wishlist/actions";
-import { BTN_GHOST, BTN_PRIMARY, BTN_SMALL, ERROR_BANNER, INPUT, LABEL, TEXT_H3 } from "@/lib/ui";
+import { BTN_GHOST, BTN_PRIMARY, BTN_SMALL, ERROR_BANNER, LABEL, TEXT_H3 } from "@/lib/ui";
+import { DatePicker } from "@/components/date-picker";
 
 type WishlistApplyActionProps = {
   applicationId: string;
@@ -57,13 +58,10 @@ export function WishlistApplyAction({ applicationId }: WishlistApplyActionProps)
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={`applied-on-${applicationId}`} className={LABEL}>Applied On</label>
-            <input
+            <DatePicker
               id={`applied-on-${applicationId}`}
-              type="date"
               name="applied_on"
               defaultValue={today}
-              className={`${INPUT} min-w-0`}
-              required
             />
           </div>
 

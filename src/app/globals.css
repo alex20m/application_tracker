@@ -55,3 +55,55 @@ body {
   outline-offset: 2px;
   border-radius: 4px;
 }
+
+/* react-day-picker: indigo palette + compact cells + dark mode */
+.rdp-root {
+  --rdp-accent-color: #6366f1;
+  --rdp-accent-background-color: #eef2ff;
+  --rdp-today-color: #6366f1;
+  --rdp-day-height: 36px;
+  --rdp-day-width: 36px;
+  --rdp-day_button-height: 34px;
+  --rdp-day_button-width: 34px;
+  --rdp-day_button-border-radius: 8px;
+}
+
+.dark .rdp-root {
+  --rdp-accent-color: #818cf8;
+  --rdp-accent-background-color: rgba(99, 102, 241, 0.15);
+  --rdp-today-color: #818cf8;
+}
+
+/* Fill the picker card width */
+.rdp-root .rdp-months {
+  max-width: none;
+  width: 100%;
+}
+
+.rdp-root .rdp-month_grid {
+  width: 100%;
+}
+
+/* Selected: solid indigo background instead of border-only default */
+.rdp-root .rdp-selected .rdp-day_button {
+  background: var(--rdp-accent-color);
+  color: white;
+  border-color: transparent;
+}
+
+/* Hover on unselected day buttons */
+.rdp-root .rdp-day_button:hover:not(:disabled) {
+  background: var(--rdp-accent-background-color);
+}
+
+/* Nav button hover */
+.rdp-root .rdp-button_next:hover:not(:disabled),
+.rdp-root .rdp-button_previous:hover:not(:disabled) {
+  background: #f3f4f6;
+  border-radius: 8px;
+}
+
+.dark .rdp-root .rdp-button_next:hover:not(:disabled),
+.dark .rdp-root .rdp-button_previous:hover:not(:disabled) {
+  background: #1f2937;
+}
