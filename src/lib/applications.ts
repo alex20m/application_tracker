@@ -6,6 +6,7 @@ export function revalidateApplicationViews() {
   revalidatePath("/applications");
   revalidatePath("/wishlist");
   revalidatePath("/sankey");
+  revalidatePath("/analytics");
 }
 
 export function appendStatusEvent(

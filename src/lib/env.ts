@@ -24,6 +24,7 @@ export const ROUTES = {
   newApplication: "/applications/new",
   wishlist: "/wishlist",
   newWishlist: "/wishlist/new",
+  analytics: "/analytics",
   sankey: "/sankey",
   settings: "/settings",
   authCallback: "/api/auth/callback",
