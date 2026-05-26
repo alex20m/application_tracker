@@ -60,7 +60,7 @@ export function WishlistApplyAction({ applicationId }: WishlistApplyActionProps)
         <form action={handleConfirm} className="space-y-4">
           <input type="hidden" name="application_id" value={applicationId} />
 
-          <div className="flex flex-col gap-1.5 min-w-0 overflow-hidden">
+          <div className="grid grid-cols-1 gap-1.5 min-w-0">
             <label htmlFor={`applied-on-${applicationId}`} className={LABEL}>Applied On</label>
             <input
               id={`applied-on-${applicationId}`}

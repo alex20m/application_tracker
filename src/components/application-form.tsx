@@ -80,7 +80,7 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
           />
         </div>
 
-        <div className="flex flex-col gap-1.5 min-w-0 overflow-hidden">
+        <div className="grid grid-cols-1 gap-1.5 min-w-0">
           <label htmlFor="applied-on" className={LABEL}>Applied On</label>
           <input
             id="applied-on"

@@ -52,16 +52,26 @@ body {
   border-radius: 4px;
 }
 
-/* Fix date input overflow on iOS Chrome: left-align the date text so the
-   native calendar icon fits within the input's own border box. */
+/* Date input: iOS WebKit enforces an intrinsic minimum width that can exceed
+   the container even when width:100%/min-width:0 are set. max-width:100%
+   hard-caps the element at its containing block, overriding the intrinsic min. */
+input[type="date"] {
+  max-width: 100%;
+  cursor: text;
+}
+
+/* Left-align the date text so it doesn't push the calendar icon off the right
+   edge when the input is narrower than the text's preferred width. */
 input[type="date"]::-webkit-date-and-time-value {
   text-align: left;
 }
 
-/* Cursor semantics for the two zones of a date input. */
-input[type="date"] {
-  cursor: text;
+/* Allow the editable text portion to shrink while keeping the icon pinned. */
+input[type="date"]::-webkit-datetime-edit {
+  flex: 1 1 0%;
+  min-width: 0;
 }
 input[type="date"]::-webkit-calendar-picker-indicator {
+  flex-shrink: 0;
   cursor: pointer;
 }
