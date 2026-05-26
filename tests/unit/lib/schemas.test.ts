@@ -15,6 +15,7 @@ const validCreate = {
   company: "Acme",
   role: "Engineer",
   location: "Remote",
+  applied_on: "2026-05-01",
 };
 
 describe("ApplicationCreateSchema", () => {
@@ -82,28 +83,32 @@ describe("ApplicationCreateSchema", () => {
       ApplicationCreateSchema.safeParse({ ...validCreate, notes: "a".repeat(5000) }).success
     ).toBe(true);
   });
+
+  it("requires applied_on", () => {
+    const { applied_on: _, ...withoutDate } = validCreate;
+    expect(ApplicationCreateSchema.safeParse(withoutDate).success).toBe(false);
+  });
+
+  it("rejects applied_on with wrong format", () => {
+    expect(
+      ApplicationCreateSchema.safeParse({ ...validCreate, applied_on: "01-05-2026" }).success
+    ).toBe(false);
+  });
 });
 
 describe("ApplicationUpdateSchema", () => {
+  const validUpdate = { ...validCreate, status: STATUS.interviews };
+
   it("accepts a valid status from STATUS enum", () => {
-    const result = ApplicationUpdateSchema.safeParse({
-      ...validCreate,
-      status: STATUS.interviews,
-    });
-    expect(result.success).toBe(true);
+    expect(ApplicationUpdateSchema.safeParse(validUpdate).success).toBe(true);
   });
 
   it("rejects an invalid status string", () => {
-    const result = ApplicationUpdateSchema.safeParse({
-      ...validCreate,
-      status: "flying",
-    });
-    expect(result.success).toBe(false);
+    expect(ApplicationUpdateSchema.safeParse({ ...validCreate, status: "flying" }).success).toBe(false);
   });
 
   it("requires status field", () => {
-    const result = ApplicationUpdateSchema.safeParse(validCreate);
-    expect(result.success).toBe(false);
+    expect(ApplicationUpdateSchema.safeParse(validCreate).success).toBe(false);
   });
 });
 
