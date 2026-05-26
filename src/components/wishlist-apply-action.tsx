@@ -2,6 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { applyWishlistAction } from "@/app/wishlist/actions";
+import { FormattedDate } from "@/lib/date";
 import { BTN_GHOST, BTN_PRIMARY, BTN_SMALL, ERROR_BANNER, INPUT, LABEL, TEXT_H3 } from "@/lib/ui";
 
 type WishlistApplyActionProps = {
@@ -13,16 +14,13 @@ const BTN_APPLY = `${BTN_SMALL} border-indigo-200 dark:border-indigo-500/40 bg-i
 export function WishlistApplyAction({ applicationId }: WishlistApplyActionProps) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split("T")[0]);
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const today = new Date().toISOString().split("T")[0];
+  const dateInputRef = useRef<HTMLInputElement>(null);
 
   const handleOpen = () => {
     setError(null);
     dialogRef.current?.showModal();
-    // Mobile Chrome auto-focuses the first focusable child (the date input),
-    // which immediately opens the native picker. Shift focus to the dialog
-    // container itself so no input becomes active until the user taps it.
-    requestAnimationFrame(() => dialogRef.current?.focus());
   };
 
   const handleClose = () => {
@@ -48,7 +46,6 @@ export function WishlistApplyAction({ applicationId }: WishlistApplyActionProps)
 
       <dialog
         ref={dialogRef}
-        tabIndex={-1}
         className="m-auto rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-xl backdrop:bg-black/40 w-full max-w-sm"
       >
         <h2 className={`${TEXT_H3} mb-4`}>
@@ -62,13 +59,26 @@ export function WishlistApplyAction({ applicationId }: WishlistApplyActionProps)
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={`applied-on-${applicationId}`} className={LABEL}>Applied On</label>
-            <input
+            {/* Button triggers showPicker() on the hidden input — avoids auto-focus
+                opening the picker when the dialog first appears on mobile Chrome */}
+            <button
               id={`applied-on-${applicationId}`}
+              type="button"
+              onClick={() => dateInputRef.current?.showPicker()}
+              className={`${INPUT} date-picker-btn text-left`}
+            >
+              <FormattedDate dateString={selectedDate} />
+            </button>
+            <input
+              ref={dateInputRef}
               type="date"
               name="applied_on"
-              defaultValue={today}
-              className={INPUT}
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
               required
+              aria-hidden="true"
+              tabIndex={-1}
+              className="sr-only"
             />
           </div>
 
