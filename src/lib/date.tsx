@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
+
+const noop = () => () => {};
 
 export function FormattedDate({ dateString }: { dateString: string }) {
-  const [formatted, setFormatted] = useState("");
-
-  useEffect(() => {
-    setFormatted(new Date(dateString).toLocaleDateString());
-  }, [dateString]);
+  const formatted = useSyncExternalStore(
+    noop,
+    () => new Date(dateString).toLocaleDateString(),
+    () => ""
+  );
 
   return <>{formatted}</>;
 }
