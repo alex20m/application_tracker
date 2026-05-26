@@ -86,6 +86,7 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
           <DatePicker
             id="applied-on"
             name="applied_on"
+            required
             defaultValue={application?.applied_on?.split("T")[0] || today}
           />
         </div>

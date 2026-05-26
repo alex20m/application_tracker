@@ -20,7 +20,6 @@ export async function createApplicationAction(
 }> {
   const { supabase, user } = await requireUser();
 
-  const appliedOn = formData.get("applied_on") as string | null;
   const statusInput = formData.get("status");
   const statusResult = z
     .enum(Object.values(STATUS) as [ApplicationStatus, ...ApplicationStatus[]])
@@ -33,13 +32,14 @@ export async function createApplicationAction(
     location: formData.get("location"),
     source: formData.get("source") ?? "",
     notes: formData.get("notes") ?? "",
+    applied_on: formData.get("applied_on"),
   });
 
   if (!parsed.success) {
     return { success: false, error: "Please check your input and try again." };
   }
 
-  const { company, role, location, source, notes } = parsed.data;
+  const { company, role, location, source, notes, applied_on: appliedOn } = parsed.data;
 
   const now = new Date().toISOString();
   const appId = randomUUID();
@@ -52,7 +52,7 @@ export async function createApplicationAction(
       role,
       location,
       source: source || null,
-      applied_on: appliedOn || null,
+      applied_on: appliedOn,
       status,
       notes: notes || null,
       events: [{ from_status: null, to_status: status, changed_at: now }],

@@ -10,6 +10,7 @@ export const ApplicationCreateSchema = z.object({
   location: trimmedString(200),
   source: z.string().trim().max(200).optional().default(""),
   notes: z.string().max(5000).optional().default(""),
+  applied_on: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date"),
 });
 
 export const ApplicationUpdateSchema = ApplicationCreateSchema.extend({
