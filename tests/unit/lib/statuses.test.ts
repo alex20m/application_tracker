@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   STATUS,
   STATUS_NEXT,
-  getStatusRankForDepth,
+  getStatusRank,
   type ApplicationStatus,
 } from "@/lib/statuses";
 
@@ -48,20 +48,27 @@ describe("STATUS_NEXT", () => {
   });
 });
 
-describe("getStatusRankForDepth", () => {
-  it("returns the index within the depth array for a known status", () => {
-    // depth 1: [interviews, cancelled, no_answer, rejected]
-    expect(getStatusRankForDepth(STATUS.interviews, 1)).toBe(0);
-    expect(getStatusRankForDepth(STATUS.cancelled, 1)).toBe(1);
-    expect(getStatusRankForDepth(STATUS.no_answer, 1)).toBe(2);
-    expect(getStatusRankForDepth(STATUS.rejected, 1)).toBe(3);
+describe("getStatusRank", () => {
+  it("level-1 statuses rank before level-2 which rank before level-3", () => {
+    expect(getStatusRank(STATUS.interviews)).toBeLessThan(getStatusRank(STATUS.offer));
+    expect(getStatusRank(STATUS.offer)).toBeLessThan(getStatusRank(STATUS.accepted));
   });
 
-  it("returns 999 for a status not in the given depth", () => {
-    expect(getStatusRankForDepth(STATUS.accepted, 1)).toBe(999);
+  it("preserves within-level ordering", () => {
+    // level 1: [interviews, cancelled, no_answer, rejected]
+    expect(getStatusRank(STATUS.interviews)).toBeLessThan(getStatusRank(STATUS.cancelled));
+    expect(getStatusRank(STATUS.cancelled)).toBeLessThan(getStatusRank(STATUS.no_answer));
+    expect(getStatusRank(STATUS.no_answer)).toBeLessThan(getStatusRank(STATUS.rejected));
+    // level 2: [offer, withdrew, no_offer]
+    expect(getStatusRank(STATUS.offer)).toBeLessThan(getStatusRank(STATUS.withdrew));
+    expect(getStatusRank(STATUS.withdrew)).toBeLessThan(getStatusRank(STATUS.no_offer));
+    // level 3: [accepted, declined]
+    expect(getStatusRank(STATUS.accepted)).toBeLessThan(getStatusRank(STATUS.declined));
   });
 
-  it("returns 999 for an unknown depth", () => {
-    expect(getStatusRankForDepth(STATUS.no_answer, 99)).toBe(999);
+  it("returns a value independent of d3-sankey depth (no depth argument)", () => {
+    const rank = getStatusRank(STATUS.rejected);
+    expect(typeof rank).toBe("number");
+    expect(rank).toBeLessThan(9999);
   });
 });
