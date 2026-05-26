@@ -11,7 +11,7 @@ export default async function SettingsPage() {
 
   return (
     <AppShell email={user.email || ""}>
-      <div className={`max-w-lg ${SECTION_STACK}`}>
+      <div className={`max-w-lg mx-auto ${SECTION_STACK}`}>
         <div>
           <h1 className={TEXT_H1}>Settings</h1>
         </div>
