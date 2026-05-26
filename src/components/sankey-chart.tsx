@@ -24,6 +24,7 @@ type LinkDatum = { value: number };
 type LayoutNode = SankeyNode<NodeDatum, LinkDatum> & NodeDatum & {
   x0: number; x1: number; y0: number; y1: number;
   depth: number; value: number;
+  sourceLinks: LayoutLink[]; targetLinks: LayoutLink[];
 };
 type LayoutLink = SankeyLink<NodeDatum, LinkDatum> & {
   source: LayoutNode; target: LayoutNode;
