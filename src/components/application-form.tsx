@@ -87,7 +87,7 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
             type="date"
             name="applied_on"
             defaultValue={application?.applied_on?.split("T")[0] || today}
-            className={INPUT}
+            className={`${INPUT} min-w-0`}
           />
         </div>
 
