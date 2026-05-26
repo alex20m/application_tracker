@@ -51,3 +51,38 @@ body {
   outline-offset: 2px;
   border-radius: 4px;
 }
+
+/* ─── Date input: opt out of iOS Safari native rendering ────────────────────
+   iOS Safari renders <input type="date"> as a native UIKit control that
+   ignores standard CSS sizing (min-width, w-full, etc.), causing it to
+   overflow its container on narrow viewports. Applying appearance:none
+   removes the native rendering path; the input then respects CSS sizing
+   like any other element. The native date picker still opens on tap.      */
+input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+  /* Calendar icon as background; padding-right makes room for it */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%239ca3af' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2' y='3' width='16' height='15' rx='2'/%3E%3Cline x1='7' y1='1' x2='7' y2='5'/%3E%3Cline x1='13' y1='1' x2='13' y2='5'/%3E%3Cline x1='2' y1='8' x2='18' y2='8'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.625rem center;
+  background-size: 1.125rem;
+  padding-right: 2.25rem;
+}
+
+/* Lighter icon stroke in dark mode */
+.dark input[type="date"] {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2' y='3' width='16' height='15' rx='2'/%3E%3Cline x1='7' y1='1' x2='7' y2='5'/%3E%3Cline x1='13' y1='1' x2='13' y2='5'/%3E%3Cline x1='2' y1='8' x2='18' y2='8'/%3E%3C/svg%3E");
+}
+
+/* Left-align the date value — iOS Safari right-aligns it by default */
+input[type="date"]::-webkit-date-and-time-value {
+  text-align: left;
+}
+
+/* The native picker indicator is invisible but remains clickable over the icon */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  cursor: pointer;
+  width: 2.25rem;
+  height: 100%;
+}
