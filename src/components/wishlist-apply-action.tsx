@@ -19,6 +19,10 @@ export function WishlistApplyAction({ applicationId }: WishlistApplyActionProps)
   const handleOpen = () => {
     setError(null);
     dialogRef.current?.showModal();
+    // Mobile Chrome auto-focuses the first focusable child (the date input),
+    // which immediately opens the native picker. Shift focus to the dialog
+    // container itself so no input becomes active until the user taps it.
+    requestAnimationFrame(() => dialogRef.current?.focus());
   };
 
   const handleClose = () => {
@@ -44,6 +48,7 @@ export function WishlistApplyAction({ applicationId }: WishlistApplyActionProps)
 
       <dialog
         ref={dialogRef}
+        tabIndex={-1}
         className="m-auto rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-xl backdrop:bg-black/40 w-full max-w-sm"
       >
         <h2 className={`${TEXT_H3} mb-4`}>
@@ -72,7 +77,6 @@ export function WishlistApplyAction({ applicationId }: WishlistApplyActionProps)
               type="button"
               onClick={handleClose}
               disabled={isPending}
-              autoFocus
               className={BTN_GHOST}
             >
               Cancel
