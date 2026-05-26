@@ -15,7 +15,8 @@ export function WishlistApplyAction({ applicationId }: WishlistApplyActionProps)
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const today = new Date().toISOString().split("T")[0];
+  const d = new Date();
+  const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
   const handleOpen = () => {
     setError(null);
