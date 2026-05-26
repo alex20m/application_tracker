@@ -72,6 +72,7 @@ export function WishlistApplyAction({ applicationId }: WishlistApplyActionProps)
               type="button"
               onClick={handleClose}
               disabled={isPending}
+              autoFocus
               className={BTN_GHOST}
             >
               Cancel
