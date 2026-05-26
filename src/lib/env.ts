@@ -16,7 +16,7 @@ export const NEXT_PUBLIC_SUPABASE_ANON_KEY = requireEnv(
   "NEXT_PUBLIC_SUPABASE_ANON_KEY"
 );
 
-export const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+export const APP_URL = requireEnv(process.env.NEXT_PUBLIC_APP_URL, "NEXT_PUBLIC_APP_URL");
 
 export const ROUTES = {
   login: "/login",
