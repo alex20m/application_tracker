@@ -39,12 +39,22 @@ export const STATUS_NEXT: Record<ApplicationStatus, ApplicationStatus[]> = {
   [STATUS.declined]: [],
 };
 
-// Ranking is the index position in each depth array (lower index = higher up).
-const DEPTH_ORDER: Record<number, ApplicationStatus[]> = {
+// Logical level for each status (independent of d3-sankey's runtime depth).
+// Lower index within a level = higher up in the column.
+const LEVEL_ORDER: Record<number, ApplicationStatus[]> = {
   1: [STATUS.interviews, STATUS.cancelled, STATUS.no_answer, STATUS.rejected],
   2: [STATUS.offer, STATUS.withdrew, STATUS.no_offer],
   3: [STATUS.accepted, STATUS.declined],
 };
+
+const STATUS_LEVEL: Record<ApplicationStatus, number> = (() => {
+  const m = {} as Record<ApplicationStatus, number>;
+  for (const [lvl, list] of Object.entries(LEVEL_ORDER) as [string, ApplicationStatus[]][]) {
+    for (const s of list) m[s] = Number(lvl);
+  }
+  m[STATUS.wishlist] = 0;
+  return m;
+})();
 
 export const STATUS_THEME: Record<
   ApplicationStatus,
@@ -66,7 +76,8 @@ export const SANKEY_ROOT = "applications";
 export const SANKEY_ROOT_COLOR = "#60a5fa";
 export const SANKEY_ROOT_LABEL = "Applications";
 
-export function getStatusRankForDepth(status: ApplicationStatus, depth: number): number {
-  const index = DEPTH_ORDER[depth]?.indexOf(status) ?? -1;
-  return index >= 0 ? index : 999;
+export function getStatusRank(status: ApplicationStatus): number {
+  const level = STATUS_LEVEL[status] ?? 99;
+  const idx = LEVEL_ORDER[level]?.indexOf(status) ?? 99;
+  return level * 100 + idx;
 }

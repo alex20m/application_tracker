@@ -11,7 +11,7 @@ import {
   SANKEY_ROOT,
   SANKEY_ROOT_COLOR,
   SANKEY_ROOT_LABEL,
-  getStatusRankForDepth,
+  getStatusRank,
   type ApplicationStatus,
 } from "@/lib/statuses";
 import { useIsMobile } from "@/hooks/use-is-mobile";
@@ -159,9 +159,10 @@ function DiagramContent({
     .nodePadding(nodePadding)
     .nodeAlign(sankeyLeft)
     .nodeSort((a, b) => {
-      if (a.depth !== b.depth) return 0;
-      const ra = a.name === SANKEY_ROOT ? -1 : getStatusRankForDepth(a.name as ApplicationStatus, a.depth ?? 0);
-      const rb = b.name === SANKEY_ROOT ? -1 : getStatusRankForDepth(b.name as ApplicationStatus, b.depth ?? 0);
+      if (a.name === SANKEY_ROOT) return -1;
+      if (b.name === SANKEY_ROOT) return 1;
+      const ra = getStatusRank(a.name as ApplicationStatus);
+      const rb = getStatusRank(b.name as ApplicationStatus);
       if (ra !== rb) return ra - rb;
       return a.name.localeCompare(b.name);
     })
@@ -175,6 +176,21 @@ function DiagramContent({
     nodes: data.nodes.map((d) => ({ ...d })),
     links: data.links.map((d) => ({ ...d })),
   }) as unknown as LayoutGraph;
+
+  // d3-sankey's relaxation re-sorts links by intermediate (pre-resolveCollisions)
+  // node positions, which can be swapped relative to the final layout — causing
+  // visually crossing bands even with a correct nodeSort. Fix: re-sort by the
+  // final y0 values and recompute link y0/y1 so the stacking matches column order.
+  for (const node of graph.nodes) {
+    node.sourceLinks.sort((a, b) => (a.target as LayoutNode).y0 - (b.target as LayoutNode).y0);
+    node.targetLinks.sort((a, b) => (a.source as LayoutNode).y0 - (b.source as LayoutNode).y0);
+  }
+  for (const node of graph.nodes) {
+    let sy = node.y0;
+    let ty = node.y0;
+    for (const link of node.sourceLinks) { link.y0 = sy + link.width / 2; sy += link.width; }
+    for (const link of node.targetLinks) { link.y1 = ty + link.width / 2; ty += link.width; }
+  }
 
   return (
     <div className="relative w-full h-full">
