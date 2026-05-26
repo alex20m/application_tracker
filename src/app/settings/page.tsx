@@ -11,32 +11,34 @@ export default async function SettingsPage() {
 
   return (
     <AppShell email={user.email || ""}>
-      <div className={`max-w-lg ${SECTION_STACK}`}>
+      <div className={SECTION_STACK}>
         <div>
           <h1 className={TEXT_H1}>Settings</h1>
         </div>
 
-        <div className={CARD}>
-          <h2 className={`${TEXT_H3} mb-4`}>Appearance</h2>
-          <ThemeSelector />
+        <div className={`max-w-lg ${SECTION_STACK}`}>
+          <div className={CARD}>
+            <h2 className={`${TEXT_H3} mb-4`}>Appearance</h2>
+            <ThemeSelector />
+          </div>
+
+          {user.email && (
+            <div className={CARD}>
+              <h2 className={`${TEXT_H3} mb-4`}>Change Password</h2>
+              <ChangePasswordForm action={changePasswordAction} />
+            </div>
+          )}
+
+          {user.email && (
+            <div className={CARD}>
+              <h2 className={`${TEXT_H3} mb-4`}>Danger Zone</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                Permanently delete your account and all associated data. This action cannot be undone.
+              </p>
+              <DeleteAccountForm action={deleteAccountAction} />
+            </div>
+          )}
         </div>
-
-        {user.email && (
-          <div className={CARD}>
-            <h2 className={`${TEXT_H3} mb-4`}>Change Password</h2>
-            <ChangePasswordForm action={changePasswordAction} />
-          </div>
-        )}
-
-        {user.email && (
-          <div className={CARD}>
-            <h2 className={`${TEXT_H3} mb-4`}>Danger Zone</h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              Permanently delete your account and all associated data. This action cannot be undone.
-            </p>
-            <DeleteAccountForm action={deleteAccountAction} />
-          </div>
-        )}
       </div>
     </AppShell>
   );
