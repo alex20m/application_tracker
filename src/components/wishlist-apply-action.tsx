@@ -62,7 +62,6 @@ export function WishlistApplyAction({ applicationId }: WishlistApplyActionProps)
               id={`applied-on-${applicationId}`}
               name="applied_on"
               defaultValue={today}
-              required
             />
           </div>
 

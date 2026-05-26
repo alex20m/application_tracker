@@ -10,7 +10,6 @@ type DatePickerProps = {
   name: string;
   id?: string;
   defaultValue?: string;
-  required?: boolean;
 };
 
 function toIsoDate(d: Date): string {
@@ -44,7 +43,7 @@ const CalendarIcon = () => (
   </svg>
 );
 
-export function DatePicker({ name, id, defaultValue, required }: DatePickerProps) {
+export function DatePicker({ name, id, defaultValue }: DatePickerProps) {
   const [selected, setSelected] = useState<Date | undefined>(
     defaultValue ? parseIso(defaultValue) : undefined,
   );
@@ -111,18 +110,6 @@ export function DatePicker({ name, id, defaultValue, required }: DatePickerProps
               >
                 Today
               </button>
-              {!required && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelected(undefined);
-                    close();
-                  }}
-                  className={`${BTN_GHOST} !text-sm !px-3 !py-1.5 !min-h-0`}
-                >
-                  Clear
-                </button>
-              )}
             </div>
           </div>
         </div>
