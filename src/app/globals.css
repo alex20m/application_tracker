@@ -57,3 +57,11 @@ body {
 input[type="date"]::-webkit-date-and-time-value {
   text-align: left;
 }
+
+/* Cursor semantics for the two zones of a date input. */
+input[type="date"] {
+  cursor: text;
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+}
