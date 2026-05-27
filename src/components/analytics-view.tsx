@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { computeAnalytics } from "@/lib/analytics";
 import { AnalyticsCharts } from "@/components/analytics-charts";
+import { SankeyChart } from "@/components/sankey-chart";
+import { buildSankeyData } from "@/lib/sankey-builder";
 import {
   CARD,
   INPUT,
@@ -76,6 +78,7 @@ export function AnalyticsView({ applications }: Props) {
   }, [applications, startDate, endDate, isAllTime]);
 
   const analytics = useMemo(() => computeAnalytics(filtered), [filtered]);
+  const sankeyData = useMemo(() => buildSankeyData(filtered), [filtered]);
 
   if (analytics.totalApplications === 0) {
     const hasFilter = !isAllTime;
@@ -214,6 +217,12 @@ export function AnalyticsView({ applications }: Props) {
           monthlyTrend={a.monthlyTrend}
           sourceStats={a.sourceStats}
         />
+      </section>
+
+      {/* ── Application Flow ────────────────────────────────── */}
+      <section>
+        <h2 className={`${TEXT_H2} mb-3`}>Application Flow</h2>
+        <SankeyChart data={sankeyData} />
       </section>
     </div>
   );

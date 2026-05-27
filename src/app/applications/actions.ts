@@ -65,7 +65,7 @@ export async function createApplicationAction(
     return { success: false, error: sanitizeActionError(appError, "application:create") };
   }
 
-  revalidatePath("/sankey");
+  revalidatePath("/analytics");
   redirect("/applications");
 }
 

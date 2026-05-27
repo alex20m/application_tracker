@@ -1,9 +1,9 @@
 import { test, expect } from "./fixtures";
 import { SANKEY_ROOT_LABEL } from "@/lib/statuses";
 
-test.describe("Sankey chart page", () => {
-  test("renders the Application Flow heading", async ({ page }) => {
-    await page.goto("/sankey");
+test.describe("Sankey chart", () => {
+  test("renders the Application Flow heading on the analytics page", async ({ page }) => {
+    await page.goto("/analytics");
     await expect(page.getByRole("heading", { name: /application flow/i })).toBeVisible();
   });
 
@@ -19,8 +19,8 @@ test.describe("Sankey chart page", () => {
     await page.getByRole("button", { name: /interviews/i }).click();
     await expect(page.getByText(/interviews/i).first()).toBeVisible({ timeout: 10000 });
 
-    // Navigate to Sankey
-    await page.goto("/sankey");
+    // Navigate to analytics page where the sankey chart now lives
+    await page.goto("/analytics");
     // Filter to the chart SVG specifically — the page also contains small icon SVGs
     const chart = page.locator("svg").filter({ hasText: SANKEY_ROOT_LABEL });
     await expect(chart).toBeVisible({ timeout: 10000 });
