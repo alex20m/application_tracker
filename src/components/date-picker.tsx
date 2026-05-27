@@ -10,6 +10,7 @@ type DatePickerProps = {
   name: string;
   id?: string;
   defaultValue?: string;
+  required?: boolean;
 };
 
 function toIsoDate(d: Date): string {
@@ -43,7 +44,7 @@ const CalendarIcon = () => (
   </svg>
 );
 
-export function DatePicker({ name, id, defaultValue }: DatePickerProps) {
+export function DatePicker({ name, id, defaultValue, required }: DatePickerProps) {
   const [selected, setSelected] = useState<Date | undefined>(
     defaultValue ? parseIso(defaultValue) : undefined,
   );
@@ -65,7 +66,7 @@ export function DatePicker({ name, id, defaultValue }: DatePickerProps) {
 
   return (
     <>
-      <input type="hidden" name={name} value={selected ? toIsoDate(selected) : ""} />
+      <input type="hidden" name={name} value={selected ? toIsoDate(selected) : ""} required={required} />
 
       <button
         type="button"

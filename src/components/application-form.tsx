@@ -82,10 +82,11 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="applied-on" className={LABEL}>Applied On</label>
+          <label htmlFor="applied-on" className={LABEL}>Applied On <span className="text-red-500">*</span></label>
           <DatePicker
             id="applied-on"
             name="applied_on"
+            required
             defaultValue={application?.applied_on?.split("T")[0] || today}
           />
         </div>

@@ -31,14 +31,14 @@ export async function updateApplicationAction(
     source: (formData.get("source") as string | null)?.trim() ?? "",
     notes: formData.get("notes") ?? "",
     status: (formData.get("status") as string) || STATUS.no_answer,
+    applied_on: formData.get("applied_on"),
   });
 
   if (!parsed.success) {
     return { success: false, error: "Please check your input and try again." };
   }
 
-  const { company, role, location, source, notes, status: newStatus } = parsed.data;
-  const appliedOn = (formData.get("applied_on") as string | null) || null;
+  const { company, role, location, source, notes, status: newStatus, applied_on: appliedOn } = parsed.data;
 
   const { data: currentApp } = await supabase
     .from("applications")
@@ -68,7 +68,7 @@ export async function updateApplicationAction(
       role,
       location,
       source: source || null,
-      applied_on: appliedOn || null,
+      applied_on: appliedOn,
       status: newStatus,
       notes: notes || null,
       events,

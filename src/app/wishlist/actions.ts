@@ -5,7 +5,7 @@ import { requireUser } from "@/lib/auth";
 import { STATUS } from "@/lib/statuses";
 import { revalidateApplicationViews } from "@/lib/applications";
 import { sanitizeActionError } from "@/lib/ui";
-import { ApplicationCreateSchema } from "@/lib/schemas";
+import { WishlistSchema } from "@/lib/schemas";
 import { randomUUID } from "crypto";
 import { z } from "zod";
 import type { StatusEvent } from "@/lib/types";
@@ -16,7 +16,7 @@ export async function createWishlistAction(
 ): Promise<{ success: boolean; error?: string }> {
   const { supabase, user } = await requireUser();
 
-  const parsed = ApplicationCreateSchema.safeParse({
+  const parsed = WishlistSchema.safeParse({
     company: formData.get("company"),
     role: formData.get("role"),
     location: formData.get("location"),
@@ -68,7 +68,7 @@ export async function updateWishlistAction(
     return { success: false, error: "Invalid application." };
   }
 
-  const parsed = ApplicationCreateSchema.safeParse({
+  const parsed = WishlistSchema.safeParse({
     company: formData.get("company"),
     role: formData.get("role"),
     location: formData.get("location"),
