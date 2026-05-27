@@ -3,8 +3,8 @@
 import {
   AreaChart,
   Area,
-  BarChart,
-  Bar,
+  PieChart,
+  Pie,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -42,6 +42,29 @@ function ChartTooltip({
   );
 }
 
+function PieTooltip({
+  active,
+  payload,
+  total,
+}: {
+  active?: boolean;
+  payload?: Array<{ payload: StatusCount }>;
+  total: number;
+}) {
+  if (!active || !payload?.length) return null;
+  const d = payload[0].payload;
+  const pct = total > 0 ? Math.round((d.count / total) * 100) : 0;
+  return (
+    <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-xs shadow-md">
+      <p className="font-semibold text-gray-800 dark:text-gray-200 mb-1">{d.name}</p>
+      <p className="text-gray-700 dark:text-gray-300">
+        <span className="inline-block w-2 h-2 rounded-full mr-1.5" style={{ background: d.color }} />
+        {d.count} application{d.count !== 1 ? "s" : ""} · {pct}% of applied
+      </p>
+    </div>
+  );
+}
+
 type Props = {
   statusCounts: StatusCount[];
   monthlyTrend: MonthlyEntry[];
@@ -50,6 +73,7 @@ type Props = {
 
 export function AnalyticsCharts({ statusCounts, monthlyTrend, sourceStats }: Props) {
   const TICK = { fontSize: 11, fill: "currentColor", opacity: 0.5 };
+  const pieTotal = statusCounts.reduce((sum, s) => sum + s.count, 0);
 
   return (
     <div className="space-y-4">
@@ -93,17 +117,32 @@ export function AnalyticsCharts({ statusCounts, monthlyTrend, sourceStats }: Pro
             <h2 className={`${TEXT_H2} mb-0.5`}>Current Status</h2>
             <p className={`${TEXT_META} mb-4`}>Where your applications stand right now</p>
             <ResponsiveContainer width="100%" height={220}>
-              <BarChart layout="vertical" data={statusCounts} margin={{ top: 0, right: 16, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
-                <XAxis type="number" allowDecimals={false} tick={TICK} axisLine={false} tickLine={false} />
-                <YAxis type="category" dataKey="name" width={72} tick={{ ...TICK, opacity: 0.7 }} axisLine={false} tickLine={false} />
-                <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(128,128,128,0.05)' }} />
-                <Bar dataKey="count" name="Applications" radius={[0, 4, 4, 0]}>
+              <PieChart>
+                <Pie
+                  data={statusCounts}
+                  dataKey="count"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={90}
+                  paddingAngle={2}
+                  strokeWidth={0}
+                >
                   {statusCounts.map((entry) => (
                     <Cell key={entry.status} fill={entry.color} />
                   ))}
-                </Bar>
-              </BarChart>
+                </Pie>
+                <Tooltip content={(props) => <PieTooltip {...props} total={pieTotal} />} />
+                <Legend
+                  iconType="circle"
+                  iconSize={8}
+                  wrapperStyle={{ fontSize: 11 }}
+                  formatter={(value) => (
+                    <span className="text-gray-700 dark:text-gray-300">{value}</span>
+                  )}
+                />
+              </PieChart>
             </ResponsiveContainer>
           </div>
         )}
