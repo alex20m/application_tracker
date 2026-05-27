@@ -49,11 +49,11 @@ jobs:
         with:
           version: latest
 
-      # Replays every migration in supabase/migrations/ against a real Postgres
-      # instance. Fails the job if any migration errors (wrong order, bad SQL,
+      # Boots a fresh local Postgres and replays every migration in order.
+      # Fails the job if any migration errors (wrong order, bad SQL,
       # constraint violations, etc.).
       - name: Apply migrations against local Postgres
-        run: supabase db reset --local
+        run: supabase start
 
   e2e:
     name: E2E (Playwright)
