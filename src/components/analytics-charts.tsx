@@ -79,7 +79,16 @@ export function AnalyticsCharts({ statusCounts, monthlyTrend, sourceStats }: Pro
   const handleMouseLeave = () => {
     if (!pinned) setActiveIndex(null);
   };
-  const handleClick = (_: PieSectorDataItem | null, index: number) => {
+  const handleClick = (_: PieSectorDataItem, index: number) => {
+    if (pinned && activeIndex === index) {
+      setPinned(false);
+      setActiveIndex(null);
+    } else {
+      setPinned(true);
+      setActiveIndex(index);
+    }
+  };
+  const handleLegendClick = (index: number) => {
     if (pinned && activeIndex === index) {
       setPinned(false);
       setActiveIndex(null);
@@ -148,15 +157,18 @@ export function AnalyticsCharts({ statusCounts, monthlyTrend, sourceStats }: Pro
                     outerRadius={82}
                     paddingAngle={2}
                     strokeWidth={0}
-                    activeIndex={activeIndex ?? undefined}
                     activeShape={ActiveSlice}
                     onMouseEnter={handleMouseEnter}
                     onMouseLeave={handleMouseLeave}
                     onClick={handleClick}
                     style={{ cursor: "pointer" }}
                   >
-                    {statusCounts.map((entry) => (
-                      <Cell key={entry.status} fill={entry.color} />
+                    {statusCounts.map((entry, index) => (
+                      <Cell
+                        key={entry.status}
+                        fill={entry.color}
+                        opacity={pinned && activeIndex !== null && activeIndex !== index ? 0.35 : 1}
+                      />
                     ))}
                   </Pie>
                 </PieChart>
@@ -188,7 +200,7 @@ export function AnalyticsCharts({ statusCounts, monthlyTrend, sourceStats }: Pro
                 <button
                   key={item.status}
                   type="button"
-                  onClick={() => handleClick(null, index)}
+                  onClick={() => handleLegendClick(index)}
                   className={`flex items-center gap-1.5 text-xs transition-opacity ${
                     activeIndex !== null && activeIndex !== index ? "opacity-40" : "opacity-100"
                   } text-gray-700 dark:text-gray-300 hover:opacity-100`}
