@@ -238,9 +238,9 @@ type DateFilterProps = {
 };
 
 const PILL_ACTIVE =
-  "cursor-pointer px-3 py-1.5 text-sm font-semibold rounded-lg bg-indigo-600 text-white mobile:min-h-11 mobile:px-4 mobile:text-base";
+  "cursor-pointer px-3 py-1.5 text-sm font-semibold rounded-lg bg-indigo-600 text-white";
 const PILL_INACTIVE =
-  "cursor-pointer px-3 py-1.5 text-sm font-medium rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 transition-colors mobile:min-h-11 mobile:px-4 mobile:text-base";
+  "cursor-pointer px-3 py-1.5 text-sm font-medium rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 transition-colors";
 
 function DateFilter({ allTime, onAllTime, startDate, endDate, onStart, onEnd }: DateFilterProps) {
   return (
@@ -265,8 +265,8 @@ function DateFilter({ allTime, onAllTime, startDate, endDate, onStart, onEnd }: 
 
       {/* Date inputs — always visible but only active when date range is selected */}
       <div className="flex flex-wrap items-center gap-2 mobile:gap-2">
-        <div className="flex items-center gap-2 mobile:flex-1">
-          <label htmlFor="filter-start" className={`${LABEL} whitespace-nowrap`}>From</label>
+        <div className="flex items-center gap-2">
+          <label htmlFor="filter-start" className={`${LABEL} whitespace-nowrap ${allTime ? "opacity-40" : ""}`}>From</label>
           <input
             id="filter-start"
             type="date"
@@ -274,12 +274,12 @@ function DateFilter({ allTime, onAllTime, startDate, endDate, onStart, onEnd }: 
             onChange={(e) => onStart(e.target.value)}
             max={endDate || undefined}
             disabled={allTime}
-            className={`${INPUT} max-w-[10rem] mobile:max-w-none ${allTime ? "opacity-40 cursor-not-allowed" : ""}`}
+            className={`${INPUT} max-w-[10rem] mobile:py-2 ${allTime ? "opacity-40 cursor-not-allowed" : ""}`}
           />
         </div>
         <span className={`text-gray-400 dark:text-gray-500 text-sm mobile:hidden ${allTime ? "opacity-40" : ""}`}>—</span>
-        <div className="flex items-center gap-2 mobile:flex-1">
-          <label htmlFor="filter-end" className={`${LABEL} whitespace-nowrap`}>To</label>
+        <div className="flex items-center gap-2">
+          <label htmlFor="filter-end" className={`${LABEL} whitespace-nowrap ${allTime ? "opacity-40" : ""}`}>To</label>
           <input
             id="filter-end"
             type="date"
@@ -287,7 +287,7 @@ function DateFilter({ allTime, onAllTime, startDate, endDate, onStart, onEnd }: 
             onChange={(e) => onEnd(e.target.value)}
             min={startDate || undefined}
             disabled={allTime}
-            className={`${INPUT} max-w-[10rem] mobile:max-w-none ${allTime ? "opacity-40 cursor-not-allowed" : ""}`}
+            className={`${INPUT} max-w-[10rem] mobile:py-2 ${allTime ? "opacity-40 cursor-not-allowed" : ""}`}
           />
         </div>
       </div>
