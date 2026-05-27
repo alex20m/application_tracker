@@ -18,7 +18,7 @@ export function makeUser(overrides: Partial<{ id: string; email: string }> = {})
 export function makeStatusEvent(overrides: Partial<StatusEvent> = {}): StatusEvent {
   return {
     from_status: null,
-    to_status: "applied",
+    to_status: "no_answer",
     changed_at: "2026-01-01T00:00:00.000Z",
     ...overrides,
   };
@@ -33,10 +33,10 @@ export function makeApplication(overrides: Partial<ApplicationRecord> = {}): App
     role: "Software Engineer",
     location: "Remote",
     source: "LinkedIn",
-    status: "applied" as ApplicationStatus,
+    status: "no_answer" as ApplicationStatus,
     applied_on: "2026-01-01",
     notes: null,
-    events: [makeStatusEvent({ from_status: null, to_status: "applied" })],
+    events: [makeStatusEvent({ from_status: null, to_status: "no_answer" })],
     created_at: "2026-01-01T00:00:00.000Z",
     updated_at: "2026-01-01T00:00:00.000Z",
     ...overrides,

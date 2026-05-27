@@ -17,22 +17,22 @@ describe("buildSankeyData", () => {
     const app = makeApplication({
       status: STATUS.interviews,
       events: [
-        makeStatusEvent({ from_status: null, to_status: STATUS.applied }),
-        makeStatusEvent({ from_status: STATUS.applied, to_status: STATUS.interviews }),
+        makeStatusEvent({ from_status: null, to_status: STATUS.no_answer }),
+        makeStatusEvent({ from_status: STATUS.no_answer, to_status: STATUS.interviews }),
       ],
     });
 
     const { nodes, links } = buildSankeyData([app]);
 
-    // Nodes: SANKEY_ROOT, applied, interviews
+    // Nodes: SANKEY_ROOT, no_answer, interviews
     expect(nodes.length).toBeGreaterThanOrEqual(2);
     const nodeNames = nodes.map((n) => n.name);
-    expect(nodeNames).toContain(STATUS.applied);
+    expect(nodeNames).toContain(STATUS.no_answer);
     expect(nodeNames).toContain(STATUS.interviews);
 
     expect(links.length).toBeGreaterThanOrEqual(1);
     const transition = links.find((l) => {
-      return nodes[l.source].name === STATUS.applied && nodes[l.target].name === STATUS.interviews;
+      return nodes[l.source].name === STATUS.no_answer && nodes[l.target].name === STATUS.interviews;
     });
     expect(transition).toBeDefined();
     expect(transition?.value).toBe(1);
@@ -40,8 +40,8 @@ describe("buildSankeyData", () => {
 
   it("from_status=null is mapped to SANKEY_ROOT node", () => {
     const app = makeApplication({
-      status: STATUS.applied,
-      events: [makeStatusEvent({ from_status: null, to_status: STATUS.applied })],
+      status: STATUS.no_answer,
+      events: [makeStatusEvent({ from_status: null, to_status: STATUS.no_answer })],
     });
 
     const { nodes, links } = buildSankeyData([app]);
@@ -51,7 +51,7 @@ describe("buildSankeyData", () => {
 
     const rootLink = links.find((l) => nodes[l.source].name === SANKEY_ROOT);
     expect(rootLink).toBeDefined();
-    expect(nodes[rootLink!.target].name).toBe(STATUS.applied);
+    expect(nodes[rootLink!.target].name).toBe(STATUS.no_answer);
   });
 
   it("accumulates counts across multiple applications sharing the same transition", () => {
@@ -59,7 +59,7 @@ describe("buildSankeyData", () => {
       makeApplication({
         status: STATUS.interviews,
         events: [
-          makeStatusEvent({ from_status: STATUS.applied, to_status: STATUS.interviews }),
+          makeStatusEvent({ from_status: STATUS.no_answer, to_status: STATUS.interviews }),
         ],
       });
 
@@ -67,7 +67,7 @@ describe("buildSankeyData", () => {
 
     const link = links.find(
       (l) =>
-        nodes[l.source].name === STATUS.applied &&
+        nodes[l.source].name === STATUS.no_answer &&
         nodes[l.target].name === STATUS.interviews
     );
     expect(link?.value).toBe(3);
@@ -75,9 +75,9 @@ describe("buildSankeyData", () => {
 
   it("skips self-loops (from === to)", () => {
     const app = makeApplication({
-      status: STATUS.applied,
+      status: STATUS.no_answer,
       events: [
-        makeStatusEvent({ from_status: STATUS.applied, to_status: STATUS.applied }),
+        makeStatusEvent({ from_status: STATUS.no_answer, to_status: STATUS.no_answer }),
       ],
     });
 
@@ -94,17 +94,17 @@ describe("buildSankeyData", () => {
     // Events with from_status=wishlist are NOT filtered (only the app-level filter
     // removes apps whose current status is wishlist, not events sourced from wishlist).
     const app = makeApplication({
-      status: STATUS.applied,
+      status: STATUS.no_answer,
       events: [
         // This event TO wishlist should produce no link or node for wishlist as a target
-        makeStatusEvent({ from_status: STATUS.applied, to_status: STATUS.wishlist }),
+        makeStatusEvent({ from_status: STATUS.no_answer, to_status: STATUS.wishlist }),
         // This event has a normal destination
-        makeStatusEvent({ from_status: null, to_status: STATUS.applied }),
+        makeStatusEvent({ from_status: null, to_status: STATUS.no_answer }),
       ],
     });
 
     const { links, nodes } = buildSankeyData([app]);
-    // applied→wishlist link must not exist (filtered)
+    // no_answer→wishlist link must not exist (filtered)
     const wishlistTargetLink = links.find(
       (l) => nodes[l.target].name === STATUS.wishlist
     );
@@ -114,22 +114,22 @@ describe("buildSankeyData", () => {
   it("apps whose current status is wishlist are excluded entirely", () => {
     const wishlistApp = makeApplication({ status: STATUS.wishlist });
     const normalApp = makeApplication({
-      status: STATUS.applied,
-      events: [makeStatusEvent({ from_status: null, to_status: STATUS.applied })],
+      status: STATUS.no_answer,
+      events: [makeStatusEvent({ from_status: null, to_status: STATUS.no_answer })],
     });
 
     const { nodes } = buildSankeyData([wishlistApp, normalApp]);
     // wishlist app is excluded; only the normal app's nodes should appear
     const nodeNames = nodes.map((n) => n.name);
-    expect(nodeNames).toContain(STATUS.applied);
+    expect(nodeNames).toContain(STATUS.no_answer);
   });
 
   it("link source/target are numeric indices into nodes array", () => {
     const app = makeApplication({
       status: STATUS.interviews,
       events: [
-        makeStatusEvent({ from_status: null, to_status: STATUS.applied }),
-        makeStatusEvent({ from_status: STATUS.applied, to_status: STATUS.interviews }),
+        makeStatusEvent({ from_status: null, to_status: STATUS.no_answer }),
+        makeStatusEvent({ from_status: STATUS.no_answer, to_status: STATUS.interviews }),
       ],
     });
 

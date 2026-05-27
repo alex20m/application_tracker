@@ -77,7 +77,7 @@ describe("createWishlistAction", () => {
 });
 
 describe("applyWishlistAction", () => {
-  it("updates status to applied with the provided applied_on date", async () => {
+  it("updates status to no_answer with the provided applied_on date", async () => {
     const wishlistSupabase = buildSupabaseMock({
       user: mockUser,
       selectData: { status: STATUS.wishlist },
@@ -101,7 +101,7 @@ describe("applyWishlistAction", () => {
   it("returns error when app is not in wishlist status", async () => {
     const notWishlistSupabase = buildSupabaseMock({
       user: mockUser,
-      selectData: { status: STATUS.applied },
+      selectData: { status: STATUS.no_answer },
     });
     requireUserMock.mockResolvedValue({ supabase: notWishlistSupabase as never, user: mockUser as never });
 
