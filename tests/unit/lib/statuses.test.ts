@@ -37,8 +37,8 @@ describe("STATUS_NEXT", () => {
     }
   });
 
-  it("wishlist transitions only to applied", () => {
-    expect(STATUS_NEXT[STATUS.wishlist]).toEqual([STATUS.applied]);
+  it("wishlist transitions only to no_answer", () => {
+    expect(STATUS_NEXT[STATUS.wishlist]).toEqual([STATUS.no_answer]);
   });
 
   it("interviews can transition to withdrew, no_offer, or offer", () => {
@@ -55,10 +55,10 @@ describe("getStatusRank", () => {
   });
 
   it("preserves within-level ordering", () => {
-    // level 1: [interviews, cancelled, applied, rejected]
+    // level 1: [interviews, cancelled, no_answer, rejected]
     expect(getStatusRank(STATUS.interviews)).toBeLessThan(getStatusRank(STATUS.cancelled));
-    expect(getStatusRank(STATUS.cancelled)).toBeLessThan(getStatusRank(STATUS.applied));
-    expect(getStatusRank(STATUS.applied)).toBeLessThan(getStatusRank(STATUS.rejected));
+    expect(getStatusRank(STATUS.cancelled)).toBeLessThan(getStatusRank(STATUS.no_answer));
+    expect(getStatusRank(STATUS.no_answer)).toBeLessThan(getStatusRank(STATUS.rejected));
     // level 2: [offer, withdrew, no_offer]
     expect(getStatusRank(STATUS.offer)).toBeLessThan(getStatusRank(STATUS.withdrew));
     expect(getStatusRank(STATUS.withdrew)).toBeLessThan(getStatusRank(STATUS.no_offer));
