@@ -289,9 +289,9 @@ type DateFilterProps = {
 };
 
 const PILL_ACTIVE =
-  "px-3 py-1.5 text-sm font-medium rounded-lg bg-indigo-600 text-white";
+  "cursor-pointer px-3 py-1.5 text-sm font-semibold rounded-lg bg-indigo-600 text-white mobile:min-h-11 mobile:px-4 mobile:text-base";
 const PILL_INACTIVE =
-  "px-3 py-1.5 text-sm font-medium rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 transition-colors";
+  "cursor-pointer px-3 py-1.5 text-sm font-medium rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 transition-colors mobile:min-h-11 mobile:px-4 mobile:text-base";
 
 function DateFilter({ allTime, onAllTime, startDate, endDate, onStart, onEnd }: DateFilterProps) {
   return (
