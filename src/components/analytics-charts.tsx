@@ -13,26 +13,47 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
-import { CARD, TEXT_H2, TEXT_H3, TEXT_META } from "@/lib/ui";
-import type { StatusCount, MonthlyEntry, FunnelStage } from "@/lib/analytics";
+import { CARD, TEXT_H2, TEXT_BODY, TEXT_META } from "@/lib/ui";
+import type { StatusCount, MonthlyEntry, SourceStat } from "@/lib/analytics";
+
+// Custom tooltip avoids recharts default inline styles that ignore dark mode
+function ChartTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: Array<{ name: string; value: number; color: string }>;
+  label?: string;
+}) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-xs shadow-md">
+      {label && (
+        <p className="font-semibold text-gray-800 dark:text-gray-200 mb-1">{label}</p>
+      )}
+      {payload.map((p) => (
+        <p key={p.name} className="text-gray-700 dark:text-gray-300">
+          <span className="inline-block w-2 h-2 rounded-full mr-1.5" style={{ background: p.color }} />
+          {p.name}: <span className="font-medium">{p.value}</span>
+        </p>
+      ))}
+    </div>
+  );
+}
 
 type Props = {
   statusCounts: StatusCount[];
   monthlyTrend: MonthlyEntry[];
-  funnelStages: FunnelStage[];
+  sourceStats: SourceStat[];
 };
 
-const TOOLTIP_STYLE: React.CSSProperties = {
-  background: "var(--card)",
-  border: "1px solid var(--border)",
-  borderRadius: 8,
-  fontSize: 12,
-  color: "var(--foreground)",
-};
+export function AnalyticsCharts({ statusCounts, monthlyTrend, sourceStats }: Props) {
+  const TICK = { fontSize: 11, fill: "currentColor", opacity: 0.5 };
 
-export function AnalyticsCharts({ statusCounts, monthlyTrend, funnelStages }: Props) {
   return (
     <div className="space-y-4">
+      {/* Monthly trend */}
       {monthlyTrend.length > 1 && (
         <div className={CARD}>
           <h2 className={`${TEXT_H2} mb-4`}>Applications Over Time</h2>
@@ -53,83 +74,30 @@ export function AnalyticsCharts({ statusCounts, monthlyTrend, funnelStages }: Pr
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis
-                dataKey="label"
-                tick={{ fontSize: 11, fill: "var(--foreground)", opacity: 0.5 }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                allowDecimals={false}
-                tick={{ fontSize: 11, fill: "var(--foreground)", opacity: 0.5 }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <Tooltip contentStyle={TOOLTIP_STYLE} />
+              <XAxis dataKey="label" tick={TICK} axisLine={false} tickLine={false} />
+              <YAxis allowDecimals={false} tick={TICK} axisLine={false} tickLine={false} />
+              <Tooltip content={<ChartTooltip />} />
               <Legend wrapperStyle={{ fontSize: 12 }} />
-              <Area
-                type="monotone"
-                dataKey="applications"
-                name="Applications"
-                stroke="#60a5fa"
-                fill="url(#grad-apps)"
-                strokeWidth={2}
-                dot={false}
-              />
-              <Area
-                type="monotone"
-                dataKey="interviews"
-                name="Interviews"
-                stroke="#8b5cf6"
-                fill="url(#grad-interviews)"
-                strokeWidth={2}
-                dot={false}
-              />
-              <Area
-                type="monotone"
-                dataKey="offers"
-                name="Offers"
-                stroke="#22c55e"
-                fill="url(#grad-offers)"
-                strokeWidth={2}
-                dot={false}
-              />
+              <Area type="monotone" dataKey="applications" name="Applications" stroke="#60a5fa" fill="url(#grad-apps)" strokeWidth={2} dot={false} />
+              <Area type="monotone" dataKey="interviews" name="Interviews" stroke="#8b5cf6" fill="url(#grad-interviews)" strokeWidth={2} dot={false} />
+              <Area type="monotone" dataKey="offers" name="Offers" stroke="#22c55e" fill="url(#grad-offers)" strokeWidth={2} dot={false} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
       )}
 
+      {/* Status distribution + source performance */}
       <div className="grid grid-cols-2 gap-4 mobile:grid-cols-1">
         {statusCounts.length > 0 && (
           <div className={CARD}>
             <h2 className={`${TEXT_H2} mb-4`}>By Status</h2>
             <ResponsiveContainer width="100%" height={220}>
-              <BarChart
-                layout="vertical"
-                data={statusCounts}
-                margin={{ top: 0, right: 16, left: 0, bottom: 0 }}
-              >
+              <BarChart layout="vertical" data={statusCounts} margin={{ top: 0, right: 16, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
-                <XAxis
-                  type="number"
-                  allowDecimals={false}
-                  tick={{ fontSize: 11, fill: "var(--foreground)", opacity: 0.5 }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  type="category"
-                  dataKey="name"
-                  width={72}
-                  tick={{ fontSize: 11, fill: "var(--foreground)", opacity: 0.7 }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <Tooltip
-                  contentStyle={TOOLTIP_STYLE}
-                  formatter={(value) => [value, "Applications"]}
-                />
-                <Bar dataKey="count" radius={[0, 4, 4, 0]}>
+                <XAxis type="number" allowDecimals={false} tick={TICK} axisLine={false} tickLine={false} />
+                <YAxis type="category" dataKey="name" width={72} tick={{ ...TICK, opacity: 0.7 }} axisLine={false} tickLine={false} />
+                <Tooltip content={<ChartTooltip />} />
+                <Bar dataKey="count" name="Applications" radius={[0, 4, 4, 0]}>
                   {statusCounts.map((entry) => (
                     <Cell key={entry.status} fill={entry.color} />
                   ))}
@@ -139,27 +107,41 @@ export function AnalyticsCharts({ statusCounts, monthlyTrend, funnelStages }: Pr
           </div>
         )}
 
-        <div className={CARD}>
-          <h2 className={`${TEXT_H2} mb-4`}>Pipeline</h2>
-          <div className="space-y-4">
-            {funnelStages.map((stage) => (
-              <div key={stage.label}>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className={TEXT_H3}>{stage.label}</span>
-                  <span className={TEXT_META}>
-                    {stage.count} &middot; {stage.percentage}%
-                  </span>
-                </div>
-                <div className="h-2.5 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
-                  <div
-                    className="h-full rounded-full"
-                    style={{ width: `${stage.percentage}%`, backgroundColor: stage.color }}
-                  />
-                </div>
-              </div>
-            ))}
+        {/* Source performance */}
+        {sourceStats.length > 1 && (
+          <div className={CARD}>
+            <h2 className={`${TEXT_H2} mb-4`}>Source Performance</h2>
+            <div className="overflow-x-auto -mx-1">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-gray-100 dark:border-gray-800">
+                    <th className="text-left py-1.5 px-2 font-semibold text-gray-500 dark:text-gray-400">Source</th>
+                    <th className="text-right py-1.5 px-2 font-semibold text-gray-500 dark:text-gray-400">Applied</th>
+                    <th className="text-right py-1.5 px-2 font-semibold text-gray-500 dark:text-gray-400">Interview%</th>
+                    <th className="text-right py-1.5 px-2 font-semibold text-gray-500 dark:text-gray-400">Offer%</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sourceStats.map((s) => (
+                    <tr key={s.source} className="border-b border-gray-50 dark:border-gray-800/50 last:border-0">
+                      <td className={`py-1.5 px-2 ${TEXT_BODY} max-w-[120px] truncate`}>{s.source}</td>
+                      <td className={`py-1.5 px-2 text-right ${TEXT_BODY}`}>{s.total}</td>
+                      <td className={`py-1.5 px-2 text-right font-medium ${s.interviewRate >= 20 ? "text-indigo-600 dark:text-indigo-400" : "text-gray-700 dark:text-gray-300"}`}>
+                        {s.interviewRate}%
+                      </td>
+                      <td className={`py-1.5 px-2 text-right font-medium ${s.offerRate >= 10 ? "text-green-600 dark:text-green-400" : "text-gray-700 dark:text-gray-300"}`}>
+                        {s.offerRate}%
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {sourceStats.length === 0 && (
+              <p className={`${TEXT_META} text-center py-4`}>No source data yet</p>
+            )}
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
