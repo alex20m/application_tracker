@@ -211,7 +211,6 @@ export function AnalyticsView({ applications }: Props) {
 
       {/* ── Charts ─────────────────────────────────────────── */}
       <section>
-        <h2 className={`${TEXT_H2} mb-3`}>Breakdown</h2>
         <AnalyticsCharts
           statusCounts={a.statusCounts}
           monthlyTrend={a.monthlyTrend}
