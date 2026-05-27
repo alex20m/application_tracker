@@ -42,28 +42,6 @@ function ChartTooltip({
   );
 }
 
-function PieTooltip({
-  active,
-  payload,
-  total,
-}: {
-  active?: boolean;
-  payload?: ReadonlyArray<{ readonly payload: StatusCount }>;
-  total: number;
-}) {
-  if (!active || !payload?.length) return null;
-  const d = payload[0].payload;
-  const pct = total > 0 ? Math.round((d.count / total) * 100) : 0;
-  return (
-    <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-xs shadow-md">
-      <p className="font-semibold text-gray-800 dark:text-gray-200 mb-1">{d.name}</p>
-      <p className="text-gray-700 dark:text-gray-300">
-        <span className="inline-block w-2 h-2 rounded-full mr-1.5" style={{ background: d.color }} />
-        {d.count} application{d.count !== 1 ? "s" : ""} · {pct}% of applied
-      </p>
-    </div>
-  );
-}
 
 type Props = {
   statusCounts: StatusCount[];
@@ -133,7 +111,22 @@ export function AnalyticsCharts({ statusCounts, monthlyTrend, sourceStats }: Pro
                     <Cell key={entry.status} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip content={(props) => <PieTooltip {...props} total={pieTotal} />} />
+                <Tooltip
+                  content={({ active, payload }) => {
+                    if (!active || !payload?.length) return null;
+                    const d = payload[0].payload as StatusCount;
+                    const pct = pieTotal > 0 ? Math.round((d.count / pieTotal) * 100) : 0;
+                    return (
+                      <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-xs shadow-md">
+                        <p className="font-semibold text-gray-800 dark:text-gray-200 mb-1">{d.name}</p>
+                        <p className="text-gray-700 dark:text-gray-300">
+                          <span className="inline-block w-2 h-2 rounded-full mr-1.5" style={{ background: d.color }} />
+                          {d.count} application{d.count !== 1 ? "s" : ""} · {pct}% of applied
+                        </p>
+                      </div>
+                    );
+                  }}
+                />
                 <Legend
                   iconType="circle"
                   iconSize={8}
