@@ -76,7 +76,7 @@ export function AnalyticsCharts({ statusCounts, monthlyTrend, sourceStats }: Pro
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis dataKey="label" tick={TICK} axisLine={false} tickLine={false} />
               <YAxis allowDecimals={false} tick={TICK} axisLine={false} tickLine={false} />
-              <Tooltip content={<ChartTooltip />} />
+              <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'rgba(128,128,128,0.2)', strokeWidth: 1, strokeDasharray: '3 3' }} />
               <Legend wrapperStyle={{ fontSize: 12 }} />
               <Area type="monotone" dataKey="applications" name="Applications" stroke="#60a5fa" fill="url(#grad-apps)" strokeWidth={2} dot={false} />
               <Area type="monotone" dataKey="interviews" name="Interviews" stroke="#8b5cf6" fill="url(#grad-interviews)" strokeWidth={2} dot={false} />
@@ -90,13 +90,14 @@ export function AnalyticsCharts({ statusCounts, monthlyTrend, sourceStats }: Pro
       <div className="grid grid-cols-2 gap-4 mobile:grid-cols-1">
         {statusCounts.length > 0 && (
           <div className={CARD}>
-            <h2 className={`${TEXT_H2} mb-4`}>By Status</h2>
+            <h2 className={`${TEXT_H2} mb-0.5`}>Current Status</h2>
+            <p className={`${TEXT_META} mb-4`}>Where your applications stand right now</p>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart layout="vertical" data={statusCounts} margin={{ top: 0, right: 16, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
                 <XAxis type="number" allowDecimals={false} tick={TICK} axisLine={false} tickLine={false} />
                 <YAxis type="category" dataKey="name" width={72} tick={{ ...TICK, opacity: 0.7 }} axisLine={false} tickLine={false} />
-                <Tooltip content={<ChartTooltip />} />
+                <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(128,128,128,0.05)' }} />
                 <Bar dataKey="count" name="Applications" radius={[0, 4, 4, 0]}>
                   {statusCounts.map((entry) => (
                     <Cell key={entry.status} fill={entry.color} />

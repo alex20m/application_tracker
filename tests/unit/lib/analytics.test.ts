@@ -110,6 +110,24 @@ describe("computeAnalytics", () => {
     expect(r.activeCount).toBe(3);
   });
 
+  it("counts currentlyInterviewingCount as apps with status === interviews", () => {
+    const r = computeAnalytics([
+      makeApplication({ status: STATUS.interviews }),
+      makeApplication({ status: STATUS.interviews }),
+      makeApplication({ status: STATUS.no_offer }),
+    ]);
+    expect(r.currentlyInterviewingCount).toBe(2);
+  });
+
+  it("counts currentlyOfferCount as apps with status === offer only", () => {
+    const r = computeAnalytics([
+      makeApplication({ status: STATUS.offer }),
+      makeApplication({ status: STATUS.accepted }),
+      makeApplication({ status: STATUS.declined }),
+    ]);
+    expect(r.currentlyOfferCount).toBe(1);
+  });
+
   // ── Rate calculations ──────────────────────────────────────────────────────
 
   it("calculates interview rate as interviewedCount / total", () => {

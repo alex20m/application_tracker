@@ -47,9 +47,11 @@ export type AnalyticsResult = {
   cancelledCount: number;
   rejectedBeforeInterviewCount: number;
   interviewedCount: number;
+  currentlyInterviewingCount: number;
   withdrewCount: number;
   noOfferCount: number;
   offeredCount: number;
+  currentlyOfferCount: number;
 
   // ── Rates (0–1) ──────────────────────────────────
   interviewRate: number | null;
@@ -139,6 +141,8 @@ export function computeAnalytics(
   const withdrewCount = apps.filter((a) => a.status === STATUS.withdrew).length;
   const noOfferCount = apps.filter((a) => a.status === STATUS.no_offer).length;
   const offeredCount = apps.filter((a) => OFFERED_STATUSES.includes(a.status)).length;
+  const currentlyInterviewingCount = apps.filter((a) => a.status === STATUS.interviews).length;
+  const currentlyOfferCount = apps.filter((a) => a.status === STATUS.offer).length;
   const activeCount = apps.filter((a) => ACTIVE_STATUSES.includes(a.status)).length;
 
   // ── Ghost detection (no_answer for ≥30 days) ─────────────────────────────
@@ -319,9 +323,11 @@ export function computeAnalytics(
     cancelledCount,
     rejectedBeforeInterviewCount,
     interviewedCount,
+    currentlyInterviewingCount,
     withdrewCount,
     noOfferCount,
     offeredCount,
+    currentlyOfferCount,
     interviewRate: total > 0 ? interviewedCount / total : null,
     offerFromInterviewRate: interviewedCount > 0 ? offeredCount / interviewedCount : null,
     overallOfferRate: total > 0 ? offeredCount / total : null,

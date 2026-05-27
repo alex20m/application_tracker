@@ -4,25 +4,17 @@ import { useMemo, useState } from "react";
 import { computeAnalytics } from "@/lib/analytics";
 import { AnalyticsCharts } from "@/components/analytics-charts";
 import {
+  BTN_GHOST,
   CARD,
+  INPUT,
+  LABEL,
   SECTION_STACK,
   TEXT_H2,
   TEXT_H3,
-  TEXT_BODY,
   TEXT_META,
   TEXT_MUTED,
 } from "@/lib/ui";
 import type { ApplicationRecord } from "@/lib/types";
-
-type TimePeriod = 30 | 60 | 90 | 180 | 365 | null;
-
-const PERIODS: { label: string; value: TimePeriod }[] = [
-  { label: "All time", value: null },
-  { label: "30 days", value: 30 },
-  { label: "3 months", value: 90 },
-  { label: "6 months", value: 180 },
-  { label: "1 year", value: 365 },
-];
 
 function pct(value: number | null): string {
   if (value === null) return "—";
@@ -68,32 +60,46 @@ type Props = {
 };
 
 export function AnalyticsView({ applications }: Props) {
-  const [period, setPeriod] = useState<TimePeriod>(null);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  const isAllTime = startDate === "" && endDate === "";
 
   const filtered = useMemo(() => {
-    if (period === null) return applications;
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - period);
-    const cutoffStr = cutoff.toISOString().slice(0, 10);
-    return applications.filter(
-      (a) => a.applied_on !== null && a.applied_on >= cutoffStr
-    );
-  }, [applications, period]);
+    if (isAllTime) return applications;
+    return applications.filter((a) => {
+      if (!a.applied_on) return false;
+      if (startDate && a.applied_on < startDate) return false;
+      if (endDate && a.applied_on > endDate) return false;
+      return true;
+    });
+  }, [applications, startDate, endDate, isAllTime]);
 
   const analytics = useMemo(() => computeAnalytics(filtered), [filtered]);
 
   if (analytics.totalApplications === 0) {
+    const hasFilter = !isAllTime;
     return (
-      <div className={`${CARD} py-16 text-center`}>
-        <p className={`${TEXT_H3} mb-2`}>
-          {period !== null ? "No applications in this period" : "No data yet"}
-        </p>
-        <p className={TEXT_MUTED}>
-          {period !== null
-            ? "Try a longer time range or switch to All time."
-            : "Start adding applications to see your analytics."}
-        </p>
-      </div>
+      <>
+        <DateFilter
+          startDate={startDate}
+          endDate={endDate}
+          onStart={setStartDate}
+          onEnd={setEndDate}
+          onClear={() => { setStartDate(""); setEndDate(""); }}
+          isAllTime={isAllTime}
+        />
+        <div className={`${CARD} py-16 text-center`}>
+          <p className={`${TEXT_H3} mb-2`}>
+            {hasFilter ? "No applications in this date range" : "No data yet"}
+          </p>
+          <p className={TEXT_MUTED}>
+            {hasFilter
+              ? "Adjust the date range or clear the filter to see all data."
+              : "Start adding applications to see your analytics."}
+          </p>
+        </div>
+      </>
     );
   }
 
@@ -101,33 +107,22 @@ export function AnalyticsView({ applications }: Props) {
 
   return (
     <div className={SECTION_STACK}>
-      {/* Time period filter */}
-      <div className="flex flex-wrap gap-2">
-        {PERIODS.map((p) => (
-          <button
-            key={String(p.value)}
-            type="button"
-            onClick={() => setPeriod(p.value)}
-            className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition mobile:min-h-9 ${
-              period === p.value
-                ? "border-indigo-500 bg-indigo-50 text-indigo-700 dark:border-indigo-400 dark:bg-indigo-900/30 dark:text-indigo-300"
-                : "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800"
-            }`}
-          >
-            {p.label}
-          </button>
-        ))}
-        <span className={`${TEXT_META} self-center ml-1`}>
-          {a.totalApplications} application{a.totalApplications !== 1 ? "s" : ""}
-        </span>
-      </div>
+      {/* ── Date range filter ─────────────────────────────── */}
+      <DateFilter
+        startDate={startDate}
+        endDate={endDate}
+        onStart={setStartDate}
+        onEnd={setEndDate}
+        onClear={() => { setStartDate(""); setEndDate(""); }}
+        isAllTime={isAllTime}
+      />
 
-      {/* ── Overview KPIs ──────────────────────────────────── */}
+      {/* ── Overview ─────────────────────────────────────── */}
       <section>
         <h2 className={`${TEXT_H2} mb-3`}>Overview</h2>
         <div className="grid grid-cols-4 gap-4 mobile:grid-cols-2 mobile:gap-3">
           <StatCard
-            label="Total Applied"
+            label="Applied"
             value={String(a.totalApplications)}
             sub={`${a.activeCount} still active`}
           />
@@ -145,78 +140,9 @@ export function AnalyticsView({ applications }: Props) {
           <StatCard
             label="Overall Offer Rate"
             value={pct(a.overallOfferRate)}
-            sub={`${a.offeredCount} offer${a.offeredCount !== 1 ? "s" : ""}`}
+            sub={`${a.offeredCount} offer${a.offeredCount !== 1 ? "s" : ""} received`}
             accent
           />
-        </div>
-      </section>
-
-      {/* ── Stage-by-stage conversion ──────────────────────── */}
-      <section>
-        <h2 className={`${TEXT_H2} mb-3`}>Stage Conversions</h2>
-        <div className={CARD}>
-          {/* Applied → Interview block */}
-          <div className="mb-4">
-            <p className={`${TEXT_H3} mb-3 pb-2 border-b border-gray-100 dark:border-gray-800`}>
-              From Applied
-            </p>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-3 mobile:grid-cols-1">
-              {a.conversionRows.filter((r) => r.pctOfStage === null).map((row) => (
-                <div key={row.key} className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span
-                      className="inline-block h-2.5 w-2.5 flex-shrink-0 rounded-full"
-                      style={{ backgroundColor: row.color }}
-                    />
-                    <span className={`${TEXT_BODY} truncate`}>{row.label}</span>
-                  </div>
-                  <div className="flex items-center gap-3 flex-shrink-0">
-                    <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 w-8 text-right">
-                      {row.count}
-                    </span>
-                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400 w-10 text-right">
-                      {row.pctOfApplied}%
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Interview → Offer block */}
-          {a.interviewedCount > 0 && (
-            <div>
-              <p className={`${TEXT_H3} mb-3 pb-2 border-b border-gray-100 dark:border-gray-800`}>
-                From Interview ({a.interviewedCount} reached)
-              </p>
-              <div className="grid grid-cols-2 gap-x-6 gap-y-3 mobile:grid-cols-1">
-                {a.conversionRows.filter((r) => r.pctOfStage !== null).map((row) => (
-                  <div key={row.key} className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span
-                        className="inline-block h-2.5 w-2.5 flex-shrink-0 rounded-full"
-                        style={{ backgroundColor: row.color }}
-                      />
-                      <span className={`${TEXT_BODY} truncate`}>{row.label}</span>
-                    </div>
-                    <div className="flex items-center gap-3 flex-shrink-0">
-                      <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 w-8 text-right">
-                        {row.count}
-                      </span>
-                      <span className="text-sm font-medium text-gray-500 dark:text-gray-400 w-10 text-right">
-                        {row.pctOfStage}%
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <p className={`${TEXT_META} mt-3 pt-2 border-t border-gray-100 dark:border-gray-800`}>
-                Offer rate from total applied: <span className="font-semibold">{pct(a.overallOfferRate)}</span>
-                &ensp;&middot;&ensp;
-                Offer rate from interviews: <span className="font-semibold">{pct(a.offerFromInterviewRate)}</span>
-              </p>
-            </div>
-          )}
         </div>
       </section>
 
@@ -247,7 +173,7 @@ export function AnalyticsView({ applications }: Props) {
         </div>
       </section>
 
-      {/* ── Signal metrics ─────────────────────────────────── */}
+      {/* ── Search quality ─────────────────────────────────── */}
       <section>
         <h2 className={`${TEXT_H2} mb-3`}>Search Quality</h2>
         <div className="grid grid-cols-4 gap-4 mobile:grid-cols-2 mobile:gap-3">
@@ -263,15 +189,79 @@ export function AnalyticsView({ applications }: Props) {
             sub={pct(a.rejectionBeforeInterviewRate) + " of applied"}
           />
           <StatCard
-            label="Offer / Interview"
-            value={pct(a.offerFromInterviewRate)}
-            sub={`${a.offeredCount} offer${a.offeredCount !== 1 ? "s" : ""} from ${a.interviewedCount} interviews`}
-            accent={a.offerFromInterviewRate !== null && a.offerFromInterviewRate > 0}
+            label="No Response Rate"
+            value={pct(a.noResponseRate)}
+            sub={`${a.stillWaitingCount} still waiting`}
+          />
+          <StatCard
+            label="Active Applications"
+            value={String(a.activeCount)}
+            sub="applied / interviews / offer"
+          />
+        </div>
+      </section>
+
+      {/* ── Interview details ───────────────────────────────── */}
+      <section>
+        <h2 className={`${TEXT_H2} mb-3`}>Interviews</h2>
+        <div className="grid grid-cols-4 gap-4 mobile:grid-cols-2 mobile:gap-3">
+          <StatCard
+            label="Reached Interview"
+            value={String(a.interviewedCount)}
+            sub={pct(a.interviewRate) + " of applied"}
+            accent
+          />
+          <StatCard
+            label="Currently Interviewing"
+            value={String(a.currentlyInterviewingCount)}
+            sub="in interview stage now"
+          />
+          <StatCard
+            label="Rejected at Interview"
+            value={String(a.noOfferCount)}
+            sub={
+              a.interviewedCount > 0
+                ? `${Math.round((a.noOfferCount / a.interviewedCount) * 100)}% of interviewed`
+                : undefined
+            }
           />
           <StatCard
             label="Withdrew"
             value={String(a.withdrewCount)}
-            sub={a.interviewedCount > 0 ? `${Math.round((a.withdrewCount / a.interviewedCount) * 100)}% of interviewed` : undefined}
+            sub={
+              a.interviewedCount > 0
+                ? `${Math.round((a.withdrewCount / a.interviewedCount) * 100)}% of interviewed`
+                : undefined
+            }
+          />
+        </div>
+      </section>
+
+      {/* ── Offer details ───────────────────────────────────── */}
+      <section>
+        <h2 className={`${TEXT_H2} mb-3`}>Offers</h2>
+        <div className="grid grid-cols-4 gap-4 mobile:grid-cols-2 mobile:gap-3">
+          <StatCard
+            label="Offers Received"
+            value={String(a.offeredCount)}
+            sub={pct(a.overallOfferRate) + " of applied"}
+            accent={a.offeredCount > 0}
+          />
+          <StatCard
+            label="Currently at Offer Stage"
+            value={String(a.currentlyOfferCount)}
+            sub="awaiting decision"
+          />
+          <StatCard
+            label="Offer / Interview"
+            value={pct(a.offerFromInterviewRate)}
+            sub={`of ${a.interviewedCount} interview${a.interviewedCount !== 1 ? "s" : ""}`}
+            accent={a.offerFromInterviewRate !== null && a.offerFromInterviewRate > 0}
+          />
+          <StatCard
+            label="Avg. Applied → Offer"
+            value={days(a.avgDaysToOffer)}
+            sub="total days from apply to offer"
           />
         </div>
       </section>
@@ -285,6 +275,48 @@ export function AnalyticsView({ applications }: Props) {
           sourceStats={a.sourceStats}
         />
       </section>
+    </div>
+  );
+}
+
+type DateFilterProps = {
+  startDate: string;
+  endDate: string;
+  onStart: (v: string) => void;
+  onEnd: (v: string) => void;
+  onClear: () => void;
+  isAllTime: boolean;
+};
+
+function DateFilter({ startDate, endDate, onStart, onEnd, onClear, isAllTime }: DateFilterProps) {
+  return (
+    <div className="flex flex-wrap items-center gap-3 mobile:gap-2">
+      <div className="flex items-center gap-2 mobile:flex-1">
+        <label className={`${LABEL} whitespace-nowrap`}>From</label>
+        <input
+          type="date"
+          value={startDate}
+          onChange={(e) => onStart(e.target.value)}
+          max={endDate || undefined}
+          className={`${INPUT} max-w-[10rem] mobile:max-w-none`}
+        />
+      </div>
+      <span className="text-gray-400 dark:text-gray-500 text-sm mobile:hidden">—</span>
+      <div className="flex items-center gap-2 mobile:flex-1">
+        <label className={`${LABEL} whitespace-nowrap`}>To</label>
+        <input
+          type="date"
+          value={endDate}
+          onChange={(e) => onEnd(e.target.value)}
+          min={startDate || undefined}
+          className={`${INPUT} max-w-[10rem] mobile:max-w-none`}
+        />
+      </div>
+      {!isAllTime && (
+        <button type="button" onClick={onClear} className={BTN_GHOST}>
+          All time
+        </button>
+      )}
     </div>
   );
 }
