@@ -15,9 +15,9 @@ export function appendStatusEvent(
   events: StatusEvent[]
 ): StatusEvent[] {
   const changed_at = new Date().toISOString();
-  if (currentStatus === STATUS.applied) {
+  if (currentStatus === STATUS.no_answer) {
     return [
-      ...events.filter((e) => !(e.from_status === null && e.to_status === STATUS.applied)),
+      ...events.filter((e) => !(e.from_status === null && e.to_status === STATUS.no_answer)),
       { from_status: null, to_status: newStatus, changed_at },
     ];
   }

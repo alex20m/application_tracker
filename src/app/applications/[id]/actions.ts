@@ -30,7 +30,7 @@ export async function updateApplicationAction(
     location: (formData.get("location") as string | null)?.trim() ?? "",
     source: (formData.get("source") as string | null)?.trim() ?? "",
     notes: formData.get("notes") ?? "",
-    status: (formData.get("status") as string) || STATUS.applied,
+    status: (formData.get("status") as string) || STATUS.no_answer,
     applied_on: formData.get("applied_on"),
   });
 

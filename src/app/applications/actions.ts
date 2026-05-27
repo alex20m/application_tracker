@@ -24,7 +24,7 @@ export async function createApplicationAction(
   const statusResult = z
     .enum(Object.values(STATUS) as [ApplicationStatus, ...ApplicationStatus[]])
     .safeParse(statusInput);
-  const status = statusResult.success ? statusResult.data : STATUS.applied;
+  const status = statusResult.success ? statusResult.data : STATUS.no_answer;
 
   const parsed = ApplicationCreateSchema.safeParse({
     company: formData.get("company"),
