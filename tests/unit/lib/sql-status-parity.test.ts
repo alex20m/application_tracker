@@ -7,7 +7,7 @@ describe("SQL CHECK constraint parity", () => {
   it("status values in migration match STATUS constants exactly", () => {
     const migrationPath = resolve(
       __dirname,
-      "../../../supabase/migrations/20260527000100_rename_no_answer_to_applied.sql"
+      "../../../supabase/migrations/20260520000100_init_schema.sql"
     );
     const sql = readFileSync(migrationPath, "utf-8");
 

@@ -130,13 +130,13 @@ export async function applyWishlistAction(
 
   const now = new Date().toISOString();
   const events: StatusEvent[] = [
-    { from_status: null, to_status: STATUS.applied, changed_at: now },
+    { from_status: null, to_status: STATUS.no_answer, changed_at: now },
   ];
 
   const { error } = await supabase
     .from("applications")
     .update({
-      status: STATUS.applied,
+      status: STATUS.no_answer,
       applied_on: appliedOn || null,
       events,
       updated_at: now,

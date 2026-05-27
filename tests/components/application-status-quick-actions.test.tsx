@@ -17,7 +17,7 @@ describe("ApplicationStatusQuickActions", () => {
     render(
       <ApplicationStatusQuickActions
         applicationId={APP_ID}
-        currentStatus={STATUS.applied}
+        currentStatus={STATUS.no_answer}
       />
     );
     expect(screen.getByRole("button", { name: /move to/i })).toBeInTheDocument();
@@ -39,13 +39,13 @@ describe("ApplicationStatusQuickActions", () => {
     render(
       <ApplicationStatusQuickActions
         applicationId={APP_ID}
-        currentStatus={STATUS.applied}
+        currentStatus={STATUS.no_answer}
       />
     );
 
     await user.click(screen.getByRole("button", { name: /move to/i }));
 
-    const expectedTargets = STATUS_NEXT[STATUS.applied];
+    const expectedTargets = STATUS_NEXT[STATUS.no_answer];
     for (const target of expectedTargets) {
       expect(
         screen.getByRole("button", { name: STATUS_NAMES[target] })
@@ -58,7 +58,7 @@ describe("ApplicationStatusQuickActions", () => {
     render(
       <ApplicationStatusQuickActions
         applicationId={APP_ID}
-        currentStatus={STATUS.applied}
+        currentStatus={STATUS.no_answer}
       />
     );
     await user.click(screen.getByRole("button", { name: /move to/i }));
@@ -71,7 +71,7 @@ describe("ApplicationStatusQuickActions", () => {
     render(
       <ApplicationStatusQuickActions
         applicationId={APP_ID}
-        currentStatus={STATUS.applied}
+        currentStatus={STATUS.no_answer}
       />
     );
     await user.click(screen.getByRole("button", { name: /move to/i }));
@@ -84,7 +84,7 @@ describe("ApplicationStatusQuickActions", () => {
     render(
       <ApplicationStatusQuickActions
         applicationId={APP_ID}
-        currentStatus={STATUS.applied}
+        currentStatus={STATUS.no_answer}
       />
     );
 

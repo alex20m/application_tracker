@@ -2,12 +2,12 @@ import { test, expect } from "./fixtures";
 import { STATUS_NAMES } from "@/lib/statuses";
 
 test.describe("Status transitions", () => {
-  test("new application starts at Applied status", async ({ page, withApplication }) => {
+  test("new application starts at No Answer status", async ({ page, withApplication }) => {
     await withApplication({ company: "StatusTest Co" });
     await page.goto("/applications");
 
-    // The status badge should show "Applied" (the default status)
-    await expect(page.getByText(STATUS_NAMES.applied).first()).toBeVisible();
+    // The status badge should show "No Answer" (the default status)
+    await expect(page.getByText(STATUS_NAMES.no_answer).first()).toBeVisible();
   });
 
   test("'Move to →' button is visible for a non-terminal application", async ({
@@ -29,7 +29,7 @@ test.describe("Status transitions", () => {
     const moveBtn = page.getByRole("button", { name: /move to/i }).first();
     await moveBtn.click();
 
-    // applied → cancelled, rejected, interviews
+    // no_answer → cancelled, rejected, interviews
     await expect(page.getByRole("button", { name: STATUS_NAMES.cancelled })).toBeVisible();
     await expect(page.getByRole("button", { name: STATUS_NAMES.rejected })).toBeVisible();
     await expect(page.getByRole("button", { name: STATUS_NAMES.interviews })).toBeVisible();
