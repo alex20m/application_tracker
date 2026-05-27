@@ -86,3 +86,4 @@ The user should always be able to inspect, delete, or switch branches without en
 - Avoid repeated file reads.
 - Ask before broad architectural exploration.
 - Prefer targeted grep/search over repo summarization.
+
