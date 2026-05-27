@@ -288,43 +288,58 @@ type DateFilterProps = {
   onEnd: (v: string) => void;
 };
 
+const PILL_ACTIVE =
+  "px-3 py-1.5 text-sm font-medium rounded-lg bg-indigo-600 text-white";
+const PILL_INACTIVE =
+  "px-3 py-1.5 text-sm font-medium rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 transition-colors";
+
 function DateFilter({ allTime, onAllTime, startDate, endDate, onStart, onEnd }: DateFilterProps) {
   return (
-    <div className="flex flex-wrap items-center gap-4 mobile:gap-3">
-      <label className="flex items-center gap-2 cursor-pointer select-none">
-        <input
-          type="checkbox"
-          checked={allTime}
-          onChange={(e) => onAllTime(e.target.checked)}
-          className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-900"
-        />
-        <span className={`${LABEL} normal-case tracking-normal font-medium`}>All time</span>
-      </label>
-      {!allTime && (
-        <>
-          <div className="flex items-center gap-2 mobile:flex-1">
-            <label className={`${LABEL} whitespace-nowrap`}>From</label>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => onStart(e.target.value)}
-              max={endDate || undefined}
-              className={`${INPUT} max-w-[10rem] mobile:max-w-none`}
-            />
-          </div>
-          <span className="text-gray-400 dark:text-gray-500 text-sm mobile:hidden">—</span>
-          <div className="flex items-center gap-2 mobile:flex-1">
-            <label className={`${LABEL} whitespace-nowrap`}>To</label>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => onEnd(e.target.value)}
-              min={startDate || undefined}
-              className={`${INPUT} max-w-[10rem] mobile:max-w-none`}
-            />
-          </div>
-        </>
-      )}
+    <div className="flex flex-wrap items-center gap-3 mobile:gap-2">
+      {/* Toggle pills — always visible */}
+      <div className="flex items-center gap-1 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 p-1">
+        <button
+          type="button"
+          onClick={() => onAllTime(true)}
+          className={allTime ? PILL_ACTIVE : PILL_INACTIVE}
+        >
+          All time
+        </button>
+        <button
+          type="button"
+          onClick={() => onAllTime(false)}
+          className={!allTime ? PILL_ACTIVE : PILL_INACTIVE}
+        >
+          Date range
+        </button>
+      </div>
+
+      {/* Date inputs — always visible but only active when date range is selected */}
+      <div className="flex flex-wrap items-center gap-2 mobile:gap-2">
+        <div className="flex items-center gap-2 mobile:flex-1">
+          <label className={`${LABEL} whitespace-nowrap ${allTime ? "opacity-40" : ""}`}>From</label>
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => onStart(e.target.value)}
+            max={endDate || undefined}
+            disabled={allTime}
+            className={`${INPUT} max-w-[10rem] mobile:max-w-none ${allTime ? "opacity-40 cursor-not-allowed" : ""}`}
+          />
+        </div>
+        <span className={`text-gray-400 dark:text-gray-500 text-sm mobile:hidden ${allTime ? "opacity-40" : ""}`}>—</span>
+        <div className="flex items-center gap-2 mobile:flex-1">
+          <label className={`${LABEL} whitespace-nowrap ${allTime ? "opacity-40" : ""}`}>To</label>
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => onEnd(e.target.value)}
+            min={startDate || undefined}
+            disabled={allTime}
+            className={`${INPUT} max-w-[10rem] mobile:max-w-none ${allTime ? "opacity-40 cursor-not-allowed" : ""}`}
+          />
+        </div>
+      </div>
     </div>
   );
 }
