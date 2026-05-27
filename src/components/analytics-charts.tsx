@@ -48,7 +48,7 @@ function PieTooltip({
   total,
 }: {
   active?: boolean;
-  payload?: Array<{ payload: StatusCount }>;
+  payload?: ReadonlyArray<{ readonly payload: StatusCount }>;
   total: number;
 }) {
   if (!active || !payload?.length) return null;
