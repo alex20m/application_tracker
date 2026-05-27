@@ -127,9 +127,9 @@ export function AnalyticsView({ applications }: Props) {
             sub={`${a.activeCount} still active`}
           />
           <StatCard
-            label="Response Rate"
-            value={pct(a.responseRate)}
-            sub={`${a.stillWaitingCount} no response`}
+            label="Outstanding"
+            value={String(a.activeCount - a.ghostCount)}
+            sub="not in final state, not ghosted"
           />
           <StatCard
             label="Interview Rate"
@@ -138,7 +138,7 @@ export function AnalyticsView({ applications }: Props) {
             accent
           />
           <StatCard
-            label="Overall Offer Rate"
+            label="Offer / Applied"
             value={pct(a.overallOfferRate)}
             sub={`${a.offeredCount} offer${a.offeredCount !== 1 ? "s" : ""} received`}
             accent
@@ -178,10 +178,10 @@ export function AnalyticsView({ applications }: Props) {
         <h2 className={`${TEXT_H2} mb-3`}>Search Quality</h2>
         <div className="grid grid-cols-4 gap-4 mobile:grid-cols-2 mobile:gap-3">
           <StatCard
-            label="Ghosted (30+ days)"
-            value={String(a.ghostCount)}
-            sub={a.ghostRate !== null ? `${Math.round(a.ghostRate * 100)}% of applied` : undefined}
-            warn={a.ghostCount > 0}
+            label="Offer / Interview"
+            value={pct(a.offerFromInterviewRate)}
+            sub={`of ${a.interviewedCount} interview${a.interviewedCount !== 1 ? "s" : ""}`}
+            accent={a.offerFromInterviewRate !== null && a.offerFromInterviewRate > 0}
           />
           <StatCard
             label="Rejected Before Interview"
@@ -189,35 +189,7 @@ export function AnalyticsView({ applications }: Props) {
             sub={pct(a.rejectionBeforeInterviewRate) + " of applied"}
           />
           <StatCard
-            label="No Response Rate"
-            value={pct(a.noResponseRate)}
-            sub={`${a.stillWaitingCount} still waiting`}
-          />
-          <StatCard
-            label="Active Applications"
-            value={String(a.activeCount)}
-            sub="applied / interviews / offer"
-          />
-        </div>
-      </section>
-
-      {/* ── Interview details ───────────────────────────────── */}
-      <section>
-        <h2 className={`${TEXT_H2} mb-3`}>Interviews</h2>
-        <div className="grid grid-cols-4 gap-4 mobile:grid-cols-2 mobile:gap-3">
-          <StatCard
-            label="Reached Interview"
-            value={String(a.interviewedCount)}
-            sub={pct(a.interviewRate) + " of applied"}
-            accent
-          />
-          <StatCard
-            label="Currently Interviewing"
-            value={String(a.currentlyInterviewingCount)}
-            sub="in interview stage now"
-          />
-          <StatCard
-            label="Rejected at Interview"
+            label="No Offer After Interview"
             value={String(a.noOfferCount)}
             sub={
               a.interviewedCount > 0
@@ -226,42 +198,10 @@ export function AnalyticsView({ applications }: Props) {
             }
           />
           <StatCard
-            label="Withdrew"
-            value={String(a.withdrewCount)}
-            sub={
-              a.interviewedCount > 0
-                ? `${Math.round((a.withdrewCount / a.interviewedCount) * 100)}% of interviewed`
-                : undefined
-            }
-          />
-        </div>
-      </section>
-
-      {/* ── Offer details ───────────────────────────────────── */}
-      <section>
-        <h2 className={`${TEXT_H2} mb-3`}>Offers</h2>
-        <div className="grid grid-cols-4 gap-4 mobile:grid-cols-2 mobile:gap-3">
-          <StatCard
-            label="Offers Received"
-            value={String(a.offeredCount)}
-            sub={pct(a.overallOfferRate) + " of applied"}
-            accent={a.offeredCount > 0}
-          />
-          <StatCard
-            label="Currently at Offer Stage"
-            value={String(a.currentlyOfferCount)}
-            sub="awaiting decision"
-          />
-          <StatCard
-            label="Offer / Interview"
-            value={pct(a.offerFromInterviewRate)}
-            sub={`of ${a.interviewedCount} interview${a.interviewedCount !== 1 ? "s" : ""}`}
-            accent={a.offerFromInterviewRate !== null && a.offerFromInterviewRate > 0}
-          />
-          <StatCard
-            label="Avg. Applied → Offer"
-            value={days(a.avgDaysToOffer)}
-            sub="total days from apply to offer"
+            label="Ghosted (30+ days)"
+            value={String(a.ghostCount)}
+            sub={a.ghostRate !== null ? `${Math.round(a.ghostRate * 100)}% of applied` : undefined}
+            warn={a.ghostCount > 0}
           />
         </div>
       </section>
