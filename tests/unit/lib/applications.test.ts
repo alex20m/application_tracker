@@ -15,10 +15,10 @@ afterEach(() => {
 });
 
 describe("appendStatusEvent", () => {
-  it("appends a new event for a normal (non-no_answer) transition", () => {
+  it("appends a new event for a normal (non-applied) transition", () => {
     const existing: StatusEvent[] = [
-      { from_status: null, to_status: STATUS.no_answer, changed_at: "2026-01-01T00:00:00.000Z" },
-      { from_status: STATUS.no_answer, to_status: STATUS.interviews, changed_at: "2026-02-01T00:00:00.000Z" },
+      { from_status: null, to_status: STATUS.applied, changed_at: "2026-01-01T00:00:00.000Z" },
+      { from_status: STATUS.applied, to_status: STATUS.interviews, changed_at: "2026-02-01T00:00:00.000Z" },
     ];
 
     const result = appendStatusEvent(STATUS.interviews, STATUS.offer, existing);
@@ -38,21 +38,21 @@ describe("appendStatusEvent", () => {
 
   it("does not mutate the original events array", () => {
     const events: StatusEvent[] = [
-      { from_status: STATUS.no_answer, to_status: STATUS.interviews, changed_at: "2026-01-01T00:00:00.000Z" },
+      { from_status: STATUS.applied, to_status: STATUS.interviews, changed_at: "2026-01-01T00:00:00.000Z" },
     ];
     const original = [...events];
     appendStatusEvent(STATUS.interviews, STATUS.offer, events);
     expect(events).toEqual(original);
   });
 
-  describe("no_answer special case", () => {
-    it("replaces the null→no_answer seed event instead of appending", () => {
+  describe("applied special case", () => {
+    it("replaces the null→applied seed event instead of appending", () => {
       const seedEvent: StatusEvent = {
         from_status: null,
-        to_status: STATUS.no_answer,
+        to_status: STATUS.applied,
         changed_at: "2026-01-01T00:00:00.000Z",
       };
-      const result = appendStatusEvent(STATUS.no_answer, STATUS.interviews, [seedEvent]);
+      const result = appendStatusEvent(STATUS.applied, STATUS.interviews, [seedEvent]);
 
       expect(result).toHaveLength(1);
       expect(result[0]).toEqual({
@@ -62,18 +62,18 @@ describe("appendStatusEvent", () => {
       });
     });
 
-    it("keeps other events and only removes the null→no_answer seed", () => {
+    it("keeps other events and only removes the null→applied seed", () => {
       const otherEvent: StatusEvent = {
         from_status: STATUS.wishlist,
-        to_status: STATUS.no_answer,
+        to_status: STATUS.applied,
         changed_at: "2025-12-01T00:00:00.000Z",
       };
       const seedEvent: StatusEvent = {
         from_status: null,
-        to_status: STATUS.no_answer,
+        to_status: STATUS.applied,
         changed_at: "2026-01-01T00:00:00.000Z",
       };
-      const result = appendStatusEvent(STATUS.no_answer, STATUS.interviews, [otherEvent, seedEvent]);
+      const result = appendStatusEvent(STATUS.applied, STATUS.interviews, [otherEvent, seedEvent]);
 
       // otherEvent has from_status=wishlist (not null), so it's kept
       expect(result).toHaveLength(2);
@@ -81,13 +81,13 @@ describe("appendStatusEvent", () => {
       expect(result[1].to_status).toBe(STATUS.interviews);
     });
 
-    it("appends normally when there is no null→no_answer seed", () => {
+    it("appends normally when there is no null→applied seed", () => {
       const event: StatusEvent = {
         from_status: STATUS.wishlist,
-        to_status: STATUS.no_answer,
+        to_status: STATUS.applied,
         changed_at: "2026-01-01T00:00:00.000Z",
       };
-      const result = appendStatusEvent(STATUS.no_answer, STATUS.interviews, [event]);
+      const result = appendStatusEvent(STATUS.applied, STATUS.interviews, [event]);
       // no seed to replace, so just appends
       expect(result).toHaveLength(2);
     });

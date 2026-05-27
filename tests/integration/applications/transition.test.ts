@@ -28,7 +28,7 @@ beforeEach(() => {
     selectData: makeApplication({
       id: VALID_APP_ID,
       user_id: mockUser.id,
-      status: STATUS.no_answer,
+      status: STATUS.applied,
     }),
   });
   requireUserMock.mockResolvedValue({ supabase: mockSupabase as never, user: mockUser as never });
@@ -42,7 +42,7 @@ function makeFormData(applicationId: string, nextStatus: string): FormData {
 }
 
 describe("transitionApplicationStatusAction", () => {
-  it("calls supabase update for a legal transition (no_answer → interviews)", async () => {
+  it("calls supabase update for a legal transition (applied → interviews)", async () => {
     const fd = makeFormData(VALID_APP_ID, STATUS.interviews);
     await transitionApplicationStatusAction(fd);
 

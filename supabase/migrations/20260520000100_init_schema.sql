@@ -9,8 +9,8 @@ CREATE TABLE public.applications (
   role       TEXT NOT NULL,
   location   TEXT NOT NULL,
   source     TEXT,
-  status     TEXT NOT NULL DEFAULT 'no_answer' CHECK (status IN (
-               'wishlist', 'no_answer', 'cancelled', 'withdrew', 'rejected',
+  status     TEXT NOT NULL DEFAULT 'applied' CHECK (status IN (
+               'wishlist', 'applied', 'cancelled', 'withdrew', 'rejected',
                'interviews', 'no_offer', 'offer', 'accepted', 'declined'
              )),
   applied_on DATE,
