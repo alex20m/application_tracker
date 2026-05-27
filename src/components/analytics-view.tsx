@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import { computeAnalytics } from "@/lib/analytics";
 import { AnalyticsCharts } from "@/components/analytics-charts";
 import {
-  BTN_GHOST,
   CARD,
   INPUT,
   LABEL,
@@ -60,10 +59,11 @@ type Props = {
 };
 
 export function AnalyticsView({ applications }: Props) {
+  const [allTime, setAllTime] = useState(true);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  const isAllTime = startDate === "" && endDate === "";
+  const isAllTime = allTime;
 
   const filtered = useMemo(() => {
     if (isAllTime) return applications;
@@ -82,12 +82,12 @@ export function AnalyticsView({ applications }: Props) {
     return (
       <>
         <DateFilter
+          allTime={allTime}
+          onAllTime={setAllTime}
           startDate={startDate}
           endDate={endDate}
           onStart={setStartDate}
           onEnd={setEndDate}
-          onClear={() => { setStartDate(""); setEndDate(""); }}
-          isAllTime={isAllTime}
         />
         <div className={`${CARD} py-16 text-center`}>
           <p className={`${TEXT_H3} mb-2`}>
@@ -109,12 +109,12 @@ export function AnalyticsView({ applications }: Props) {
     <div className={SECTION_STACK}>
       {/* ── Date range filter ─────────────────────────────── */}
       <DateFilter
+        allTime={allTime}
+        onAllTime={setAllTime}
         startDate={startDate}
         endDate={endDate}
         onStart={setStartDate}
         onEnd={setEndDate}
-        onClear={() => { setStartDate(""); setEndDate(""); }}
-        isAllTime={isAllTime}
       />
 
       {/* ── Overview ─────────────────────────────────────── */}
@@ -280,42 +280,50 @@ export function AnalyticsView({ applications }: Props) {
 }
 
 type DateFilterProps = {
+  allTime: boolean;
+  onAllTime: (v: boolean) => void;
   startDate: string;
   endDate: string;
   onStart: (v: string) => void;
   onEnd: (v: string) => void;
-  onClear: () => void;
-  isAllTime: boolean;
 };
 
-function DateFilter({ startDate, endDate, onStart, onEnd, onClear, isAllTime }: DateFilterProps) {
+function DateFilter({ allTime, onAllTime, startDate, endDate, onStart, onEnd }: DateFilterProps) {
   return (
-    <div className="flex flex-wrap items-center gap-3 mobile:gap-2">
-      <div className="flex items-center gap-2 mobile:flex-1">
-        <label className={`${LABEL} whitespace-nowrap`}>From</label>
+    <div className="flex flex-wrap items-center gap-4 mobile:gap-3">
+      <label className="flex items-center gap-2 cursor-pointer select-none">
         <input
-          type="date"
-          value={startDate}
-          onChange={(e) => onStart(e.target.value)}
-          max={endDate || undefined}
-          className={`${INPUT} max-w-[10rem] mobile:max-w-none`}
+          type="checkbox"
+          checked={allTime}
+          onChange={(e) => onAllTime(e.target.checked)}
+          className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-900"
         />
-      </div>
-      <span className="text-gray-400 dark:text-gray-500 text-sm mobile:hidden">—</span>
-      <div className="flex items-center gap-2 mobile:flex-1">
-        <label className={`${LABEL} whitespace-nowrap`}>To</label>
-        <input
-          type="date"
-          value={endDate}
-          onChange={(e) => onEnd(e.target.value)}
-          min={startDate || undefined}
-          className={`${INPUT} max-w-[10rem] mobile:max-w-none`}
-        />
-      </div>
-      {!isAllTime && (
-        <button type="button" onClick={onClear} className={BTN_GHOST}>
-          All time
-        </button>
+        <span className={`${LABEL} normal-case tracking-normal font-medium`}>All time</span>
+      </label>
+      {!allTime && (
+        <>
+          <div className="flex items-center gap-2 mobile:flex-1">
+            <label className={`${LABEL} whitespace-nowrap`}>From</label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => onStart(e.target.value)}
+              max={endDate || undefined}
+              className={`${INPUT} max-w-[10rem] mobile:max-w-none`}
+            />
+          </div>
+          <span className="text-gray-400 dark:text-gray-500 text-sm mobile:hidden">—</span>
+          <div className="flex items-center gap-2 mobile:flex-1">
+            <label className={`${LABEL} whitespace-nowrap`}>To</label>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => onEnd(e.target.value)}
+              min={startDate || undefined}
+              className={`${INPUT} max-w-[10rem] mobile:max-w-none`}
+            />
+          </div>
+        </>
       )}
     </div>
   );
