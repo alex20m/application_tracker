@@ -37,7 +37,14 @@ Before finishing work, verify tests and pipeline status:
 - Do not modify existing tests unless functionality changed.
 - Run tests locally to confirm they pass.
 
-Commit and push:
+Rebase on top of `origin/main`:
+
+```bash
+git fetch origin
+git rebase origin/main
+```
+
+Then commit and push:
 
 ```bash
 git add -A
