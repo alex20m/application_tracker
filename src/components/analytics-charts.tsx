@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import {
   AreaChart,
   Area,
   PieChart,
   Pie,
+  Sector,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -13,6 +15,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
+import type { PieSectorDataItem } from "recharts";
 import { CARD, TEXT_H2, TEXT_BODY, TEXT_META } from "@/lib/ui";
 import type { StatusCount, MonthlyEntry, SourceStat } from "@/lib/analytics";
 
@@ -42,6 +45,20 @@ function ChartTooltip({
   );
 }
 
+function ActiveSlice(props: PieSectorDataItem) {
+  return (
+    <Sector
+      cx={props.cx}
+      cy={props.cy}
+      innerRadius={props.innerRadius}
+      outerRadius={props.outerRadius + 8}
+      startAngle={props.startAngle}
+      endAngle={props.endAngle}
+      fill={props.fill as string}
+      cornerRadius={props.cornerRadius}
+    />
+  );
+}
 
 type Props = {
   statusCounts: StatusCount[];
@@ -52,6 +69,28 @@ type Props = {
 export function AnalyticsCharts({ statusCounts, monthlyTrend, sourceStats }: Props) {
   const TICK = { fontSize: 11, fill: "currentColor", opacity: 0.5 };
   const pieTotal = statusCounts.reduce((sum, s) => sum + s.count, 0);
+
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [pinned, setPinned] = useState(false);
+
+  const handleMouseEnter = (_: PieSectorDataItem, index: number) => {
+    if (!pinned) setActiveIndex(index);
+  };
+  const handleMouseLeave = () => {
+    if (!pinned) setActiveIndex(null);
+  };
+  const handleClick = (_: PieSectorDataItem | null, index: number) => {
+    if (pinned && activeIndex === index) {
+      setPinned(false);
+      setActiveIndex(null);
+    } else {
+      setPinned(true);
+      setActiveIndex(index);
+    }
+  };
+
+  const activeSlice = activeIndex !== null ? statusCounts[activeIndex] : null;
+  const activePct = activeSlice ? Math.round((activeSlice.count / pieTotal) * 100) : null;
 
   return (
     <div className="space-y-4">
@@ -93,50 +132,75 @@ export function AnalyticsCharts({ statusCounts, monthlyTrend, sourceStats }: Pro
         {statusCounts.length > 0 && (
           <div className={CARD}>
             <h2 className={`${TEXT_H2} mb-0.5`}>Current Status</h2>
-            <p className={`${TEXT_META} mb-4`}>Where your applications stand right now</p>
-            <ResponsiveContainer width="100%" height={220}>
-              <PieChart>
-                <Pie
-                  data={statusCounts}
-                  dataKey="count"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={90}
-                  paddingAngle={2}
-                  strokeWidth={0}
+            <p className={`${TEXT_META} mb-3`}>Where your applications stand right now</p>
+
+            {/* Chart with center overlay */}
+            <div className="relative">
+              <ResponsiveContainer width="100%" height={200}>
+                <PieChart>
+                  <Pie
+                    data={statusCounts}
+                    dataKey="count"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={58}
+                    outerRadius={82}
+                    paddingAngle={2}
+                    strokeWidth={0}
+                    activeIndex={activeIndex ?? undefined}
+                    activeShape={ActiveSlice}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
+                    onClick={handleClick}
+                    style={{ cursor: "pointer" }}
+                  >
+                    {statusCounts.map((entry) => (
+                      <Cell key={entry.status} fill={entry.color} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+
+              {/* Center donut info */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                {activeSlice ? (
+                  <div className="text-center px-2">
+                    <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 leading-tight">
+                      {activeSlice.name}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                      {activeSlice.count} · {activePct}%
+                    </p>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{pieTotal}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">total</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Custom legend outside chart — no overlap on mobile */}
+            <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-3 justify-center">
+              {statusCounts.map((item, index) => (
+                <button
+                  key={item.status}
+                  type="button"
+                  onClick={() => handleClick(null, index)}
+                  className={`flex items-center gap-1.5 text-xs transition-opacity ${
+                    activeIndex !== null && activeIndex !== index ? "opacity-40" : "opacity-100"
+                  } text-gray-700 dark:text-gray-300 hover:opacity-100`}
                 >
-                  {statusCounts.map((entry) => (
-                    <Cell key={entry.status} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  content={({ active, payload }) => {
-                    if (!active || !payload?.length) return null;
-                    const d = payload[0].payload as StatusCount;
-                    const pct = pieTotal > 0 ? Math.round((d.count / pieTotal) * 100) : 0;
-                    return (
-                      <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-xs shadow-md">
-                        <p className="font-semibold text-gray-800 dark:text-gray-200 mb-1">{d.name}</p>
-                        <p className="text-gray-700 dark:text-gray-300">
-                          <span className="inline-block w-2 h-2 rounded-full mr-1.5" style={{ background: d.color }} />
-                          {d.count} application{d.count !== 1 ? "s" : ""} · {pct}% of applied
-                        </p>
-                      </div>
-                    );
-                  }}
-                />
-                <Legend
-                  iconType="circle"
-                  iconSize={8}
-                  wrapperStyle={{ fontSize: 11 }}
-                  formatter={(value) => (
-                    <span className="text-gray-700 dark:text-gray-300">{value}</span>
-                  )}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+                  <span
+                    className="w-2 h-2 rounded-full flex-shrink-0"
+                    style={{ background: item.color }}
+                  />
+                  {item.name}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
