@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   AreaChart,
   Area,
@@ -82,7 +82,8 @@ export function AnalyticsCharts({ statusCounts, monthlyTrend, sourceStats }: Pro
   const handleMouseLeave = () => {
     if (!isLocked) setActiveIndex(null);
   };
-  const handleSliceClick = (_: PieSectorDataItem, index: number) => {
+  const handleSliceClick = (_: PieSectorDataItem, index: number, e: React.MouseEvent<SVGGraphicsElement>) => {
+    e.stopPropagation();
     if (isLocked && activeIndex === index) {
       setIsLocked(false);
       setActiveIndex(null);
@@ -164,7 +165,14 @@ export function AnalyticsCharts({ statusCounts, monthlyTrend, sourceStats }: Pro
             <p className={`${TEXT_META} mb-3`}>Where your applications stand right now</p>
 
             {/* Chart with center overlay */}
-            <div className="relative">
+            <div
+              className="relative outline-none select-none [&_svg]:outline-none"
+              style={{ WebkitTapHighlightColor: "transparent" }}
+              onClick={() => {
+                setIsLocked(false);
+                setActiveIndex(null);
+              }}
+            >
               <ResponsiveContainer width="100%" height={200}>
                 <PieChart>
                   <Pie
