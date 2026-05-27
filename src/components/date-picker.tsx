@@ -7,10 +7,20 @@ import "react-day-picker/style.css";
 import { BTN_GHOST, INPUT } from "@/lib/ui";
 
 type DatePickerProps = {
-  name: string;
   id?: string;
-  defaultValue?: string;
+  // Form mode — renders a hidden input for form submission
+  name?: string;
   required?: boolean;
+  // Uncontrolled initial value (form mode)
+  defaultValue?: string;
+  // Controlled mode — provide both value and onChange
+  value?: string;
+  onChange?: (value: string) => void;
+  // Constrain selectable dates (ISO strings)
+  min?: string;
+  max?: string;
+  // Extra classes applied to the trigger button (e.g. "mobile:py-2")
+  className?: string;
 };
 
 function toIsoDate(d: Date): string {
@@ -44,35 +54,68 @@ const CalendarIcon = () => (
   </svg>
 );
 
-export function DatePicker({ name, id, defaultValue, required }: DatePickerProps) {
-  const [selected, setSelected] = useState<Date | undefined>(
+export function DatePicker({
+  id,
+  name,
+  required,
+  defaultValue,
+  value,
+  onChange,
+  min,
+  max,
+  className,
+}: DatePickerProps) {
+  // Uncontrolled state (form mode). Ignored when onChange is provided.
+  const [internalSelected, setInternalSelected] = useState<Date | undefined>(
     defaultValue ? parseIso(defaultValue) : undefined,
   );
   const [open, setOpen] = useState(false);
 
-  // Hydration-safe: SSR shows raw defaultValue, client upgrades to locale format.
+  // Controlled: derive from value prop. Uncontrolled: use internal state.
+  const selected =
+    onChange !== undefined
+      ? value ? parseIso(value) : undefined
+      : internalSelected;
+
+  // Hydration-safe locale display.
+  const ssrFallback = defaultValue ?? value ?? "";
   const displayLabel = useSyncExternalStore(
     () => () => {},
     () => (selected ? selected.toLocaleDateString() : ""),
-    () => defaultValue ?? "",
+    () => (ssrFallback ? ssrFallback : ""),
   );
 
   const close = () => setOpen(false);
 
   const handleSelect = (date: Date | undefined) => {
-    setSelected(date);
+    if (onChange !== undefined) {
+      onChange(date ? toIsoDate(date) : "");
+    } else {
+      setInternalSelected(date);
+    }
     setOpen(false);
   };
 
+  const disabled: ({ before: Date } | { after: Date })[] = [];
+  if (min) disabled.push({ before: parseIso(min) });
+  if (max) disabled.push({ after: parseIso(max) });
+
   return (
     <>
-      <input type="hidden" name={name} value={selected ? toIsoDate(selected) : ""} required={required} />
+      {name && (
+        <input
+          type="hidden"
+          name={name}
+          value={selected ? toIsoDate(selected) : ""}
+          required={required}
+        />
+      )}
 
       <button
         type="button"
         id={id}
         onClick={() => setOpen(true)}
-        className={`${INPUT} flex items-center justify-between gap-2 cursor-pointer text-left`}
+        className={`${INPUT} flex items-center justify-between gap-2 cursor-pointer text-left${className ? ` ${className}` : ""}`}
         aria-haspopup="dialog"
         aria-expanded={open}
       >
@@ -102,6 +145,7 @@ export function DatePicker({ name, id, defaultValue, required }: DatePickerProps
               onSelect={handleSelect}
               defaultMonth={selected ?? new Date()}
               showOutsideDays
+              disabled={disabled.length > 0 ? disabled : undefined}
             />
             <div className="flex gap-2 pt-3 border-t border-gray-100 dark:border-gray-800">
               <button

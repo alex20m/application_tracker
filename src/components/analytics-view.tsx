@@ -7,7 +7,6 @@ import { SankeyChart } from "@/components/sankey-chart";
 import { buildSankeyData } from "@/lib/sankey-builder";
 import {
   CARD,
-  INPUT,
   LABEL,
   SECTION_STACK,
   TEXT_H2,
@@ -15,6 +14,7 @@ import {
   TEXT_META,
   TEXT_MUTED,
 } from "@/lib/ui";
+import { DatePicker } from "@/components/date-picker";
 import type { ApplicationRecord } from "@/lib/types";
 
 function pct(value: number | null): string {
@@ -238,9 +238,9 @@ type DateFilterProps = {
 };
 
 const PILL_ACTIVE =
-  "cursor-pointer px-3 py-1.5 text-sm font-semibold rounded-lg bg-indigo-600 text-white mobile:min-h-11 mobile:px-4 mobile:text-base";
+  "cursor-pointer px-3 py-1.5 text-sm font-semibold rounded-lg bg-indigo-600 text-white";
 const PILL_INACTIVE =
-  "cursor-pointer px-3 py-1.5 text-sm font-medium rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 transition-colors mobile:min-h-11 mobile:px-4 mobile:text-base";
+  "cursor-pointer px-3 py-1.5 text-sm font-medium rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 transition-colors";
 
 function DateFilter({ allTime, onAllTime, startDate, endDate, onStart, onEnd }: DateFilterProps) {
   return (
@@ -263,34 +263,34 @@ function DateFilter({ allTime, onAllTime, startDate, endDate, onStart, onEnd }: 
         </button>
       </div>
 
-      {/* Date inputs — always visible but only active when date range is selected */}
-      <div className="flex flex-wrap items-center gap-2 mobile:gap-2">
-        <div className="flex items-center gap-2 mobile:flex-1">
-          <label htmlFor="filter-start" className={`${LABEL} whitespace-nowrap`}>From</label>
-          <input
-            id="filter-start"
-            type="date"
-            value={startDate}
-            onChange={(e) => onStart(e.target.value)}
-            max={endDate || undefined}
-            disabled={allTime}
-            className={`${INPUT} max-w-[10rem] mobile:max-w-none ${allTime ? "opacity-40 cursor-not-allowed" : ""}`}
-          />
+      {/* Date pickers — only shown when date range is selected */}
+      {!allTime && (
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2">
+            <label htmlFor="filter-start" className={`${LABEL} whitespace-nowrap`}>From</label>
+            <div className="w-36">
+              <DatePicker
+                value={startDate}
+                onChange={onStart}
+                max={endDate || undefined}
+                className="mobile:py-2"
+              />
+            </div>
+          </div>
+          <span className="text-gray-400 dark:text-gray-500 text-sm mobile:hidden">—</span>
+          <div className="flex items-center gap-2">
+            <label htmlFor="filter-end" className={`${LABEL} whitespace-nowrap`}>To</label>
+            <div className="w-36">
+              <DatePicker
+                value={endDate}
+                onChange={onEnd}
+                min={startDate || undefined}
+                className="mobile:py-2"
+              />
+            </div>
+          </div>
         </div>
-        <span className={`text-gray-400 dark:text-gray-500 text-sm mobile:hidden ${allTime ? "opacity-40" : ""}`}>—</span>
-        <div className="flex items-center gap-2 mobile:flex-1">
-          <label htmlFor="filter-end" className={`${LABEL} whitespace-nowrap`}>To</label>
-          <input
-            id="filter-end"
-            type="date"
-            value={endDate}
-            onChange={(e) => onEnd(e.target.value)}
-            min={startDate || undefined}
-            disabled={allTime}
-            className={`${INPUT} max-w-[10rem] mobile:max-w-none ${allTime ? "opacity-40 cursor-not-allowed" : ""}`}
-          />
-        </div>
-      </div>
+      )}
     </div>
   );
 }
