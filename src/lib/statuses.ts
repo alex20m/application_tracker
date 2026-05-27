@@ -1,6 +1,6 @@
 export const STATUS = {
   wishlist: "wishlist",
-  no_answer: "no_answer",
+  applied: "applied",
   cancelled: "cancelled",
   withdrew: "withdrew",
   rejected: "rejected",
@@ -15,7 +15,7 @@ export type ApplicationStatus = (typeof STATUS)[keyof typeof STATUS];
 
 export const STATUS_NAMES = {
   [STATUS.wishlist]: "Wishlist",
-  [STATUS.no_answer]: "No Answer",
+  [STATUS.applied]: "Applied",
   [STATUS.cancelled]: "Cancelled",
   [STATUS.withdrew]: "Withdrew",
   [STATUS.rejected]: "Rejected",
@@ -27,8 +27,8 @@ export const STATUS_NAMES = {
 } as const;
 
 export const STATUS_NEXT: Record<ApplicationStatus, ApplicationStatus[]> = {
-  [STATUS.wishlist]: [STATUS.no_answer],
-  [STATUS.no_answer]: [STATUS.cancelled, STATUS.rejected, STATUS.interviews],
+  [STATUS.wishlist]: [STATUS.applied],
+  [STATUS.applied]: [STATUS.cancelled, STATUS.rejected, STATUS.interviews],
   [STATUS.cancelled]: [],
   [STATUS.withdrew]: [],
   [STATUS.rejected]: [],
@@ -42,7 +42,7 @@ export const STATUS_NEXT: Record<ApplicationStatus, ApplicationStatus[]> = {
 // Logical level for each status (independent of d3-sankey's runtime depth).
 // Lower index within a level = higher up in the column.
 const LEVEL_ORDER: Record<number, ApplicationStatus[]> = {
-  1: [STATUS.interviews, STATUS.cancelled, STATUS.no_answer, STATUS.rejected],
+  1: [STATUS.interviews, STATUS.cancelled, STATUS.applied, STATUS.rejected],
   2: [STATUS.offer, STATUS.withdrew, STATUS.no_offer],
   3: [STATUS.accepted, STATUS.declined],
 };
@@ -61,7 +61,7 @@ export const STATUS_THEME: Record<
   { dot: string; border: string; badge: string; sankey: string }
 > = {
   [STATUS.wishlist]:   { dot: "bg-slate-400",   border: "bg-slate-400",   badge: "bg-slate-100 text-slate-700 ring-1 ring-inset ring-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:ring-slate-700",           sankey: "#94a3b8" },
-  [STATUS.no_answer]:  { dot: "bg-sky-500",     border: "bg-sky-500",     badge: "bg-sky-100 text-sky-800 ring-1 ring-inset ring-sky-200 dark:bg-sky-800 dark:text-sky-100 dark:ring-sky-700",                   sankey: "#0ea5e9" },
+  [STATUS.applied]:    { dot: "bg-sky-500",     border: "bg-sky-500",     badge: "bg-sky-100 text-sky-800 ring-1 ring-inset ring-sky-200 dark:bg-sky-800 dark:text-sky-100 dark:ring-sky-700",                   sankey: "#0ea5e9" },
   [STATUS.cancelled]:  { dot: "bg-zinc-500",    border: "bg-zinc-400",    badge: "bg-zinc-100 text-zinc-700 ring-1 ring-inset ring-zinc-200 dark:bg-zinc-800 dark:text-zinc-100 dark:ring-zinc-700",             sankey: "#a1a1aa" },
   [STATUS.withdrew]:   { dot: "bg-stone-500",   border: "bg-stone-400",   badge: "bg-stone-100 text-stone-700 ring-1 ring-inset ring-stone-200 dark:bg-stone-800 dark:text-stone-100 dark:ring-stone-700",       sankey: "#a8a29e" },
   [STATUS.rejected]:   { dot: "bg-red-500",     border: "bg-red-500",     badge: "bg-red-100 text-red-800 ring-1 ring-inset ring-red-200 dark:bg-red-800 dark:text-red-100 dark:ring-red-700",                   sankey: "#ef4444" },

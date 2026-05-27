@@ -113,7 +113,7 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
             </select>
           </div>
         ) : (
-          <input type="hidden" name="status" value={STATUS.no_answer} />
+          <input type="hidden" name="status" value={STATUS.applied} />
         )}
       </div>
 
