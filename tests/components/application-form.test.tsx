@@ -38,7 +38,7 @@ describe("ApplicationForm — create mode (no application prop)", () => {
 });
 
 describe("ApplicationForm — edit mode (application prop provided)", () => {
-  const app = makeApplication({ status: STATUS.no_answer });
+  const app = makeApplication({ status: STATUS.applied });
 
   it("renders a status select element", () => {
     render(<ApplicationForm application={app} action={noopAction} />);
@@ -48,8 +48,8 @@ describe("ApplicationForm — edit mode (application prop provided)", () => {
   it("includes the current status as an option", () => {
     render(<ApplicationForm application={app} action={noopAction} />);
     const select = screen.getByRole("combobox");
-    expect(select).toHaveValue(STATUS.no_answer);
-    expect(screen.getByRole("option", { name: STATUS_NAMES[STATUS.no_answer] })).toBeInTheDocument();
+    expect(select).toHaveValue(STATUS.applied);
+    expect(screen.getByRole("option", { name: STATUS_NAMES[STATUS.applied] })).toBeInTheDocument();
   });
 
   it("includes only STATUS_NEXT targets as additional options", () => {
@@ -57,7 +57,7 @@ describe("ApplicationForm — edit mode (application prop provided)", () => {
     const options = screen.getAllByRole("option");
     const optionValues = options.map((o) => (o as HTMLOptionElement).value);
 
-    const expectedValues = [STATUS.no_answer, ...STATUS_NEXT[STATUS.no_answer]];
+    const expectedValues = [STATUS.applied, ...STATUS_NEXT[STATUS.applied]];
     expect(optionValues).toEqual(expectedValues);
   });
 
