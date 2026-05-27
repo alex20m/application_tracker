@@ -266,8 +266,9 @@ function DateFilter({ allTime, onAllTime, startDate, endDate, onStart, onEnd }: 
       {/* Date inputs — always visible but only active when date range is selected */}
       <div className="flex flex-wrap items-center gap-2 mobile:gap-2">
         <div className="flex items-center gap-2 mobile:flex-1">
-          <label className={`${LABEL} whitespace-nowrap ${allTime ? "opacity-40" : ""}`}>From</label>
+          <label htmlFor="filter-start" className={`${LABEL} whitespace-nowrap`}>From</label>
           <input
+            id="filter-start"
             type="date"
             value={startDate}
             onChange={(e) => onStart(e.target.value)}
@@ -278,8 +279,9 @@ function DateFilter({ allTime, onAllTime, startDate, endDate, onStart, onEnd }: 
         </div>
         <span className={`text-gray-400 dark:text-gray-500 text-sm mobile:hidden ${allTime ? "opacity-40" : ""}`}>—</span>
         <div className="flex items-center gap-2 mobile:flex-1">
-          <label className={`${LABEL} whitespace-nowrap ${allTime ? "opacity-40" : ""}`}>To</label>
+          <label htmlFor="filter-end" className={`${LABEL} whitespace-nowrap`}>To</label>
           <input
+            id="filter-end"
             type="date"
             value={endDate}
             onChange={(e) => onEnd(e.target.value)}

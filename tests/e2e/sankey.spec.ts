@@ -2,9 +2,9 @@ import { test, expect } from "./fixtures";
 import { SANKEY_ROOT_LABEL } from "@/lib/statuses";
 
 test.describe("Sankey chart", () => {
-  test("renders the Application Flow heading on the analytics page", async ({ page }) => {
+  test("renders the Analytics page heading", async ({ page }) => {
     await page.goto("/analytics");
-    await expect(page.getByRole("heading", { name: /application flow/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /^analytics$/i })).toBeVisible();
   });
 
   test("shows SVG chart after creating and transitioning an application", async ({
