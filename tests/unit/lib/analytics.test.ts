@@ -62,17 +62,17 @@ describe("computeAnalytics", () => {
   it("excludes wishlist apps from total", () => {
     const r = computeAnalytics([
       makeApplication({ status: STATUS.wishlist }),
-      makeApplication({ status: STATUS.no_answer }),
+      makeApplication({ status: STATUS.applied }),
     ]);
     expect(r.totalApplications).toBe(1);
   });
 
   // ── Stage counts ───────────────────────────────────────────────────────────
 
-  it("counts stillWaiting as apps still in no_answer", () => {
+  it("counts stillWaiting as apps still in applied", () => {
     const r = computeAnalytics([
-      makeApplication({ status: STATUS.no_answer }),
-      makeApplication({ status: STATUS.no_answer }),
+      makeApplication({ status: STATUS.applied }),
+      makeApplication({ status: STATUS.applied }),
       makeApplication({ status: STATUS.rejected }),
     ]);
     expect(r.stillWaitingCount).toBe(2);
@@ -99,9 +99,9 @@ describe("computeAnalytics", () => {
     expect(r.noOfferCount).toBe(1);
   });
 
-  it("counts active statuses (no_answer + interviews + offer)", () => {
+  it("counts active statuses (applied + interviews + offer)", () => {
     const r = computeAnalytics([
-      makeApplication({ status: STATUS.no_answer }),
+      makeApplication({ status: STATUS.applied }),
       makeApplication({ status: STATUS.interviews }),
       makeApplication({ status: STATUS.offer }),
       makeApplication({ status: STATUS.rejected }),
@@ -133,9 +133,9 @@ describe("computeAnalytics", () => {
   it("calculates interview rate as interviewedCount / total", () => {
     const r = computeAnalytics([
       makeApplication({ status: STATUS.interviews }),
-      makeApplication({ status: STATUS.no_answer }),
-      makeApplication({ status: STATUS.no_answer }),
-      makeApplication({ status: STATUS.no_answer }),
+      makeApplication({ status: STATUS.applied }),
+      makeApplication({ status: STATUS.applied }),
+      makeApplication({ status: STATUS.applied }),
     ]);
     expect(r.interviewRate).toBeCloseTo(0.25);
   });
@@ -172,7 +172,7 @@ describe("computeAnalytics", () => {
   });
 
   it("returns null offerFromInterviewRate when no interviews", () => {
-    const r = computeAnalytics([makeApplication({ status: STATUS.no_answer })]);
+    const r = computeAnalytics([makeApplication({ status: STATUS.applied })]);
     expect(r.offerFromInterviewRate).toBeNull();
   });
 
@@ -180,15 +180,15 @@ describe("computeAnalytics", () => {
     const r = computeAnalytics([
       makeApplication({ status: STATUS.cancelled }),
       makeApplication({ status: STATUS.rejected }),
-      makeApplication({ status: STATUS.no_answer }),
-      makeApplication({ status: STATUS.no_answer }),
+      makeApplication({ status: STATUS.applied }),
+      makeApplication({ status: STATUS.applied }),
     ]);
     expect(r.rejectionBeforeInterviewRate).toBeCloseTo(0.5);
   });
 
   it("calculates noResponseRate and responseRate as complements", () => {
     const r = computeAnalytics([
-      makeApplication({ status: STATUS.no_answer }),
+      makeApplication({ status: STATUS.applied }),
       makeApplication({ status: STATUS.rejected }),
       makeApplication({ status: STATUS.interviews }),
       makeApplication({ status: STATUS.interviews }),
@@ -199,12 +199,12 @@ describe("computeAnalytics", () => {
 
   // ── Ghost detection ────────────────────────────────────────────────────────
 
-  it("counts apps in no_answer for ≥30 days as ghosts", () => {
+  it("counts apps in applied for ≥30 days as ghosts", () => {
     const today = new Date("2026-03-01T12:00:00.000Z");
     const r = computeAnalytics(
       [
-        makeApplication({ status: STATUS.no_answer, applied_on: "2026-01-01" }), // 59 days
-        makeApplication({ status: STATUS.no_answer, applied_on: "2026-02-25" }), // 4 days
+        makeApplication({ status: STATUS.applied, applied_on: "2026-01-01" }), // 59 days
+        makeApplication({ status: STATUS.applied, applied_on: "2026-02-25" }), // 4 days
         makeApplication({ status: STATUS.interviews }),
       ],
       today
@@ -213,7 +213,7 @@ describe("computeAnalytics", () => {
     expect(r.ghostRate).toBeCloseTo(1 / 3);
   });
 
-  it("does not count non-no_answer apps as ghosts", () => {
+  it("does not count non-applied apps as ghosts", () => {
     const today = new Date("2026-03-01");
     const r = computeAnalytics(
       [makeApplication({ status: STATUS.rejected, applied_on: "2025-01-01" })],
@@ -225,7 +225,7 @@ describe("computeAnalytics", () => {
   it("skips ghost check for apps without applied_on", () => {
     const today = new Date("2026-03-01");
     const r = computeAnalytics(
-      [makeApplication({ status: STATUS.no_answer, applied_on: null })],
+      [makeApplication({ status: STATUS.applied, applied_on: null })],
       today
     );
     expect(r.ghostCount).toBe(0);
@@ -242,11 +242,11 @@ describe("computeAnalytics", () => {
     expect(computeAnalytics([app]).avgDaysToFirstResponse).toBe(14);
   });
 
-  it("apps still in no_answer do not contribute to avgDaysToFirstResponse", () => {
+  it("apps still in applied do not contribute to avgDaysToFirstResponse", () => {
     const app = makeApplication({
-      status: STATUS.no_answer,
+      status: STATUS.applied,
       applied_on: "2026-01-01",
-      events: [makeStatusEvent({ from_status: null, to_status: STATUS.no_answer, changed_at: "2026-01-01T00:00:00.000Z" })],
+      events: [makeStatusEvent({ from_status: null, to_status: STATUS.applied, changed_at: "2026-01-01T00:00:00.000Z" })],
     });
     expect(computeAnalytics([app]).avgDaysToFirstResponse).toBeNull();
   });
@@ -347,7 +347,7 @@ describe("computeAnalytics", () => {
       makeApplication({ status: STATUS.withdrew }),
       makeApplication({ status: STATUS.no_offer }),
       makeApplication({ status: STATUS.offer }),
-      makeApplication({ status: STATUS.no_answer }),
+      makeApplication({ status: STATUS.applied }),
     ]);
     const postInterview = r.conversionRows.filter((row) => row.pctOfStage !== null);
     expect(postInterview.map((r) => r.key)).toEqual(
@@ -358,9 +358,9 @@ describe("computeAnalytics", () => {
   it("pctOfApplied for interview row is correct", () => {
     const r = computeAnalytics([
       makeApplication({ status: STATUS.interviews }),
-      makeApplication({ status: STATUS.no_answer }),
-      makeApplication({ status: STATUS.no_answer }),
-      makeApplication({ status: STATUS.no_answer }),
+      makeApplication({ status: STATUS.applied }),
+      makeApplication({ status: STATUS.applied }),
+      makeApplication({ status: STATUS.applied }),
     ]);
     const row = r.conversionRows.find((c) => c.key === "interviews")!;
     expect(row.pctOfApplied).toBe(25);
@@ -378,7 +378,7 @@ describe("computeAnalytics", () => {
   });
 
   it("pctOfStage is 0 when no interviews", () => {
-    const r = computeAnalytics([makeApplication({ status: STATUS.no_answer })]);
+    const r = computeAnalytics([makeApplication({ status: STATUS.applied })]);
     const offerRow = r.conversionRows.find((c) => c.key === "offer")!;
     expect(offerRow.pctOfStage).toBe(0);
   });
@@ -387,27 +387,27 @@ describe("computeAnalytics", () => {
 
   it("groups apps by current status", () => {
     const r = computeAnalytics([
-      makeApplication({ status: STATUS.no_answer }),
-      makeApplication({ status: STATUS.no_answer }),
+      makeApplication({ status: STATUS.applied }),
+      makeApplication({ status: STATUS.applied }),
       makeApplication({ status: STATUS.rejected }),
     ]);
-    expect(r.statusCounts.find((s) => s.status === STATUS.no_answer)?.count).toBe(2);
+    expect(r.statusCounts.find((s) => s.status === STATUS.applied)?.count).toBe(2);
     expect(r.statusCounts.find((s) => s.status === STATUS.rejected)?.count).toBe(1);
   });
 
   it("sorts status counts descending by count", () => {
     const r = computeAnalytics([
       makeApplication({ status: STATUS.rejected }),
-      makeApplication({ status: STATUS.no_answer }),
-      makeApplication({ status: STATUS.no_answer }),
+      makeApplication({ status: STATUS.applied }),
+      makeApplication({ status: STATUS.applied }),
     ]);
-    expect(r.statusCounts[0].status).toBe(STATUS.no_answer);
+    expect(r.statusCounts[0].status).toBe(STATUS.applied);
   });
 
   it("does not include wishlist in status counts", () => {
     const r = computeAnalytics([
       makeApplication({ status: STATUS.wishlist }),
-      makeApplication({ status: STATUS.no_answer }),
+      makeApplication({ status: STATUS.applied }),
     ]);
     expect(r.statusCounts.find((s) => s.status === STATUS.wishlist)).toBeUndefined();
   });
@@ -416,9 +416,9 @@ describe("computeAnalytics", () => {
 
   it("groups applications by applied_on month", () => {
     const r = computeAnalytics([
-      makeApplication({ status: STATUS.no_answer, applied_on: "2026-01-10" }),
-      makeApplication({ status: STATUS.no_answer, applied_on: "2026-01-20" }),
-      makeApplication({ status: STATUS.no_answer, applied_on: "2026-02-05" }),
+      makeApplication({ status: STATUS.applied, applied_on: "2026-01-10" }),
+      makeApplication({ status: STATUS.applied, applied_on: "2026-01-20" }),
+      makeApplication({ status: STATUS.applied, applied_on: "2026-02-05" }),
     ]);
     expect(r.monthlyTrend).toHaveLength(2);
     expect(r.monthlyTrend[0].applications).toBe(2);
@@ -427,9 +427,9 @@ describe("computeAnalytics", () => {
 
   it("sorts monthly trend chronologically", () => {
     const r = computeAnalytics([
-      makeApplication({ status: STATUS.no_answer, applied_on: "2026-03-01" }),
-      makeApplication({ status: STATUS.no_answer, applied_on: "2026-01-01" }),
-      makeApplication({ status: STATUS.no_answer, applied_on: "2026-02-01" }),
+      makeApplication({ status: STATUS.applied, applied_on: "2026-03-01" }),
+      makeApplication({ status: STATUS.applied, applied_on: "2026-01-01" }),
+      makeApplication({ status: STATUS.applied, applied_on: "2026-02-01" }),
     ]);
     expect(r.monthlyTrend[0].month).toBe("2026-01");
     expect(r.monthlyTrend[2].month).toBe("2026-03");
@@ -439,7 +439,7 @@ describe("computeAnalytics", () => {
     const r = computeAnalytics([
       makeApplication({ status: STATUS.interviews, applied_on: "2026-01-01" }),
       makeApplication({ status: STATUS.offer, applied_on: "2026-01-15" }),
-      makeApplication({ status: STATUS.no_answer, applied_on: "2026-01-20" }),
+      makeApplication({ status: STATUS.applied, applied_on: "2026-01-20" }),
     ]);
     const jan = r.monthlyTrend.find((m) => m.month === "2026-01")!;
     expect(jan.interviews).toBe(2);
@@ -448,8 +448,8 @@ describe("computeAnalytics", () => {
 
   it("skips apps without applied_on in monthly trend", () => {
     const r = computeAnalytics([
-      makeApplication({ status: STATUS.no_answer, applied_on: null }),
-      makeApplication({ status: STATUS.no_answer, applied_on: "2026-01-01" }),
+      makeApplication({ status: STATUS.applied, applied_on: null }),
+      makeApplication({ status: STATUS.applied, applied_on: "2026-01-01" }),
     ]);
     expect(r.monthlyTrend).toHaveLength(1);
   });
@@ -458,9 +458,9 @@ describe("computeAnalytics", () => {
 
   it("groups applications by source", () => {
     const r = computeAnalytics([
-      makeApplication({ status: STATUS.no_answer, source: "LinkedIn" }),
-      makeApplication({ status: STATUS.no_answer, source: "LinkedIn" }),
-      makeApplication({ status: STATUS.no_answer, source: "Indeed" }),
+      makeApplication({ status: STATUS.applied, source: "LinkedIn" }),
+      makeApplication({ status: STATUS.applied, source: "LinkedIn" }),
+      makeApplication({ status: STATUS.applied, source: "Indeed" }),
     ]);
     const li = r.sourceStats.find((s) => s.source === "LinkedIn")!;
     expect(li.total).toBe(2);
@@ -477,8 +477,8 @@ describe("computeAnalytics", () => {
     const r = computeAnalytics([
       makeApplication({ status: STATUS.interviews, source: "LinkedIn" }),
       makeApplication({ status: STATUS.offer, source: "LinkedIn" }),
-      makeApplication({ status: STATUS.no_answer, source: "LinkedIn" }),
-      makeApplication({ status: STATUS.no_answer, source: "LinkedIn" }),
+      makeApplication({ status: STATUS.applied, source: "LinkedIn" }),
+      makeApplication({ status: STATUS.applied, source: "LinkedIn" }),
     ]);
     const li = r.sourceStats.find((s) => s.source === "LinkedIn")!;
     expect(li.interviewRate).toBe(50); // 2/4

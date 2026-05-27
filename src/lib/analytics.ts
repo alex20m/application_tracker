@@ -61,7 +61,7 @@ export type AnalyticsResult = {
   noResponseRate: number | null;
   responseRate: number | null;
 
-  // ── Ghost (still no_answer after ≥30 days) ────────
+  // ── Ghost (still applied after ≥30 days) ────────
   ghostCount: number;
   ghostRate: number | null;
 
@@ -98,7 +98,7 @@ const OFFERED_STATUSES: ApplicationStatus[] = [
 ];
 
 const ACTIVE_STATUSES: ApplicationStatus[] = [
-  STATUS.no_answer,
+  STATUS.applied,
   STATUS.interviews,
   STATUS.offer,
 ];
@@ -133,7 +133,7 @@ export function computeAnalytics(
   const total = apps.length;
 
   // ── Stage counts ──────────────────────────────────────────────────────────
-  const stillWaitingCount = apps.filter((a) => a.status === STATUS.no_answer).length;
+  const stillWaitingCount = apps.filter((a) => a.status === STATUS.applied).length;
   const cancelledCount = apps.filter((a) => a.status === STATUS.cancelled).length;
   const rejectedCount = apps.filter((a) => a.status === STATUS.rejected).length;
   const rejectedBeforeInterviewCount = cancelledCount + rejectedCount;
@@ -145,11 +145,11 @@ export function computeAnalytics(
   const currentlyOfferCount = apps.filter((a) => a.status === STATUS.offer).length;
   const activeCount = apps.filter((a) => ACTIVE_STATUSES.includes(a.status)).length;
 
-  // ── Ghost detection (no_answer for ≥30 days) ─────────────────────────────
+  // ── Ghost detection (applied for ≥30 days) ─────────────────────────────
   const todayMs = today.getTime();
   const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
   const ghostCount = apps.filter((a) => {
-    if (a.status !== STATUS.no_answer || !a.applied_on) return false;
+    if (a.status !== STATUS.applied || !a.applied_on) return false;
     const appliedMs = new Date(a.applied_on + "T00:00:00.000Z").getTime();
     return todayMs - appliedMs >= thirtyDaysMs;
   }).length;
@@ -163,10 +163,10 @@ export function computeAnalytics(
   for (const app of apps) {
     if (!app.applied_on) continue;
 
-    // When appendStatusEvent transitions out of no_answer, the null→no_answer event
-    // is replaced by null→newStatus. So null-from with to_status ≠ no_answer = first response.
+    // When appendStatusEvent transitions out of applied, the null→applied event
+    // is replaced by null→newStatus. So null-from with to_status ≠ applied = first response.
     const firstResponseEvent = app.events.find(
-      (e) => e.from_status === null && e.to_status !== STATUS.no_answer
+      (e) => e.from_status === null && e.to_status !== STATUS.applied
     );
     if (firstResponseEvent) {
       const d = daysBetween(app.applied_on, firstResponseEvent.changed_at);
@@ -204,7 +204,7 @@ export function computeAnalytics(
       pctOfApplied: pct(stillWaitingCount, total),
       pctOfStage: null,
       stageLabel: null,
-      color: STATUS_THEME[STATUS.no_answer].sankey,
+      color: STATUS_THEME[STATUS.applied].sankey,
     },
     {
       key: "cancelled",

@@ -25,7 +25,7 @@ function makeFormData(overrides: Record<string, string> = {}): FormData {
   fd.set("company", overrides.company ?? "Acme");
   fd.set("role", overrides.role ?? "Engineer");
   fd.set("location", overrides.location ?? "Remote");
-  fd.set("status", overrides.status ?? STATUS.no_answer);
+  fd.set("status", overrides.status ?? STATUS.applied);
   fd.set("applied_on", overrides.applied_on ?? "2026-05-01");
   if (overrides.notes !== undefined) fd.set("notes", overrides.notes);
   return fd;
@@ -38,7 +38,7 @@ beforeEach(() => {
     selectData: makeApplication({
       id: VALID_APP_ID,
       user_id: mockUser.id,
-      status: STATUS.no_answer,
+      status: STATUS.applied,
     }),
   });
   requireUserMock.mockResolvedValue({ supabase: mockSupabase as never, user: mockUser as never });
@@ -46,7 +46,7 @@ beforeEach(() => {
 
 describe("updateApplicationAction", () => {
   it("redirects to /applications on success", async () => {
-    const fd = makeFormData({ status: STATUS.no_answer });
+    const fd = makeFormData({ status: STATUS.applied });
     await expect(updateApplicationAction(VALID_APP_ID, null, fd)).rejects.toMatchObject({
       type: "redirect",
       url: "/applications",
@@ -86,8 +86,8 @@ describe("updateApplicationAction", () => {
   });
 
   it("does not append an event when status is unchanged", async () => {
-    // status in form matches status in fetched app (both no_answer)
-    const fd = makeFormData({ status: STATUS.no_answer });
+    // status in form matches status in fetched app (both applied)
+    const fd = makeFormData({ status: STATUS.applied });
     await expect(updateApplicationAction(VALID_APP_ID, null, fd)).rejects.toMatchObject({
       type: "redirect",
     });
