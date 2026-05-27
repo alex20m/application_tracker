@@ -13,8 +13,8 @@ test.describe("Authentication flows", () => {
     expect(decodeURIComponent(page.url())).toContain("next=/applications");
   });
 
-  test("unauthenticated /sankey redirects to /login", async ({ page }) => {
-    await page.goto("/sankey");
+  test("unauthenticated /analytics redirects to /login", async ({ page }) => {
+    await page.goto("/analytics");
     await expect(page).toHaveURL(/\/login/);
   });
 

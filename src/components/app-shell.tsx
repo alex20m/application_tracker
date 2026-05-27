@@ -14,7 +14,6 @@ const navItems = [
   { href: ROUTES.applications, label: "Applications" },
   { href: ROUTES.wishlist, label: "Wishlist" },
   { href: ROUTES.analytics, label: "Analytics" },
-  { href: ROUTES.sankey, label: "Flow" },
   { href: ROUTES.settings, label: "Settings" },
 ];
 

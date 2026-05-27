@@ -25,7 +25,6 @@ export const ROUTES = {
   wishlist: "/wishlist",
   newWishlist: "/wishlist/new",
   analytics: "/analytics",
-  sankey: "/sankey",
   settings: "/settings",
   authCallback: "/api/auth/callback",
   signOut: "/auth/signout",

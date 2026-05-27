@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { computeAnalytics } from "@/lib/analytics";
 import { AnalyticsCharts } from "@/components/analytics-charts";
+import { SankeyChart } from "@/components/sankey-chart";
+import { buildSankeyData } from "@/lib/sankey-builder";
 import {
   CARD,
   INPUT,
@@ -76,6 +78,7 @@ export function AnalyticsView({ applications }: Props) {
   }, [applications, startDate, endDate, isAllTime]);
 
   const analytics = useMemo(() => computeAnalytics(filtered), [filtered]);
+  const sankeyData = useMemo(() => buildSankeyData(filtered), [filtered]);
 
   if (analytics.totalApplications === 0) {
     const hasFilter = !isAllTime;
@@ -215,6 +218,12 @@ export function AnalyticsView({ applications }: Props) {
           sourceStats={a.sourceStats}
         />
       </section>
+
+      {/* ── Application Flow ────────────────────────────────── */}
+      <section>
+        <h2 className={`${TEXT_H2} mb-3`}>Application Flow</h2>
+        <SankeyChart data={sankeyData} />
+      </section>
     </div>
   );
 }
@@ -257,8 +266,9 @@ function DateFilter({ allTime, onAllTime, startDate, endDate, onStart, onEnd }: 
       {/* Date inputs — always visible but only active when date range is selected */}
       <div className="flex flex-wrap items-center gap-2 mobile:gap-2">
         <div className="flex items-center gap-2 mobile:flex-1">
-          <label className={`${LABEL} whitespace-nowrap ${allTime ? "opacity-40" : ""}`}>From</label>
+          <label htmlFor="filter-start" className={`${LABEL} whitespace-nowrap`}>From</label>
           <input
+            id="filter-start"
             type="date"
             value={startDate}
             onChange={(e) => onStart(e.target.value)}
@@ -269,8 +279,9 @@ function DateFilter({ allTime, onAllTime, startDate, endDate, onStart, onEnd }: 
         </div>
         <span className={`text-gray-400 dark:text-gray-500 text-sm mobile:hidden ${allTime ? "opacity-40" : ""}`}>—</span>
         <div className="flex items-center gap-2 mobile:flex-1">
-          <label className={`${LABEL} whitespace-nowrap ${allTime ? "opacity-40" : ""}`}>To</label>
+          <label htmlFor="filter-end" className={`${LABEL} whitespace-nowrap`}>To</label>
           <input
+            id="filter-end"
             type="date"
             value={endDate}
             onChange={(e) => onEnd(e.target.value)}

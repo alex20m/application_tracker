@@ -81,7 +81,7 @@ export async function updateApplicationAction(
     return { success: false, error: sanitizeActionError(appError, "application:update") };
   }
 
-  revalidatePath("/sankey");
+  revalidatePath("/analytics");
   redirect("/applications");
 }
 
@@ -107,6 +107,6 @@ export async function deleteApplicationAction(
     return { success: false, error: sanitizeActionError(error, "application:delete") };
   }
 
-  revalidatePath("/sankey");
+  revalidatePath("/analytics");
   redirect("/applications");
 }
