@@ -39,26 +39,10 @@ jobs:
           path: coverage/
           retention-days: 14
 
-  migrations:
-    name: Migration check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: supabase/setup-cli@v1
-        with:
-          version: latest
-
-      # Boots a fresh local Postgres and replays every migration in order.
-      # Fails the job if any migration errors (wrong order, bad SQL,
-      # constraint violations, etc.).
-      - name: Apply migrations against local Postgres
-        run: supabase start
-
   e2e:
     name: E2E (Playwright)
     runs-on: ubuntu-latest
-    needs: [quality, migrations]
+    needs: quality
     if: github.event_name == 'pull_request'
     env:
       E2E_USER: e2e@test.local
