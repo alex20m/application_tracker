@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   AreaChart,
   Area,
@@ -15,7 +15,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
-import type { PieSectorDataItem } from "recharts";
+import type { PieSectorDataItem, PieSectorShapeProps } from "recharts";
 import { CARD, TEXT_H2, TEXT_BODY, TEXT_META } from "@/lib/ui";
 import type { StatusCount, MonthlyEntry, SourceStat } from "@/lib/analytics";
 
@@ -45,21 +45,6 @@ function ChartTooltip({
   );
 }
 
-function ActiveSlice(props: PieSectorDataItem) {
-  return (
-    <Sector
-      cx={props.cx}
-      cy={props.cy}
-      innerRadius={props.innerRadius}
-      outerRadius={props.outerRadius + 8}
-      startAngle={props.startAngle}
-      endAngle={props.endAngle}
-      fill={props.fill as string}
-      cornerRadius={props.cornerRadius}
-    />
-  );
-}
-
 type Props = {
   statusCounts: StatusCount[];
   monthlyTrend: MonthlyEntry[];
@@ -71,35 +56,70 @@ export function AnalyticsCharts({ statusCounts, monthlyTrend, sourceStats }: Pro
   const pieTotal = statusCounts.reduce((sum, s) => sum + s.count, 0);
 
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const [pinned, setPinned] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  // Reset when tapping/clicking outside the status card
+  useEffect(() => {
+    if (!isLocked) return;
+    const handleOutside = (e: MouseEvent | TouchEvent) => {
+      if (cardRef.current && !cardRef.current.contains(e.target as Node)) {
+        setIsLocked(false);
+        setActiveIndex(null);
+      }
+    };
+    document.addEventListener("mousedown", handleOutside);
+    document.addEventListener("touchstart", handleOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleOutside);
+      document.removeEventListener("touchstart", handleOutside);
+    };
+  }, [isLocked]);
 
   const handleMouseEnter = (_: PieSectorDataItem, index: number) => {
-    if (!pinned) setActiveIndex(index);
+    if (!isLocked) setActiveIndex(index);
   };
   const handleMouseLeave = () => {
-    if (!pinned) setActiveIndex(null);
+    if (!isLocked) setActiveIndex(null);
   };
-  const handleClick = (_: PieSectorDataItem, index: number) => {
-    if (pinned && activeIndex === index) {
-      setPinned(false);
+  const handleSliceClick = (_: PieSectorDataItem, index: number) => {
+    if (isLocked && activeIndex === index) {
+      setIsLocked(false);
       setActiveIndex(null);
     } else {
-      setPinned(true);
+      setIsLocked(true);
       setActiveIndex(index);
     }
   };
   const handleLegendClick = (index: number) => {
-    if (pinned && activeIndex === index) {
-      setPinned(false);
+    if (isLocked && activeIndex === index) {
+      setIsLocked(false);
       setActiveIndex(null);
     } else {
-      setPinned(true);
+      setIsLocked(true);
       setActiveIndex(index);
     }
   };
 
   const activeSlice = activeIndex !== null ? statusCounts[activeIndex] : null;
   const activePct = activeSlice ? Math.round((activeSlice.count / pieTotal) * 100) : null;
+
+  // Use `shape` (renders every slice) instead of `activeShape` (recharts-internal)
+  // so the pop-out is fully controlled by our state and doesn't get stuck on mobile.
+  const pieShape = (props: PieSectorShapeProps, index: number) => (
+    <Sector
+      cx={props.cx}
+      cy={props.cy}
+      innerRadius={props.innerRadius}
+      outerRadius={index === activeIndex ? props.outerRadius + 8 : props.outerRadius}
+      startAngle={props.startAngle}
+      endAngle={props.endAngle}
+      fill={statusCounts[index]?.color ?? (props.fill as string)}
+      cornerRadius={props.cornerRadius}
+      strokeWidth={0}
+      opacity={isLocked && activeIndex !== null && activeIndex !== index ? 0.35 : 1}
+    />
+  );
 
   return (
     <div className="space-y-4">
@@ -139,7 +159,7 @@ export function AnalyticsCharts({ statusCounts, monthlyTrend, sourceStats }: Pro
       {/* Status distribution + source performance */}
       <div className="grid grid-cols-2 gap-4 mobile:grid-cols-1">
         {statusCounts.length > 0 && (
-          <div className={CARD}>
+          <div className={CARD} ref={cardRef}>
             <h2 className={`${TEXT_H2} mb-0.5`}>Current Status</h2>
             <p className={`${TEXT_META} mb-3`}>Where your applications stand right now</p>
 
@@ -156,19 +176,14 @@ export function AnalyticsCharts({ statusCounts, monthlyTrend, sourceStats }: Pro
                     innerRadius={58}
                     outerRadius={82}
                     paddingAngle={2}
-                    strokeWidth={0}
-                    activeShape={ActiveSlice}
+                    shape={pieShape}
                     onMouseEnter={handleMouseEnter}
                     onMouseLeave={handleMouseLeave}
-                    onClick={handleClick}
+                    onClick={handleSliceClick}
                     style={{ cursor: "pointer" }}
                   >
-                    {statusCounts.map((entry, index) => (
-                      <Cell
-                        key={entry.status}
-                        fill={entry.color}
-                        opacity={pinned && activeIndex !== null && activeIndex !== index ? 0.35 : 1}
-                      />
+                    {statusCounts.map((entry) => (
+                      <Cell key={entry.status} fill={entry.color} />
                     ))}
                   </Pie>
                 </PieChart>
@@ -202,7 +217,7 @@ export function AnalyticsCharts({ statusCounts, monthlyTrend, sourceStats }: Pro
                   type="button"
                   onClick={() => handleLegendClick(index)}
                   className={`flex items-center gap-1.5 text-xs transition-opacity ${
-                    activeIndex !== null && activeIndex !== index ? "opacity-40" : "opacity-100"
+                    isLocked && activeIndex !== index ? "opacity-40" : "opacity-100"
                   } text-gray-700 dark:text-gray-300 hover:opacity-100`}
                 >
                   <span
