@@ -240,9 +240,11 @@ export function AnalyticsCharts({ statusCounts, monthlyTrend, sourceStats }: Pro
         )}
 
         {/* Source performance */}
-        {sourceStats.length > 1 && (
-          <div className={CARD}>
-            <h2 className={`${TEXT_H2} mb-4`}>Source Performance</h2>
+        <div className={CARD}>
+          <h2 className={`${TEXT_H2} mb-4`}>Source Performance</h2>
+          {sourceStats.length === 0 ? (
+            <p className={`${TEXT_META} text-center py-4`}>No applications yet</p>
+          ) : (
             <div className="overflow-x-auto -mx-1">
               <table className="w-full text-xs">
                 <thead>
@@ -269,11 +271,8 @@ export function AnalyticsCharts({ statusCounts, monthlyTrend, sourceStats }: Pro
                 </tbody>
               </table>
             </div>
-            {sourceStats.length === 0 && (
-              <p className={`${TEXT_META} text-center py-4`}>No source data yet</p>
-            )}
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
