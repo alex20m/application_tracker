@@ -2,6 +2,11 @@ import { describe, it, expect } from "vitest";
 import {
   STATUS,
   STATUS_NEXT,
+  FINAL_STATUSES,
+  CLOSED_STATUSES,
+  ACTIVE_STATUSES,
+  isClosedStatus,
+  isActiveStatus,
   getStatusRank,
   type ApplicationStatus,
 } from "@/lib/statuses";
@@ -56,6 +61,89 @@ describe("STATUS_NEXT", () => {
     expect(STATUS_NEXT[STATUS.interviews]).toEqual(
       expect.arrayContaining([STATUS.withdrew, STATUS.no_offer, STATUS.offer])
     );
+  });
+});
+
+describe("FINAL_STATUSES", () => {
+  it("contains exactly the six terminal statuses", () => {
+    const expected: ApplicationStatus[] = [
+      STATUS.cancelled, STATUS.withdrew, STATUS.rejected,
+      STATUS.no_offer, STATUS.accepted, STATUS.declined,
+    ];
+    expect([...FINAL_STATUSES].sort()).toEqual(expected.sort());
+  });
+
+  it("every member has an empty STATUS_NEXT list", () => {
+    for (const s of FINAL_STATUSES) {
+      expect(STATUS_NEXT[s]).toEqual([]);
+    }
+  });
+});
+
+describe("CLOSED_STATUSES", () => {
+  it("includes ghosted", () => {
+    expect(CLOSED_STATUSES).toContain(STATUS.ghosted);
+  });
+
+  it("includes all FINAL_STATUSES", () => {
+    for (const s of FINAL_STATUSES) {
+      expect(CLOSED_STATUSES).toContain(s);
+    }
+  });
+
+  it("does not include active or wishlist statuses", () => {
+    for (const s of ACTIVE_STATUSES) {
+      expect(CLOSED_STATUSES).not.toContain(s);
+    }
+    expect(CLOSED_STATUSES).not.toContain(STATUS.wishlist);
+  });
+});
+
+describe("ACTIVE_STATUSES", () => {
+  it("contains applied, interviews, and offer", () => {
+    expect(ACTIVE_STATUSES).toContain(STATUS.applied);
+    expect(ACTIVE_STATUSES).toContain(STATUS.interviews);
+    expect(ACTIVE_STATUSES).toContain(STATUS.offer);
+  });
+
+  it("does not include closed or wishlist statuses", () => {
+    for (const s of CLOSED_STATUSES) {
+      expect(ACTIVE_STATUSES).not.toContain(s);
+    }
+    expect(ACTIVE_STATUSES).not.toContain(STATUS.wishlist);
+  });
+});
+
+describe("isActiveStatus / isClosedStatus", () => {
+  it("applied is active, not closed", () => {
+    expect(isActiveStatus(STATUS.applied)).toBe(true);
+    expect(isClosedStatus(STATUS.applied)).toBe(false);
+  });
+
+  it("ghosted is closed, not active", () => {
+    expect(isClosedStatus(STATUS.ghosted)).toBe(true);
+    expect(isActiveStatus(STATUS.ghosted)).toBe(false);
+  });
+
+  it("accepted is closed, not active", () => {
+    expect(isClosedStatus(STATUS.accepted)).toBe(true);
+    expect(isActiveStatus(STATUS.accepted)).toBe(false);
+  });
+
+  it("interviews is active, not closed", () => {
+    expect(isActiveStatus(STATUS.interviews)).toBe(true);
+    expect(isClosedStatus(STATUS.interviews)).toBe(false);
+  });
+
+  it("wishlist is neither active nor closed", () => {
+    expect(isActiveStatus(STATUS.wishlist)).toBe(false);
+    expect(isClosedStatus(STATUS.wishlist)).toBe(false);
+  });
+
+  it("no status is both active and closed", () => {
+    for (const s of Object.values(STATUS)) {
+      expect(isActiveStatus(s) && isClosedStatus(s)).toBe(false);
+    }
   });
 });
 

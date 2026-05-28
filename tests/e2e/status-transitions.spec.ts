@@ -65,4 +65,49 @@ test.describe("Status transitions", () => {
     await expect(page.getByText(/final status/i).first()).toBeVisible();
     await expect(page.getByRole("button", { name: /move to/i })).not.toBeVisible();
   });
+
+  test("Open/Closed tabs are visible on the applications page", async ({ page, withApplication }) => {
+    await withApplication({ company: "TabTest Co" });
+    await page.goto("/applications");
+
+    await expect(page.getByRole("link", { name: "Open" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Closed" })).toBeVisible();
+  });
+
+  test("newly created app appears on Open page, not on Closed page", async ({
+    page,
+    withApplication,
+  }) => {
+    const company = "OpenOnly Co";
+    await withApplication({ company });
+
+    await page.goto("/applications");
+    await expect(page.getByText(company).first()).toBeVisible();
+
+    await page.goto("/applications/closed");
+    await expect(page.getByText(company)).not.toBeVisible();
+  });
+
+  test("after transitioning to Rejected, app moves from Open to Closed", async ({
+    page,
+    withApplication,
+  }) => {
+    const company = "MoveToClosed Co";
+    await withApplication({ company });
+
+    await page.goto("/applications");
+    await expect(page.getByText(company).first()).toBeVisible();
+
+    // Reject the application via quick actions
+    await page.getByRole("button", { name: /move to/i }).first().click();
+    await page.getByRole("button", { name: STATUS_NAMES.rejected }).click();
+    await expect(page.getByText(STATUS_NAMES.rejected).first()).toBeVisible({ timeout: 10000 });
+
+    // Should now be gone from Open
+    await expect(page.getByText(company)).not.toBeVisible();
+
+    // And visible on Closed
+    await page.goto("/applications/closed");
+    await expect(page.getByText(company).first()).toBeVisible();
+  });
 });

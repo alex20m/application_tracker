@@ -4,8 +4,8 @@ import type { StatusEvent } from "./types";
 
 export function revalidateApplicationViews() {
   revalidatePath("/applications");
+  revalidatePath("/applications/closed");
   revalidatePath("/wishlist");
-
   revalidatePath("/analytics");
 }
 

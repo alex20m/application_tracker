@@ -42,6 +42,34 @@ export const STATUS_NEXT: Record<ApplicationStatus, ApplicationStatus[]> = {
   [STATUS.declined]: [],
 };
 
+// Statuses with no onward transitions — the process has fully ended.
+export const FINAL_STATUSES: readonly ApplicationStatus[] = [
+  STATUS.cancelled,
+  STATUS.withdrew,
+  STATUS.rejected,
+  STATUS.no_offer,
+  STATUS.accepted,
+  STATUS.declined,
+];
+
+// Closed = ghosted (stalled/no response) + all final statuses.
+export const CLOSED_STATUSES: readonly ApplicationStatus[] = [STATUS.ghosted, ...FINAL_STATUSES];
+
+// Active (Open) = non-wishlist statuses that are not closed.
+export const ACTIVE_STATUSES: readonly ApplicationStatus[] = [
+  STATUS.applied,
+  STATUS.interviews,
+  STATUS.offer,
+];
+
+export function isClosedStatus(s: ApplicationStatus): boolean {
+  return (CLOSED_STATUSES as readonly string[]).includes(s);
+}
+
+export function isActiveStatus(s: ApplicationStatus): boolean {
+  return (ACTIVE_STATUSES as readonly string[]).includes(s);
+}
+
 // Logical level for each status (independent of d3-sankey's runtime depth).
 // Lower index within a level = higher up in the column.
 const LEVEL_ORDER: Record<number, ApplicationStatus[]> = {
