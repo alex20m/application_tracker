@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeAnalytics, daysBetween, formatMonthLabel } from "@/lib/analytics";
+import { computeAnalytics, daysBetween, formatDayLabel } from "@/lib/analytics";
 import { STATUS } from "@/lib/statuses";
 import { makeApplication, makeStatusEvent } from "../../helpers/factories";
 
@@ -19,19 +19,19 @@ describe("daysBetween", () => {
   });
 });
 
-// ─── formatMonthLabel ────────────────────────────────────────────────────────
+// ─── formatDayLabel ──────────────────────────────────────────────────────────
 
-describe("formatMonthLabel", () => {
-  it("formats YYYY-MM into a human-readable label", () => {
-    const label = formatMonthLabel("2026-01");
+describe("formatDayLabel", () => {
+  it("formats YYYY-MM-DD into a human-readable label", () => {
+    const label = formatDayLabel("2026-01-15");
     expect(label).toMatch(/jan/i);
-    expect(label).toContain("2026");
+    expect(label).toContain("15");
   });
 
   it("handles december", () => {
-    const label = formatMonthLabel("2025-12");
+    const label = formatDayLabel("2025-12-31");
     expect(label).toMatch(/dec/i);
-    expect(label).toContain("2025");
+    expect(label).toContain("31");
   });
 });
 
@@ -55,7 +55,7 @@ describe("computeAnalytics", () => {
     expect(r.avgDaysToOffer).toBeNull();
     expect(r.avgDaysInterviewToOffer).toBeNull();
     expect(r.statusCounts).toEqual([]);
-    expect(r.monthlyTrend).toEqual([]);
+    expect(r.dailyTrend).toEqual([]);
     expect(r.sourceStats).toEqual([]);
   });
 
@@ -405,46 +405,46 @@ describe("computeAnalytics", () => {
     expect(r.statusCounts.find((s) => s.status === STATUS.wishlist)).toBeUndefined();
   });
 
-  // ── Monthly trend ──────────────────────────────────────────────────────────
+  // ── Daily trend ────────────────────────────────────────────────────────────
 
-  it("groups applications by applied_on month", () => {
+  it("groups applications by applied_on day", () => {
     const r = computeAnalytics([
       makeApplication({ status: STATUS.applied, applied_on: "2026-01-10" }),
-      makeApplication({ status: STATUS.applied, applied_on: "2026-01-20" }),
+      makeApplication({ status: STATUS.applied, applied_on: "2026-01-10" }),
       makeApplication({ status: STATUS.applied, applied_on: "2026-02-05" }),
     ]);
-    expect(r.monthlyTrend).toHaveLength(2);
-    expect(r.monthlyTrend[0].applications).toBe(2);
-    expect(r.monthlyTrend[1].applications).toBe(1);
+    expect(r.dailyTrend).toHaveLength(2);
+    expect(r.dailyTrend[0].applications).toBe(2);
+    expect(r.dailyTrend[1].applications).toBe(1);
   });
 
-  it("sorts monthly trend chronologically", () => {
+  it("sorts daily trend chronologically", () => {
     const r = computeAnalytics([
       makeApplication({ status: STATUS.applied, applied_on: "2026-03-01" }),
       makeApplication({ status: STATUS.applied, applied_on: "2026-01-01" }),
       makeApplication({ status: STATUS.applied, applied_on: "2026-02-01" }),
     ]);
-    expect(r.monthlyTrend[0].month).toBe("2026-01");
-    expect(r.monthlyTrend[2].month).toBe("2026-03");
+    expect(r.dailyTrend[0].date).toBe("2026-01-01");
+    expect(r.dailyTrend[2].date).toBe("2026-03-01");
   });
 
-  it("counts interviews and offers in monthly trend based on final status", () => {
+  it("counts interviews and offers in daily trend based on final status", () => {
     const r = computeAnalytics([
       makeApplication({ status: STATUS.interviews, applied_on: "2026-01-01" }),
-      makeApplication({ status: STATUS.offer, applied_on: "2026-01-15" }),
+      makeApplication({ status: STATUS.offer, applied_on: "2026-01-01" }),
       makeApplication({ status: STATUS.applied, applied_on: "2026-01-20" }),
     ]);
-    const jan = r.monthlyTrend.find((m) => m.month === "2026-01")!;
-    expect(jan.interviews).toBe(2);
-    expect(jan.offers).toBe(1);
+    const day = r.dailyTrend.find((d) => d.date === "2026-01-01")!;
+    expect(day.interviews).toBe(2);
+    expect(day.offers).toBe(1);
   });
 
-  it("skips apps without applied_on in monthly trend", () => {
+  it("skips apps without applied_on in daily trend", () => {
     const r = computeAnalytics([
       makeApplication({ status: STATUS.applied, applied_on: null }),
       makeApplication({ status: STATUS.applied, applied_on: "2026-01-01" }),
     ]);
-    expect(r.monthlyTrend).toHaveLength(1);
+    expect(r.dailyTrend).toHaveLength(1);
   });
 
   // ── Source stats ───────────────────────────────────────────────────────────

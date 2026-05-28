@@ -17,7 +17,7 @@ import {
 } from "recharts";
 import type { PieSectorDataItem, PieSectorShapeProps } from "recharts";
 import { CARD, TEXT_H2, TEXT_BODY, TEXT_META } from "@/lib/ui";
-import type { StatusCount, MonthlyEntry, SourceStat } from "@/lib/analytics";
+import type { StatusCount, DailyEntry, SourceStat } from "@/lib/analytics";
 
 // Custom tooltip avoids recharts default inline styles that ignore dark mode
 function ChartTooltip({
@@ -47,11 +47,11 @@ function ChartTooltip({
 
 type Props = {
   statusCounts: StatusCount[];
-  monthlyTrend: MonthlyEntry[];
+  dailyTrend: DailyEntry[];
   sourceStats: SourceStat[];
 };
 
-export function AnalyticsCharts({ statusCounts, monthlyTrend, sourceStats }: Props) {
+export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props) {
   const TICK = { fontSize: 11, fill: "currentColor", opacity: 0.5 };
   const pieTotal = statusCounts.reduce((sum, s) => sum + s.count, 0);
 
@@ -125,11 +125,11 @@ export function AnalyticsCharts({ statusCounts, monthlyTrend, sourceStats }: Pro
   return (
     <div className="space-y-4">
       {/* Monthly trend */}
-      {monthlyTrend.length > 1 && (
+      {dailyTrend.length > 1 && (
         <div className={CARD}>
           <h2 className={`${TEXT_H2} mb-4`}>Applications Over Time</h2>
           <ResponsiveContainer width="100%" height={220}>
-            <AreaChart data={monthlyTrend} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+            <AreaChart data={dailyTrend} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="grad-apps" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#60a5fa" stopOpacity={0.3} />
@@ -145,7 +145,7 @@ export function AnalyticsCharts({ statusCounts, monthlyTrend, sourceStats }: Pro
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis dataKey="label" tick={TICK} axisLine={false} tickLine={false} />
+              <XAxis dataKey="label" tick={TICK} axisLine={false} tickLine={false} interval="preserveStartEnd" />
               <YAxis allowDecimals={false} tick={TICK} axisLine={false} tickLine={false} />
               <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'rgba(128,128,128,0.2)', strokeWidth: 1, strokeDasharray: '3 3' }} />
               <Legend wrapperStyle={{ fontSize: 12 }} />
