@@ -25,7 +25,6 @@ describe("STATUS_NEXT", () => {
 
   it("terminal statuses have no transitions", () => {
     const terminals: ApplicationStatus[] = [
-      STATUS.ghosted,
       STATUS.cancelled,
       STATUS.withdrew,
       STATUS.rejected,
@@ -40,6 +39,13 @@ describe("STATUS_NEXT", () => {
 
   it("applied can transition to ghosted", () => {
     expect(STATUS_NEXT[STATUS.applied]).toContain(STATUS.ghosted);
+  });
+
+  it("ghosted can transition to cancelled, rejected, and interviews", () => {
+    expect(STATUS_NEXT[STATUS.ghosted]).toEqual(
+      expect.arrayContaining([STATUS.cancelled, STATUS.rejected, STATUS.interviews])
+    );
+    expect(STATUS_NEXT[STATUS.ghosted]).not.toContain(STATUS.ghosted);
   });
 
   it("wishlist transitions only to applied", () => {
