@@ -1,5 +1,5 @@
 import type { ApplicationRecord } from "@/lib/types";
-import { STATUS, STATUS_NAMES, STATUS_THEME, ACTIVE_STATUSES, type ApplicationStatus } from "@/lib/statuses";
+import { STATUS, STATUS_NAMES, STATUS_THEME, STATUS_NEXT, ACTIVE_STATUSES, type ApplicationStatus } from "@/lib/statuses";
 
 export type StatusCount = {
   status: ApplicationStatus;
@@ -341,5 +341,64 @@ export function computeAnalytics(
     statusCounts,
     dailyTrend,
     sourceStats,
+  };
+}
+
+// Returns all statuses transitively reachable from `from` via STATUS_NEXT (excludes `from` itself).
+export function getReachableStatuses(from: ApplicationStatus): ApplicationStatus[] {
+  const visited = new Set<ApplicationStatus>();
+  const queue: ApplicationStatus[] = [...STATUS_NEXT[from]];
+  for (const s of queue) {
+    if (!visited.has(s)) {
+      visited.add(s);
+      queue.push(...STATUS_NEXT[s]);
+    }
+  }
+  return [...visited];
+}
+
+export type StageDurationResult = {
+  avg: number | null;
+  count: number;
+  min: number | null;
+  max: number | null;
+};
+
+export function computeAvgDaysBetweenStatuses(
+  applications: ApplicationRecord[],
+  startStatus: ApplicationStatus,
+  endStatus: ApplicationStatus
+): StageDurationResult {
+  const durations: number[] = [];
+
+  for (const app of applications) {
+    let startMs: number | null = null;
+
+    if (startStatus === STATUS.applied) {
+      if (app.applied_on) startMs = new Date(app.applied_on + "T00:00:00.000Z").getTime();
+    } else if (startStatus === STATUS.wishlist) {
+      startMs = new Date(app.created_at).getTime();
+    } else {
+      const ev = app.events.find((e) => e.to_status === startStatus);
+      if (ev) startMs = new Date(ev.changed_at).getTime();
+    }
+
+    if (startMs === null) continue;
+
+    const endEv = app.events.find((e) => e.to_status === endStatus);
+    if (!endEv) continue;
+
+    const d = Math.floor((new Date(endEv.changed_at).getTime() - startMs) / (1000 * 60 * 60 * 24));
+    if (d >= 0) durations.push(d);
+  }
+
+  if (durations.length === 0) return { avg: null, count: 0, min: null, max: null };
+
+  const avg = Math.round(durations.reduce((a, b) => a + b, 0) / durations.length);
+  return {
+    avg,
+    count: durations.length,
+    min: Math.min(...durations),
+    max: Math.max(...durations),
   };
 }

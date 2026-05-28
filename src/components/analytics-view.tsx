@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { computeAnalytics } from "@/lib/analytics";
 import { AnalyticsCharts } from "@/components/analytics-charts";
+import { AvgStageTime } from "@/components/avg-stage-time";
 import { SankeyChart } from "@/components/sankey-chart";
 import { buildSankeyData } from "@/lib/sankey-builder";
 import {
@@ -146,6 +147,11 @@ export function AnalyticsView({ applications }: Props) {
           dailyTrend={a.dailyTrend}
           sourceStats={a.sourceStats}
         />
+      </section>
+
+      {/* ── Stage Duration ──────────────────────────────────── */}
+      <section>
+        <AvgStageTime applications={filtered} />
       </section>
 
       {/* ── Application Flow ────────────────────────────────── */}
