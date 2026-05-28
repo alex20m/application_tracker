@@ -150,7 +150,6 @@ export function AnalyticsView({ applications }: Props) {
 
       {/* ── Application Flow ────────────────────────────────── */}
       <section>
-        <h2 className={`${TEXT_H2} mb-3`}>Application Flow</h2>
         <SankeyChart data={sankeyData} />
       </section>
     </div>
