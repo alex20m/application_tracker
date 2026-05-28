@@ -63,12 +63,12 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
   const [brushStart, setBrushStart] = useState(() => Math.max(0, dailyTrend.length - 60));
   const [brushEnd, setBrushEnd] = useState(() => Math.max(0, dailyTrend.length - 1));
 
-  useEffect(() => {
-    setBrushStart(Math.max(0, dailyTrend.length - 60));
-    setBrushEnd(Math.max(0, dailyTrend.length - 1));
-  }, [dailyTrend.length]);
+  // Clamp to valid range in case data shrinks
+  const maxIdx = Math.max(0, dailyTrend.length - 1);
+  const safeStart = Math.min(brushStart, maxIdx);
+  const safeEnd = Math.min(brushEnd, maxIdx);
 
-  const visibleDays = Math.max(1, brushEnd - brushStart + 1);
+  const visibleDays = Math.max(1, safeEnd - safeStart + 1);
   // Target ~12 labels; interval=N means label every (N+1)th tick. Min 0 = every day.
   const tickInterval = Math.max(0, Math.ceil(visibleDays / 12) - 1);
 
@@ -167,8 +167,8 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
               <Area type="linear" dataKey="offers" name="Offers" stroke="#22c55e" fill="url(#grad-offers)" strokeWidth={2} dot={false} />
               <Brush
                 dataKey="label"
-                startIndex={brushStart}
-                endIndex={brushEnd}
+                startIndex={safeStart}
+                endIndex={safeEnd}
                 height={24}
                 travellerWidth={6}
                 stroke="#9ca3af"
