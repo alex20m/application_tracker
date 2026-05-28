@@ -59,9 +59,12 @@ test.describe("Status transitions", () => {
     // Transition to Rejected
     await page.getByRole("button", { name: /move to/i }).first().click();
     await page.getByRole("button", { name: STATUS_NAMES.rejected }).click();
+
+    // After rejection the app moves to the Closed page — navigate there to find it
+    await page.goto("/applications/closed");
     await expect(page.getByText(STATUS_NAMES.rejected).first()).toBeVisible({ timeout: 10000 });
 
-    // 'Final status' should now be shown, not 'Move to →'
+    // 'Final status' should be shown, not 'Move to →'
     await expect(page.getByText(/final status/i).first()).toBeVisible();
     await expect(page.getByRole("button", { name: /move to/i })).not.toBeVisible();
   });
