@@ -9,15 +9,17 @@ export function revalidateApplicationViews() {
   revalidatePath("/analytics");
 }
 
+const APPLIED_LIKE: readonly ApplicationStatus[] = [STATUS.applied, STATUS.ghosted];
+
 export function appendStatusEvent(
   currentStatus: ApplicationStatus,
   newStatus: ApplicationStatus,
   events: StatusEvent[]
 ): StatusEvent[] {
   const changed_at = new Date().toISOString();
-  if (currentStatus === STATUS.applied) {
+  if (APPLIED_LIKE.includes(currentStatus)) {
     return [
-      ...events.filter((e) => !(e.from_status === null && e.to_status === STATUS.applied)),
+      ...events.filter((e) => !(e.from_status === null && APPLIED_LIKE.includes(e.to_status as ApplicationStatus))),
       { from_status: null, to_status: newStatus, changed_at },
     ];
   }
