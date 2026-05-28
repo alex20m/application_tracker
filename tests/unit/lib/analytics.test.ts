@@ -414,8 +414,8 @@ describe("computeAnalytics", () => {
       makeApplication({ status: STATUS.applied, applied_on: "2026-02-05" }),
     ]);
     expect(r.dailyTrend).toHaveLength(2);
-    expect(r.dailyTrend[0].applications).toBe(2);
-    expect(r.dailyTrend[1].applications).toBe(1);
+    expect(r.dailyTrend[0].applied).toBe(2);
+    expect(r.dailyTrend[1].applied).toBe(1);
   });
 
   it("sorts daily trend chronologically", () => {
@@ -428,15 +428,16 @@ describe("computeAnalytics", () => {
     expect(r.dailyTrend[2].date).toBe("2026-03-01");
   });
 
-  it("counts interviews and offers in daily trend based on final status", () => {
+  it("counts each status separately in daily trend", () => {
     const r = computeAnalytics([
       makeApplication({ status: STATUS.interviews, applied_on: "2026-01-01" }),
       makeApplication({ status: STATUS.offer, applied_on: "2026-01-01" }),
       makeApplication({ status: STATUS.applied, applied_on: "2026-01-20" }),
     ]);
     const day = r.dailyTrend.find((d) => d.date === "2026-01-01")!;
-    expect(day.interviews).toBe(2);
-    expect(day.offers).toBe(1);
+    expect(day.interviews).toBe(1);
+    expect(day.offer).toBe(1);
+    expect(day.applied).toBe(0);
   });
 
   it("skips apps without applied_on in daily trend", () => {

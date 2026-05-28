@@ -19,6 +19,21 @@ import {
 import type { PieSectorDataItem, PieSectorShapeProps } from "recharts";
 import { CARD, TEXT_H2, TEXT_BODY, TEXT_META } from "@/lib/ui";
 import type { StatusCount, DailyEntry, SourceStat } from "@/lib/analytics";
+import { STATUS, STATUS_NAMES, STATUS_THEME } from "@/lib/statuses";
+
+// All non-wishlist statuses in display order for the trend chart
+const CHART_STATUSES = [
+  STATUS.applied,
+  STATUS.interviews,
+  STATUS.offer,
+  STATUS.accepted,
+  STATUS.rejected,
+  STATUS.ghosted,
+  STATUS.cancelled,
+  STATUS.withdrew,
+  STATUS.no_offer,
+  STATUS.declined,
+] as const;
 
 // Custom tooltip avoids recharts default inline styles that ignore dark mode
 function ChartTooltip({
@@ -63,13 +78,11 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
   const [brushStart, setBrushStart] = useState(() => Math.max(0, dailyTrend.length - 60));
   const [brushEnd, setBrushEnd] = useState(() => Math.max(0, dailyTrend.length - 1));
 
-  // Clamp to valid range in case data shrinks
   const maxIdx = Math.max(0, dailyTrend.length - 1);
   const safeStart = Math.min(brushStart, maxIdx);
   const safeEnd = Math.min(brushEnd, maxIdx);
-
   const visibleDays = Math.max(1, safeEnd - safeStart + 1);
-  // Target ~12 labels; interval=N means label every (N+1)th tick. Min 0 = every day.
+  // Target ~12 labels; interval=N skips N ticks between labels. 0 = every day.
   const tickInterval = Math.max(0, Math.ceil(visibleDays / 12) - 1);
 
   // Reset when tapping/clicking outside the status card
@@ -137,34 +150,37 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
 
   return (
     <div className="space-y-4">
-      {/* Daily trend with brush zoom */}
+      {/* Daily trend – one line per status */}
       {dailyTrend.length > 1 && (
         <div className={CARD}>
           <h2 className={`${TEXT_H2} mb-4`}>Applications Over Time</h2>
           <ResponsiveContainer width="100%" height={270}>
             <AreaChart data={dailyTrend} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
               <defs>
-                <linearGradient id="grad-apps" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#60a5fa" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#60a5fa" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="grad-interviews" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="grad-offers" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
-                </linearGradient>
+                {CHART_STATUSES.map((s) => (
+                  <linearGradient key={s} id={`grad-${s}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={STATUS_THEME[s].sankey} stopOpacity={0.25} />
+                    <stop offset="95%" stopColor={STATUS_THEME[s].sankey} stopOpacity={0} />
+                  </linearGradient>
+                ))}
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis dataKey="label" tick={TICK} axisLine={false} tickLine={false} interval={tickInterval} />
               <YAxis allowDecimals={false} tick={TICK} axisLine={false} tickLine={false} />
               <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'rgba(128,128,128,0.2)', strokeWidth: 1, strokeDasharray: '3 3' }} />
               <Legend wrapperStyle={{ fontSize: 12 }} />
-              <Area type="linear" dataKey="applications" name="Applications" stroke="#60a5fa" fill="url(#grad-apps)" strokeWidth={2} dot={false} />
-              <Area type="linear" dataKey="interviews" name="Interviews" stroke="#8b5cf6" fill="url(#grad-interviews)" strokeWidth={2} dot={false} />
-              <Area type="linear" dataKey="offers" name="Offers" stroke="#22c55e" fill="url(#grad-offers)" strokeWidth={2} dot={false} />
+              {CHART_STATUSES.map((s) => (
+                <Area
+                  key={s}
+                  type="linear"
+                  dataKey={s}
+                  name={STATUS_NAMES[s]}
+                  stroke={STATUS_THEME[s].sankey}
+                  fill={`url(#grad-${s})`}
+                  strokeWidth={2}
+                  dot={false}
+                />
+              ))}
               <Brush
                 dataKey="label"
                 startIndex={safeStart}

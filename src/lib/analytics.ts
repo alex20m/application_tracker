@@ -11,10 +11,7 @@ export type StatusCount = {
 export type DailyEntry = {
   date: string;
   label: string;
-  applications: number;
-  interviews: number;
-  offers: number;
-};
+} & Record<Exclude<ApplicationStatus, "wishlist">, number>;
 
 export type ConversionRow = {
   key: string;
@@ -273,23 +270,28 @@ export function computeAnalytics(
     }))
     .sort((a, b) => b.count - a.count);
 
-  // ── Daily trend ───────────────────────────────────────────────────────────
-  const dailyMap = new Map<
-    string,
-    { applications: number; interviews: number; offers: number }
-  >();
+  // ── Daily trend (one count per status per day, wishlist excluded) ────────
+  const TREND_STATUSES = (Object.values(STATUS) as ApplicationStatus[]).filter(
+    (s) => s !== STATUS.wishlist
+  ) as Exclude<ApplicationStatus, "wishlist">[];
+  const zeroEntry = () =>
+    Object.fromEntries(TREND_STATUSES.map((s) => [s, 0])) as Record<
+      Exclude<ApplicationStatus, "wishlist">,
+      number
+    >;
+  const dailyMap = new Map<string, DailyEntry>();
   for (const app of apps) {
     if (!app.applied_on) continue;
     const date = app.applied_on.slice(0, 10);
-    const entry = dailyMap.get(date) ?? { applications: 0, interviews: 0, offers: 0 };
-    entry.applications++;
-    if (INTERVIEWED_STATUSES.includes(app.status)) entry.interviews++;
-    if (OFFERED_STATUSES.includes(app.status)) entry.offers++;
-    dailyMap.set(date, entry);
+    if (!dailyMap.has(date)) {
+      dailyMap.set(date, { date, label: formatDayLabel(date), ...zeroEntry() });
+    }
+    const entry = dailyMap.get(date)!;
+    (entry as Record<string, number>)[app.status]++;
   }
   const dailyTrend: DailyEntry[] = [...dailyMap.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, data]) => ({ date, label: formatDayLabel(date), ...data }));
+    .map(([, data]) => data);
 
   // ── Source performance ────────────────────────────────────────────────────
   const sourceMap = new Map<
