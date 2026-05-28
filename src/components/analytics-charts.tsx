@@ -14,6 +14,7 @@ import {
   Legend,
   ResponsiveContainer,
   Cell,
+  Brush,
 } from "recharts";
 import type { PieSectorDataItem, PieSectorShapeProps } from "recharts";
 import { CARD, TEXT_H2, TEXT_BODY, TEXT_META } from "@/lib/ui";
@@ -58,6 +59,18 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [isLocked, setIsLocked] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+
+  const [brushStart, setBrushStart] = useState(() => Math.max(0, dailyTrend.length - 60));
+  const [brushEnd, setBrushEnd] = useState(() => Math.max(0, dailyTrend.length - 1));
+
+  // Clamp to valid range in case data shrinks
+  const maxIdx = Math.max(0, dailyTrend.length - 1);
+  const safeStart = Math.min(brushStart, maxIdx);
+  const safeEnd = Math.min(brushEnd, maxIdx);
+
+  const visibleDays = Math.max(1, safeEnd - safeStart + 1);
+  // Target ~12 labels; interval=N means label every (N+1)th tick. Min 0 = every day.
+  const tickInterval = Math.max(0, Math.ceil(visibleDays / 12) - 1);
 
   // Reset when tapping/clicking outside the status card
   useEffect(() => {
@@ -124,11 +137,11 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
 
   return (
     <div className="space-y-4">
-      {/* Monthly trend */}
+      {/* Daily trend with brush zoom */}
       {dailyTrend.length > 1 && (
         <div className={CARD}>
           <h2 className={`${TEXT_H2} mb-4`}>Applications Over Time</h2>
-          <ResponsiveContainer width="100%" height={220}>
+          <ResponsiveContainer width="100%" height={270}>
             <AreaChart data={dailyTrend} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="grad-apps" x1="0" y1="0" x2="0" y2="1">
@@ -145,13 +158,28 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis dataKey="label" tick={TICK} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+              <XAxis dataKey="label" tick={TICK} axisLine={false} tickLine={false} interval={tickInterval} />
               <YAxis allowDecimals={false} tick={TICK} axisLine={false} tickLine={false} />
               <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'rgba(128,128,128,0.2)', strokeWidth: 1, strokeDasharray: '3 3' }} />
               <Legend wrapperStyle={{ fontSize: 12 }} />
-              <Area type="monotone" dataKey="applications" name="Applications" stroke="#60a5fa" fill="url(#grad-apps)" strokeWidth={2} dot={false} />
-              <Area type="monotone" dataKey="interviews" name="Interviews" stroke="#8b5cf6" fill="url(#grad-interviews)" strokeWidth={2} dot={false} />
-              <Area type="monotone" dataKey="offers" name="Offers" stroke="#22c55e" fill="url(#grad-offers)" strokeWidth={2} dot={false} />
+              <Area type="linear" dataKey="applications" name="Applications" stroke="#60a5fa" fill="url(#grad-apps)" strokeWidth={2} dot={false} />
+              <Area type="linear" dataKey="interviews" name="Interviews" stroke="#8b5cf6" fill="url(#grad-interviews)" strokeWidth={2} dot={false} />
+              <Area type="linear" dataKey="offers" name="Offers" stroke="#22c55e" fill="url(#grad-offers)" strokeWidth={2} dot={false} />
+              <Brush
+                dataKey="label"
+                startIndex={safeStart}
+                endIndex={safeEnd}
+                height={24}
+                travellerWidth={6}
+                stroke="#9ca3af"
+                fill="rgba(156,163,175,0.08)"
+                onChange={({ startIndex, endIndex }) => {
+                  if (startIndex !== undefined && endIndex !== undefined) {
+                    setBrushStart(startIndex);
+                    setBrushEnd(endIndex);
+                  }
+                }}
+              />
             </AreaChart>
           </ResponsiveContainer>
         </div>
