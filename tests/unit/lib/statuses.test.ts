@@ -25,6 +25,7 @@ describe("STATUS_NEXT", () => {
 
   it("terminal statuses have no transitions", () => {
     const terminals: ApplicationStatus[] = [
+      STATUS.ghosted,
       STATUS.cancelled,
       STATUS.withdrew,
       STATUS.rejected,
@@ -35,6 +36,10 @@ describe("STATUS_NEXT", () => {
     for (const t of terminals) {
       expect(STATUS_NEXT[t]).toEqual([]);
     }
+  });
+
+  it("applied can transition to ghosted", () => {
+    expect(STATUS_NEXT[STATUS.applied]).toContain(STATUS.ghosted);
   });
 
   it("wishlist transitions only to applied", () => {
@@ -55,10 +60,11 @@ describe("getStatusRank", () => {
   });
 
   it("preserves within-level ordering", () => {
-    // level 1: [interviews, cancelled, applied, rejected]
+    // level 1: [interviews, cancelled, applied, ghosted, rejected]
     expect(getStatusRank(STATUS.interviews)).toBeLessThan(getStatusRank(STATUS.cancelled));
     expect(getStatusRank(STATUS.cancelled)).toBeLessThan(getStatusRank(STATUS.applied));
-    expect(getStatusRank(STATUS.applied)).toBeLessThan(getStatusRank(STATUS.rejected));
+    expect(getStatusRank(STATUS.applied)).toBeLessThan(getStatusRank(STATUS.ghosted));
+    expect(getStatusRank(STATUS.ghosted)).toBeLessThan(getStatusRank(STATUS.rejected));
     // level 2: [offer, withdrew, no_offer]
     expect(getStatusRank(STATUS.offer)).toBeLessThan(getStatusRank(STATUS.withdrew));
     expect(getStatusRank(STATUS.withdrew)).toBeLessThan(getStatusRank(STATUS.no_offer));

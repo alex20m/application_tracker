@@ -131,8 +131,8 @@ export function AnalyticsView({ applications }: Props) {
           />
           <StatCard
             label="Outstanding"
-            value={String(a.activeCount - a.ghostCount)}
-            sub="not in final state, not ghosted"
+            value={String(a.activeCount)}
+            sub="still in progress"
           />
           <StatCard
             label="Interview Rate"
@@ -201,7 +201,7 @@ export function AnalyticsView({ applications }: Props) {
             }
           />
           <StatCard
-            label="Ghosted (30+ days)"
+            label="Ghosted"
             value={String(a.ghostCount)}
             sub={a.ghostRate !== null ? `${Math.round(a.ghostRate * 100)}% of applied` : undefined}
             warn={a.ghostCount > 0}

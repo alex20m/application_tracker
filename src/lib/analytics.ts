@@ -61,7 +61,7 @@ export type AnalyticsResult = {
   noResponseRate: number | null;
   responseRate: number | null;
 
-  // ── Ghost (still applied after ≥30 days) ────────
+  // ── Ghost (applications with no response moved to ghosted) ────────
   ghostCount: number;
   ghostRate: number | null;
 
@@ -126,8 +126,7 @@ function pct(n: number, d: number): number {
 }
 
 export function computeAnalytics(
-  applications: ApplicationRecord[],
-  today: Date = new Date()
+  applications: ApplicationRecord[]
 ): AnalyticsResult {
   const apps = applications.filter((a) => a.status !== STATUS.wishlist);
   const total = apps.length;
@@ -145,14 +144,8 @@ export function computeAnalytics(
   const currentlyOfferCount = apps.filter((a) => a.status === STATUS.offer).length;
   const activeCount = apps.filter((a) => ACTIVE_STATUSES.includes(a.status)).length;
 
-  // ── Ghost detection (applied for ≥30 days) ─────────────────────────────
-  const todayMs = today.getTime();
-  const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
-  const ghostCount = apps.filter((a) => {
-    if (a.status !== STATUS.applied || !a.applied_on) return false;
-    const appliedMs = new Date(a.applied_on + "T00:00:00.000Z").getTime();
-    return todayMs - appliedMs >= thirtyDaysMs;
-  }).length;
+  // ── Ghost count (applications moved to ghosted status) ────────────────
+  const ghostCount = apps.filter((a) => a.status === STATUS.ghosted).length;
 
   // ── Time metrics ──────────────────────────────────────────────────────────
   const daysToFirstResponse: number[] = [];
@@ -205,6 +198,15 @@ export function computeAnalytics(
       pctOfStage: null,
       stageLabel: null,
       color: STATUS_THEME[STATUS.applied].sankey,
+    },
+    {
+      key: "ghosted",
+      label: "Ghosted",
+      count: ghostCount,
+      pctOfApplied: pct(ghostCount, total),
+      pctOfStage: null,
+      stageLabel: null,
+      color: STATUS_THEME[STATUS.ghosted].sankey,
     },
     {
       key: "cancelled",

@@ -199,36 +199,28 @@ describe("computeAnalytics", () => {
 
   // ── Ghost detection ────────────────────────────────────────────────────────
 
-  it("counts apps in applied for ≥30 days as ghosts", () => {
-    const today = new Date("2026-03-01T12:00:00.000Z");
-    const r = computeAnalytics(
-      [
-        makeApplication({ status: STATUS.applied, applied_on: "2026-01-01" }), // 59 days
-        makeApplication({ status: STATUS.applied, applied_on: "2026-02-25" }), // 4 days
-        makeApplication({ status: STATUS.interviews }),
-      ],
-      today
-    );
-    expect(r.ghostCount).toBe(1);
-    expect(r.ghostRate).toBeCloseTo(1 / 3);
+  it("counts apps with ghosted status", () => {
+    const r = computeAnalytics([
+      makeApplication({ status: STATUS.ghosted }),
+      makeApplication({ status: STATUS.ghosted }),
+      makeApplication({ status: STATUS.interviews }),
+    ]);
+    expect(r.ghostCount).toBe(2);
+    expect(r.ghostRate).toBeCloseTo(2 / 3);
   });
 
-  it("does not count non-applied apps as ghosts", () => {
-    const today = new Date("2026-03-01");
-    const r = computeAnalytics(
-      [makeApplication({ status: STATUS.rejected, applied_on: "2025-01-01" })],
-      today
-    );
+  it("does not count applied or other statuses as ghosts", () => {
+    const r = computeAnalytics([
+      makeApplication({ status: STATUS.applied, applied_on: "2025-01-01" }),
+      makeApplication({ status: STATUS.rejected, applied_on: "2025-01-01" }),
+    ]);
     expect(r.ghostCount).toBe(0);
   });
 
-  it("skips ghost check for apps without applied_on", () => {
-    const today = new Date("2026-03-01");
-    const r = computeAnalytics(
-      [makeApplication({ status: STATUS.applied, applied_on: null })],
-      today
-    );
+  it("ghostCount is zero when no ghosted apps", () => {
+    const r = computeAnalytics([makeApplication({ status: STATUS.applied })]);
     expect(r.ghostCount).toBe(0);
+    expect(r.ghostRate).toBeCloseTo(0);
   });
 
   // ── Time calculations ──────────────────────────────────────────────────────
@@ -335,6 +327,7 @@ describe("computeAnalytics", () => {
     const keys = computeAnalytics([]).conversionRows.map((r) => r.key);
     expect(keys).toContain("waiting");
     expect(keys).toContain("cancelled");
+    expect(keys).toContain("ghosted");
     expect(keys).toContain("rejected_before");
     expect(keys).toContain("interviews");
     expect(keys).toContain("withdrew");
