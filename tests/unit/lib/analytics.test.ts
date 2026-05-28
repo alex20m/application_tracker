@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeAnalytics, daysBetween, formatDayLabel } from "@/lib/analytics";
+import { computeAnalytics, daysBetween, formatDayLabel, getReachableStatuses, computeAvgDaysBetweenStatuses } from "@/lib/analytics";
 import { STATUS } from "@/lib/statuses";
 import { makeApplication, makeStatusEvent } from "../../helpers/factories";
 
@@ -485,5 +485,107 @@ describe("computeAnalytics", () => {
       makeApplication({ source: "LinkedIn" }),
     ]);
     expect(r.sourceStats[0].source).toBe("LinkedIn");
+  });
+});
+
+// ─── getReachableStatuses ─────────────────────────────────────────────────────
+
+describe("getReachableStatuses", () => {
+  it("returns direct and transitive successors from applied", () => {
+    const reachable = getReachableStatuses(STATUS.applied);
+    // Direct successors
+    expect(reachable).toContain(STATUS.interviews);
+    expect(reachable).toContain(STATUS.rejected);
+    expect(reachable).toContain(STATUS.ghosted);
+    expect(reachable).toContain(STATUS.cancelled);
+    // Transitive successors via interviews
+    expect(reachable).toContain(STATUS.offer);
+    expect(reachable).toContain(STATUS.accepted);
+    // Does not include itself
+    expect(reachable).not.toContain(STATUS.applied);
+  });
+
+  it("returns only direct successors from offer", () => {
+    const reachable = getReachableStatuses(STATUS.offer);
+    expect(reachable).toEqual(expect.arrayContaining([STATUS.accepted, STATUS.declined]));
+    expect(reachable).toHaveLength(2);
+  });
+
+  it("returns empty array for terminal statuses", () => {
+    expect(getReachableStatuses(STATUS.rejected)).toHaveLength(0);
+    expect(getReachableStatuses(STATUS.accepted)).toHaveLength(0);
+  });
+});
+
+// ─── computeAvgDaysBetweenStatuses ───────────────────────────────────────────
+
+describe("computeAvgDaysBetweenStatuses", () => {
+  it("returns null avg when no applications match", () => {
+    const r = computeAvgDaysBetweenStatuses([], STATUS.applied, STATUS.interviews);
+    expect(r.avg).toBeNull();
+    expect(r.count).toBe(0);
+  });
+
+  it("computes average from applied_on to an event timestamp", () => {
+    const app = makeApplication({
+      applied_on: "2026-01-01",
+      events: [
+        makeStatusEvent({ from_status: null, to_status: STATUS.interviews, changed_at: "2026-01-11T00:00:00.000Z" }),
+      ],
+    });
+    const r = computeAvgDaysBetweenStatuses([app], STATUS.applied, STATUS.interviews);
+    expect(r.avg).toBe(10);
+    expect(r.count).toBe(1);
+    expect(r.min).toBe(10);
+    expect(r.max).toBe(10);
+  });
+
+  it("averages correctly across multiple applications", () => {
+    const app1 = makeApplication({
+      applied_on: "2026-01-01",
+      events: [makeStatusEvent({ to_status: STATUS.interviews, changed_at: "2026-01-11T00:00:00.000Z" })],
+    });
+    const app2 = makeApplication({
+      applied_on: "2026-01-01",
+      events: [makeStatusEvent({ to_status: STATUS.interviews, changed_at: "2026-01-21T00:00:00.000Z" })],
+    });
+    const r = computeAvgDaysBetweenStatuses([app1, app2], STATUS.applied, STATUS.interviews);
+    expect(r.avg).toBe(15);
+    expect(r.count).toBe(2);
+    expect(r.min).toBe(10);
+    expect(r.max).toBe(20);
+  });
+
+  it("skips applications missing the end event", () => {
+    const app = makeApplication({
+      applied_on: "2026-01-01",
+      events: [makeStatusEvent({ to_status: STATUS.rejected, changed_at: "2026-01-11T00:00:00.000Z" })],
+    });
+    const r = computeAvgDaysBetweenStatuses([app], STATUS.applied, STATUS.interviews);
+    expect(r.avg).toBeNull();
+    expect(r.count).toBe(0);
+  });
+
+  it("uses created_at for wishlist start status", () => {
+    const app = makeApplication({
+      status: STATUS.applied,
+      created_at: "2026-01-01T00:00:00.000Z",
+      events: [makeStatusEvent({ to_status: STATUS.applied, changed_at: "2026-01-06T00:00:00.000Z" })],
+    });
+    const r = computeAvgDaysBetweenStatuses([app], STATUS.wishlist, STATUS.applied);
+    expect(r.avg).toBe(5);
+    expect(r.count).toBe(1);
+  });
+
+  it("uses event timestamp for non-applied start status", () => {
+    const app = makeApplication({
+      events: [
+        makeStatusEvent({ from_status: null, to_status: STATUS.interviews, changed_at: "2026-01-10T00:00:00.000Z" }),
+        makeStatusEvent({ from_status: STATUS.interviews, to_status: STATUS.offer, changed_at: "2026-01-20T00:00:00.000Z" }),
+      ],
+    });
+    const r = computeAvgDaysBetweenStatuses([app], STATUS.interviews, STATUS.offer);
+    expect(r.avg).toBe(10);
+    expect(r.count).toBe(1);
   });
 });
