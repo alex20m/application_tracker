@@ -1,5 +1,5 @@
 import type { ApplicationRecord } from "@/lib/types";
-import { STATUS, STATUS_NAMES, STATUS_THEME, type ApplicationStatus } from "@/lib/statuses";
+import { STATUS, STATUS_NAMES, STATUS_THEME, ACTIVE_STATUSES, type ApplicationStatus } from "@/lib/statuses";
 
 export type StatusCount = {
   status: ApplicationStatus;
@@ -97,11 +97,6 @@ const OFFERED_STATUSES: ApplicationStatus[] = [
   STATUS.declined,
 ];
 
-const ACTIVE_STATUSES: ApplicationStatus[] = [
-  STATUS.applied,
-  STATUS.interviews,
-  STATUS.offer,
-];
 
 export function daysBetween(startDate: string, endTimestamp: string): number {
   const start = new Date(startDate + "T00:00:00.000Z");

@@ -43,7 +43,7 @@ describe("createApplicationAction", () => {
 
     await expect(createApplicationAction(null, fd)).rejects.toMatchObject({
       type: "redirect",
-      url: "/applications",
+      url: "/applications/open",
     });
 
     expect(mockSupabase.from).toHaveBeenCalledWith("applications");
@@ -82,7 +82,7 @@ describe("createApplicationAction", () => {
     const fd = makeFormData();
     await expect(createApplicationAction(null, fd)).rejects.toMatchObject({
       type: "redirect",
-      url: "/applications",
+      url: "/applications/open",
     });
   });
 });

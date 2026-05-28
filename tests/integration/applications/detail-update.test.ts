@@ -45,11 +45,11 @@ beforeEach(() => {
 });
 
 describe("updateApplicationAction", () => {
-  it("redirects to /applications on success", async () => {
+  it("redirects to /applications/open on success", async () => {
     const fd = makeFormData({ status: STATUS.applied });
     await expect(updateApplicationAction(VALID_APP_ID, null, fd)).rejects.toMatchObject({
       type: "redirect",
-      url: "/applications",
+      url: "/applications/open",
     });
   });
 

@@ -24,7 +24,7 @@ export const test = base.extend<Fixtures>({
       await page.getByLabel(/location/i).fill(location);
       await page.getByRole("button", { name: /save application/i }).click();
 
-      await expect(page).toHaveURL("/applications");
+      await expect(page).toHaveURL("/applications/open");
       // Find the new card link
       const link = page.getByRole("link", { name: new RegExp(company, "i") }).first();
       await expect(link).toBeVisible();
@@ -47,7 +47,7 @@ export const test = base.extend<Fixtures>({
       if (await deleteBtn.isVisible()) {
         page.once("dialog", (d) => d.accept());
         await deleteBtn.click();
-        await expect(page).toHaveURL("/applications", { timeout: 10000 });
+        await expect(page).toHaveURL(/\/applications\/(open|closed)/, { timeout: 10000 });
       }
     }
   },

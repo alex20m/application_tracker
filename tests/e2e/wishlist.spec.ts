@@ -18,7 +18,7 @@ test.describe("Wishlist", () => {
     await expect(page.getByText(COMPANY)).toBeVisible();
 
     // Should NOT appear on /applications
-    await page.goto("/applications");
+    await page.goto("/applications/open");
     await expect(page.getByText(COMPANY)).not.toBeVisible();
 
     // Cleanup
@@ -77,7 +77,7 @@ test.describe("Wishlist", () => {
     await expect(page.getByText(company)).not.toBeVisible({ timeout: 10000 });
 
     // Row should appear on /applications
-    await page.goto("/applications");
+    await page.goto("/applications/open");
     await expect(page.getByText(company)).toBeVisible();
 
     // Cleanup — delete from applications
@@ -85,7 +85,7 @@ test.describe("Wishlist", () => {
     await expect(page).toHaveURL(/\/applications\//);
     page.once("dialog", (d) => d.accept());
     await page.getByRole("button", { name: /delete/i }).click();
-    await expect(page).toHaveURL("/applications", { timeout: 10000 });
+    await expect(page).toHaveURL("/applications/open", { timeout: 10000 });
   });
 
   test("editing a wishlist entry persists changes", async ({ page }) => {

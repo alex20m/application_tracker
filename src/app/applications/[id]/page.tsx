@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { ROUTES } from "@/lib/env";
+import { isClosedStatus, type ApplicationStatus } from "@/lib/statuses";
 import { CARD, SECTION_STACK, TEXT_H1, TEXT_H3, TEXT_META, TEXT_MUTED } from "@/lib/ui";
 import { AppShell } from "@/components/app-shell";
 import { ApplicationForm } from "@/components/application-form";
@@ -24,6 +25,10 @@ export default async function ApplicationDetailPage({
     .eq("user_id", user.id)
     .single();
 
+  const returnPath = application && isClosedStatus(application.status as ApplicationStatus)
+    ? ROUTES.closedApplications
+    : ROUTES.applications;
+
   if (!application) {
     return (
       <AppShell email={user.email || ""}>
@@ -46,7 +51,7 @@ export default async function ApplicationDetailPage({
     <AppShell email={user.email || ""}>
       <div className={SECTION_STACK}>
         <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-          <Link href={ROUTES.applications} className="transition hover:text-gray-700 dark:hover:text-gray-300">
+          <Link href={returnPath} className="transition hover:text-gray-700 dark:hover:text-gray-300">
             Applications
           </Link>
           <span className="text-gray-300 dark:text-gray-600">/</span>
@@ -59,7 +64,7 @@ export default async function ApplicationDetailPage({
         </div>
 
         <div className={`max-w-2xl ${CARD}`}>
-          <ApplicationForm action={boundAction} application={application} />
+          <ApplicationForm action={boundAction} application={application} returnPath={returnPath} />
         </div>
 
         <div className="max-w-2xl rounded-2xl border border-red-100 dark:border-red-500/20 bg-red-50 dark:bg-red-500/10 p-5 mobile:p-4">
@@ -71,7 +76,7 @@ export default async function ApplicationDetailPage({
               </p>
             </div>
             <div className="flex-shrink-0">
-              <DeleteApplicationButton applicationId={id} />
+              <DeleteApplicationButton applicationId={id} returnPath={returnPath} />
             </div>
           </div>
         </div>

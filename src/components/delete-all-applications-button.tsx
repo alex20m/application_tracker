@@ -6,19 +6,22 @@ import { ERROR_BANNER } from "@/lib/ui";
 
 type DeleteAllApplicationsButtonProps = {
   hasApplications: boolean;
+  scope: "open" | "closed";
 };
 
 export function DeleteAllApplicationsButton({
   hasApplications,
+  scope,
 }: DeleteAllApplicationsButtonProps) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
   const handleDeleteAll = () => {
-    if (window.confirm("Delete ALL applications? This cannot be undone.")) {
+    const label = scope === "open" ? "open" : "closed";
+    if (window.confirm(`Delete all ${label} applications? This cannot be undone.`)) {
       setError(null);
       startTransition(async () => {
-        const result = await deleteAllApplicationsAction();
+        const result = await deleteAllApplicationsAction(scope);
         if (!result.success && result.error) setError(result.error);
       });
     }

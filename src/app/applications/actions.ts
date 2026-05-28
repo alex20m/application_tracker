@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
-import { STATUS, STATUS_NEXT, type ApplicationStatus } from "@/lib/statuses";
+import { STATUS, STATUS_NEXT, ACTIVE_STATUSES, CLOSED_STATUSES, type ApplicationStatus } from "@/lib/statuses";
 import { appendStatusEvent, revalidateApplicationViews } from "@/lib/applications";
 import { sanitizeActionError } from "@/lib/ui";
 import { ApplicationCreateSchema, ApplicationNoteSchema } from "@/lib/schemas";
@@ -66,7 +66,7 @@ export async function createApplicationAction(
   }
 
   revalidatePath("/analytics");
-  redirect("/applications");
+  redirect("/applications/open");
 }
 
 export async function transitionApplicationStatusAction(
@@ -134,7 +134,7 @@ export async function updateApplicationNoteAction(formData: FormData): Promise<v
 
   if (error) console.error("[application:update-note]", error);
 
-  revalidatePath("/applications");
+  revalidatePath("/applications/open");
 }
 
 export async function deleteApplicationFromListAction(formData: FormData): Promise<void> {
@@ -154,14 +154,18 @@ export async function deleteApplicationFromListAction(formData: FormData): Promi
   revalidateApplicationViews();
 }
 
-export async function deleteAllApplicationsAction(): Promise<{ success: boolean; error?: string }> {
+export async function deleteAllApplicationsAction(
+  scope: "open" | "closed"
+): Promise<{ success: boolean; error?: string }> {
   const { supabase, user } = await requireUser();
+
+  const statuses = scope === "open" ? [...ACTIVE_STATUSES] : [...CLOSED_STATUSES];
 
   const { error } = await supabase
     .from("applications")
     .delete()
     .eq("user_id", user.id)
-    .neq("status", STATUS.wishlist);
+    .in("status", statuses);
 
   if (error) return { success: false, error: sanitizeActionError(error, "application:delete-all") };
 
