@@ -33,7 +33,7 @@ type LayoutLink = SankeyLink<NodeDatum, LinkDatum> & {
 type LayoutGraph = { nodes: LayoutNode[]; links: LayoutLink[] };
 
 const NODE_WIDTH = 16;
-const CHART_FRAME = "rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 shadow-sm h-[500px] mobile:h-[440px] mobile:min-w-[640px]";
+const CHART_FRAME = "rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-sm h-[500px] mobile:h-[440px] mobile:p-4 mobile:min-w-[640px]";
 
 // Module-level typed path generator — avoids an `any` cast in the render.
 type LinkForPath = SankeyLinkMinimal<SankeyNode<NodeDatum, LinkDatum>, LinkDatum>;
@@ -55,7 +55,7 @@ function nodeLabel(name: string): string {
 
 function EmptyContent() {
   return (
-    <div className="flex h-full items-center justify-center text-center text-sm text-slate-500 dark:text-slate-400">
+    <div className="flex h-full items-center justify-center text-center text-sm text-gray-500 dark:text-gray-400">
       No applications yet. Create an application to see the flow.
     </div>
   );
@@ -64,11 +64,11 @@ function EmptyContent() {
 function SingleNodeContent({ node }: { node: NodeDatum }) {
   return (
     <div className="flex h-full items-center justify-center">
-      <div className="inline-flex items-center gap-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-indigo-50 dark:bg-indigo-500/10 px-6 py-4">
+      <div className="inline-flex items-center gap-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-indigo-50 dark:bg-indigo-500/10 px-6 py-4">
         <div className="w-4 h-16 rounded bg-indigo-500 dark:bg-indigo-400" />
         <div className="text-left">
-          <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{SANKEY_ROOT_LABEL}</div>
-          <div className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+          <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{SANKEY_ROOT_LABEL}</div>
+          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
             {node.name === SANKEY_ROOT ? "No transitions yet" : ""}
           </div>
         </div>
