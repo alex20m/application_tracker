@@ -7,7 +7,18 @@ import { ApplicationForm } from "@/components/application-form";
 import { createApplicationAction } from "@/app/applications/actions";
 
 export default async function NewApplicationPage() {
-  const { user } = await requireUser();
+  const { supabase, user } = await requireUser();
+
+  const { data: sourcesData } = await supabase
+    .from("applications")
+    .select("source")
+    .eq("user_id", user.id)
+    .not("source", "is", null)
+    .neq("source", "");
+
+  const existingSources = [...new Set(
+    (sourcesData ?? []).map((r: { source: string | null }) => r.source as string)
+  )].sort();
 
   return (
     <AppShell email={user.email || ""}>
@@ -28,9 +39,10 @@ export default async function NewApplicationPage() {
         </div>
 
         <div className={`max-w-2xl ${CARD}`}>
-          <ApplicationForm action={createApplicationAction} />
+          <ApplicationForm action={createApplicationAction} existingSources={existingSources} />
         </div>
       </div>
     </AppShell>
   );
 }
+

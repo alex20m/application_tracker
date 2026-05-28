@@ -16,9 +16,10 @@ type ApplicationFormProps = {
     formData: FormData
   ) => Promise<{ success: boolean; error?: string }>;
   returnPath?: string;
+  existingSources?: string[];
 };
 
-export function ApplicationForm({ application, action, returnPath = ROUTES.applications }: ApplicationFormProps) {
+export function ApplicationForm({ application, action, returnPath = ROUTES.applications, existingSources = [] }: ApplicationFormProps) {
   const [state, formAction, isPending] = useActionState(action, {
     success: false,
   });
@@ -81,7 +82,16 @@ export function ApplicationForm({ application, action, returnPath = ROUTES.appli
             defaultValue={application?.source || ""}
             className={INPUT}
             placeholder="LinkedIn, Referral…"
+            list={existingSources.length > 0 ? "source-suggestions" : undefined}
+            autoComplete="off"
           />
+          {existingSources.length > 0 && (
+            <datalist id="source-suggestions">
+              {existingSources.map((s) => (
+                <option key={s} value={s} />
+              ))}
+            </datalist>
+          )}
         </div>
 
         <div className="flex flex-col gap-1.5">
