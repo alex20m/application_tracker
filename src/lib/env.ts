@@ -20,7 +20,7 @@ export const APP_URL = requireEnv(process.env.NEXT_PUBLIC_APP_URL, "NEXT_PUBLIC_
 
 export const ROUTES = {
   login: "/login",
-  applications: "/applications",
+  applications: "/applications/open",
   closedApplications: "/applications/closed",
   newApplication: "/applications/new",
   wishlist: "/wishlist",

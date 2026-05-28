@@ -85,7 +85,7 @@ test.describe("Wishlist", () => {
     await expect(page).toHaveURL(/\/applications\//);
     page.once("dialog", (d) => d.accept());
     await page.getByRole("button", { name: /delete/i }).click();
-    await expect(page).toHaveURL("/applications", { timeout: 10000 });
+    await expect(page).toHaveURL("/applications/open", { timeout: 10000 });
   });
 
   test("editing a wishlist entry persists changes", async ({ page }) => {

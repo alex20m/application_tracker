@@ -66,7 +66,7 @@ export async function createApplicationAction(
   }
 
   revalidatePath("/analytics");
-  redirect("/applications");
+  redirect("/applications/open");
 }
 
 export async function transitionApplicationStatusAction(
@@ -134,7 +134,7 @@ export async function updateApplicationNoteAction(formData: FormData): Promise<v
 
   if (error) console.error("[application:update-note]", error);
 
-  revalidatePath("/applications");
+  revalidatePath("/applications/open");
 }
 
 export async function deleteApplicationFromListAction(formData: FormData): Promise<void> {

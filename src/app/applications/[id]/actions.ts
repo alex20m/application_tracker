@@ -82,7 +82,7 @@ export async function updateApplicationAction(
   }
 
   revalidatePath("/analytics");
-  redirect("/applications");
+  redirect("/applications/open");
 }
 
 export async function deleteApplicationAction(
@@ -108,5 +108,5 @@ export async function deleteApplicationAction(
   }
 
   revalidatePath("/analytics");
-  redirect("/applications");
+  redirect("/applications/open");
 }

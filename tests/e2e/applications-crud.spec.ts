@@ -12,7 +12,7 @@ test.describe("Application CRUD", () => {
     await page.getByLabel(/location/i).fill(LOCATION);
     await page.getByRole("button", { name: /save application/i }).click();
 
-    await expect(page).toHaveURL("/applications");
+    await expect(page).toHaveURL("/applications/open");
     await expect(page.getByText(COMPANY)).toBeVisible();
 
     // Cleanup — find and delete
@@ -31,7 +31,7 @@ test.describe("Application CRUD", () => {
     await page.getByLabel(/role/i).fill("Senior Dev");
     await page.getByRole("button", { name: /save application/i }).click();
 
-    await expect(page).toHaveURL("/applications");
+    await expect(page).toHaveURL("/applications/open");
     await expect(page.getByText("Edited Corp").first()).toBeVisible();
     await expect(page.getByText("Senior Dev").first()).toBeVisible();
   });
@@ -43,7 +43,7 @@ test.describe("Application CRUD", () => {
     await page.getByLabel(/notes/i).fill("This is a test note.");
     await page.getByRole("button", { name: /save application/i }).click();
 
-    await expect(page).toHaveURL("/applications");
+    await expect(page).toHaveURL("/applications/open");
 
     // Reload the application list and check the note appears in the card
     await page.reload();
@@ -58,7 +58,7 @@ test.describe("Application CRUD", () => {
     await page.getByLabel(/role/i).fill("Test Role");
     await page.getByLabel(/location/i).fill("Remote");
     await page.getByRole("button", { name: /save application/i }).click();
-    await expect(page).toHaveURL("/applications");
+    await expect(page).toHaveURL("/applications/open");
     await expect(page.getByText(company)).toBeVisible();
 
     // Navigate to detail and delete
