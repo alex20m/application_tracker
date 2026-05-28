@@ -31,12 +31,10 @@ function days(value: number | null): string {
 type StatCardProps = {
   label: string;
   value: string;
-  sub?: string;
   accent?: boolean;
-  warn?: boolean;
 };
 
-function StatCard({ label, value, sub, accent, warn }: StatCardProps) {
+function StatCard({ label, value, accent }: StatCardProps) {
   return (
     <div className={CARD}>
       <p className={`${TEXT_META} mb-1`}>{label}</p>
@@ -44,14 +42,11 @@ function StatCard({ label, value, sub, accent, warn }: StatCardProps) {
         className={`text-3xl font-bold mobile:text-2xl ${
           accent
             ? "text-indigo-600 dark:text-indigo-400"
-            : warn
-            ? "text-amber-600 dark:text-amber-400"
             : "text-gray-900 dark:text-gray-100"
         }`}
       >
         {value}
       </p>
-      {sub && <p className={`${TEXT_META} mt-1`}>{sub}</p>}
     </div>
   );
 }
@@ -125,86 +120,21 @@ export function AnalyticsView({ applications }: Props) {
         <h2 className={`${TEXT_H2} mb-3`}>Overview</h2>
         <div className="grid grid-cols-4 gap-4 mobile:grid-cols-2 mobile:gap-3">
           <StatCard
-            label="Applied"
+            label="Total Roles Applied"
             value={String(a.totalApplications)}
-            sub={`${a.activeCount} still active`}
           />
           <StatCard
-            label="Outstanding"
+            label="Open Applications"
             value={String(a.activeCount)}
-            sub="still in progress"
           />
           <StatCard
             label="Interview Rate"
             value={pct(a.interviewRate)}
-            sub={`${a.interviewedCount} reached interviews`}
             accent
           />
-          <StatCard
-            label="Offer / Applied"
-            value={pct(a.overallOfferRate)}
-            sub={`${a.offeredCount} offer${a.offeredCount !== 1 ? "s" : ""} received`}
-            accent
-          />
-        </div>
-      </section>
-
-      {/* ── Response times ─────────────────────────────────── */}
-      <section>
-        <h2 className={`${TEXT_H2} mb-3`}>Response Times</h2>
-        <div className="grid grid-cols-4 gap-4 mobile:grid-cols-2 mobile:gap-3">
           <StatCard
             label="Avg. to First Response"
             value={days(a.avgDaysToFirstResponse)}
-            sub="from applied date"
-          />
-          <StatCard
-            label="Avg. to Interview"
-            value={days(a.avgDaysToInterview)}
-            sub="from applied date"
-          />
-          <StatCard
-            label="Avg. to Offer"
-            value={days(a.avgDaysToOffer)}
-            sub="from applied date"
-          />
-          <StatCard
-            label="Avg. Interview → Offer"
-            value={days(a.avgDaysInterviewToOffer)}
-            sub="from interview stage"
-          />
-        </div>
-      </section>
-
-      {/* ── Search quality ─────────────────────────────────── */}
-      <section>
-        <h2 className={`${TEXT_H2} mb-3`}>Search Quality</h2>
-        <div className="grid grid-cols-4 gap-4 mobile:grid-cols-2 mobile:gap-3">
-          <StatCard
-            label="Offer / Interview"
-            value={pct(a.offerFromInterviewRate)}
-            sub={`of ${a.interviewedCount} interview${a.interviewedCount !== 1 ? "s" : ""}`}
-            accent={a.offerFromInterviewRate !== null && a.offerFromInterviewRate > 0}
-          />
-          <StatCard
-            label="Rejected Before Interview"
-            value={String(a.rejectedBeforeInterviewCount)}
-            sub={pct(a.rejectionBeforeInterviewRate) + " of applied"}
-          />
-          <StatCard
-            label="No Offer After Interview"
-            value={String(a.noOfferCount)}
-            sub={
-              a.interviewedCount > 0
-                ? `${Math.round((a.noOfferCount / a.interviewedCount) * 100)}% of interviewed`
-                : undefined
-            }
-          />
-          <StatCard
-            label="Ghosted"
-            value={String(a.ghostCount)}
-            sub={a.ghostRate !== null ? `${Math.round(a.ghostRate * 100)}% of applied` : undefined}
-            warn={a.ghostCount > 0}
           />
         </div>
       </section>
