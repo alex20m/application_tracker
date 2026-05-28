@@ -20,7 +20,7 @@ test.describe("Application CRUD", () => {
     await expect(page).toHaveURL(/\/applications\//);
     page.once("dialog", (d) => d.accept());
     await page.getByRole("button", { name: /delete/i }).click();
-    await expect(page).toHaveURL("/applications", { timeout: 10000 });
+    await expect(page).toHaveURL("/applications/open", { timeout: 10000 });
   });
 
   test("edit company and role from the detail page", async ({ page, withApplication }) => {
@@ -67,7 +67,7 @@ test.describe("Application CRUD", () => {
     page.once("dialog", (d) => d.accept());
     await page.getByRole("button", { name: /^delete$/i }).click();
 
-    await expect(page).toHaveURL("/applications", { timeout: 10000 });
+    await expect(page).toHaveURL("/applications/open", { timeout: 10000 });
     await expect(page.getByText(company)).not.toBeVisible();
   });
 });

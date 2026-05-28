@@ -47,7 +47,7 @@ export const test = base.extend<Fixtures>({
       if (await deleteBtn.isVisible()) {
         page.once("dialog", (d) => d.accept());
         await deleteBtn.click();
-        await expect(page).toHaveURL("/applications", { timeout: 10000 });
+        await expect(page).toHaveURL("/applications/open", { timeout: 10000 });
       }
     }
   },
