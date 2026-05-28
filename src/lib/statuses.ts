@@ -31,7 +31,7 @@ export const STATUS_NAMES = {
 export const STATUS_NEXT: Record<ApplicationStatus, ApplicationStatus[]> = {
   [STATUS.wishlist]: [STATUS.applied],
   [STATUS.applied]: [STATUS.cancelled, STATUS.rejected, STATUS.interviews, STATUS.ghosted],
-  [STATUS.ghosted]: [],
+  [STATUS.ghosted]: [STATUS.cancelled, STATUS.rejected, STATUS.interviews],
   [STATUS.cancelled]: [],
   [STATUS.withdrew]: [],
   [STATUS.rejected]: [],
