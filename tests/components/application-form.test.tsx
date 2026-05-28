@@ -76,3 +76,30 @@ describe("ApplicationForm — error state", () => {
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 });
+
+describe("ApplicationForm — source suggestions (existingSources prop)", () => {
+  it("does not render a datalist when existingSources is empty", () => {
+    render(<ApplicationForm action={noopAction} />);
+    expect(document.getElementById("source-suggestions")).not.toBeInTheDocument();
+  });
+
+  it("does not attach list attribute to source input when existingSources is empty", () => {
+    render(<ApplicationForm action={noopAction} />);
+    const input = document.getElementById("source") as HTMLInputElement;
+    expect(input.list).toBeNull();
+  });
+
+  it("renders a datalist with provided sources", () => {
+    render(<ApplicationForm action={noopAction} existingSources={["LinkedIn", "Referral"]} />);
+    const datalist = document.getElementById("source-suggestions") as HTMLDataListElement;
+    expect(datalist).toBeInTheDocument();
+    const values = Array.from(datalist.options).map((o) => o.value);
+    expect(values).toEqual(["LinkedIn", "Referral"]);
+  });
+
+  it("attaches datalist to source input via list attribute", () => {
+    render(<ApplicationForm action={noopAction} existingSources={["LinkedIn"]} />);
+    const input = document.getElementById("source") as HTMLInputElement;
+    expect(input.getAttribute("list")).toBe("source-suggestions");
+  });
+});

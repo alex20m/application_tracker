@@ -18,12 +18,24 @@ export default async function ApplicationDetailPage({
   const { id } = await params;
   const { supabase, user } = await requireUser();
 
-  const { data: application } = await supabase
-    .from("applications")
-    .select("*")
-    .eq("id", id)
-    .eq("user_id", user.id)
-    .single();
+  const [{ data: application }, { data: sourcesData }] = await Promise.all([
+    supabase
+      .from("applications")
+      .select("*")
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .single(),
+    supabase
+      .from("applications")
+      .select("source")
+      .eq("user_id", user.id)
+      .not("source", "is", null)
+      .neq("source", ""),
+  ]);
+
+  const existingSources = [...new Set(
+    (sourcesData ?? []).map((r: { source: string | null }) => r.source as string)
+  )].sort();
 
   const returnPath = application && isClosedStatus(application.status as ApplicationStatus)
     ? ROUTES.closedApplications
@@ -64,7 +76,7 @@ export default async function ApplicationDetailPage({
         </div>
 
         <div className={`max-w-2xl ${CARD}`}>
-          <ApplicationForm action={boundAction} application={application} returnPath={returnPath} />
+          <ApplicationForm action={boundAction} application={application} returnPath={returnPath} existingSources={existingSources} />
         </div>
 
         <div className="max-w-2xl rounded-2xl border border-red-100 dark:border-red-500/20 bg-red-50 dark:bg-red-500/10 p-5 mobile:p-4">
