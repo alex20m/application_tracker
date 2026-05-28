@@ -9,7 +9,7 @@ export function revalidateApplicationViews() {
   revalidatePath("/analytics");
 }
 
-const APPLIED_LIKE: readonly ApplicationStatus[] = [STATUS.applied, STATUS.ghosted];
+const NO_RESPONSE_STATUSES: readonly ApplicationStatus[] = [STATUS.applied, STATUS.ghosted];
 
 export function appendStatusEvent(
   currentStatus: ApplicationStatus,
@@ -17,9 +17,9 @@ export function appendStatusEvent(
   events: StatusEvent[]
 ): StatusEvent[] {
   const changed_at = new Date().toISOString();
-  if (APPLIED_LIKE.includes(currentStatus)) {
+  if (NO_RESPONSE_STATUSES.includes(currentStatus)) {
     return [
-      ...events.filter((e) => !(e.from_status === null && APPLIED_LIKE.includes(e.to_status as ApplicationStatus))),
+      ...events.filter((e) => !(e.from_status === null && NO_RESPONSE_STATUSES.includes(e.to_status as ApplicationStatus))),
       { from_status: null, to_status: newStatus, changed_at },
     ];
   }
