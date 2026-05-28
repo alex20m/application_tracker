@@ -28,10 +28,11 @@ export async function updateSession(request: NextRequest, extraHeaders?: Headers
     ROUTES.authCallback,
     ROUTES.forgotPassword,
     ROUTES.resetPasswordCallback,
+    ROUTES.cronAutoGhost,
   ];
-  const isPublicPath =
-    publicPaths.some((path) => request.nextUrl.pathname.startsWith(path)) ||
-    request.nextUrl.pathname.startsWith("/api/cron");
+  const isPublicPath = publicPaths.some((path) =>
+    request.nextUrl.pathname.startsWith(path)
+  );
 
   if (!user && !isPublicPath) {
     const redirectUrl = request.nextUrl.clone();
