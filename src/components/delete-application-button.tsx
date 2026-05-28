@@ -6,9 +6,10 @@ import { ERROR_BANNER } from "@/lib/ui";
 
 type DeleteButtonProps = {
   applicationId: string;
+  returnPath: string;
 };
 
-export function DeleteApplicationButton({ applicationId }: DeleteButtonProps) {
+export function DeleteApplicationButton({ applicationId, returnPath }: DeleteButtonProps) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -16,7 +17,7 @@ export function DeleteApplicationButton({ applicationId }: DeleteButtonProps) {
     if (window.confirm("Delete this application? This cannot be undone.")) {
       setError(null);
       startTransition(async () => {
-        const result = await deleteApplicationAction(applicationId);
+        const result = await deleteApplicationAction(applicationId, returnPath);
         if (!result.success && result.error) setError(result.error);
       });
     }

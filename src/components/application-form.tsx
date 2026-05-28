@@ -15,9 +15,10 @@ type ApplicationFormProps = {
     prevState: unknown,
     formData: FormData
   ) => Promise<{ success: boolean; error?: string }>;
+  returnPath?: string;
 };
 
-export function ApplicationForm({ application, action }: ApplicationFormProps) {
+export function ApplicationForm({ application, action, returnPath = ROUTES.applications }: ApplicationFormProps) {
   const [state, formAction, isPending] = useActionState(action, {
     success: false,
   });
@@ -26,6 +27,7 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
 
   return (
     <form action={formAction} className={FORM_STACK}>
+      <input type="hidden" name="return_path" value={returnPath} />
       {state.error && (
         <div className={ERROR_BANNER}>{state.error}</div>
       )}
@@ -130,7 +132,7 @@ export function ApplicationForm({ application, action }: ApplicationFormProps) {
       </div>
 
       <div className="flex justify-end gap-3 pt-1">
-        <Link href={ROUTES.applications} className={BTN_GHOST}>Cancel</Link>
+        <Link href={returnPath} className={BTN_GHOST}>Cancel</Link>
         <button type="submit" disabled={isPending} className={BTN_PRIMARY}>
           {isPending ? "Saving…" : "Save Application"}
         </button>

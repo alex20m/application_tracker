@@ -4,6 +4,9 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import { STATUS, type ApplicationStatus } from "@/lib/statuses";
+
+const OPEN_PATH = "/applications/open";
+const CLOSED_PATH = "/applications/closed";
 import { appendStatusEvent } from "@/lib/applications";
 import { GENERIC_ACTION_ERROR, sanitizeActionError } from "@/lib/ui";
 import { ApplicationUpdateSchema } from "@/lib/schemas";
@@ -82,11 +85,13 @@ export async function updateApplicationAction(
   }
 
   revalidatePath("/analytics");
-  redirect("/applications/open");
+  const returnPath = formData.get("return_path");
+  redirect(returnPath === CLOSED_PATH ? CLOSED_PATH : OPEN_PATH);
 }
 
 export async function deleteApplicationAction(
-  applicationId: string
+  applicationId: string,
+  returnPath: string = OPEN_PATH
 ): Promise<{
   success: boolean;
   error?: string;
@@ -108,5 +113,6 @@ export async function deleteApplicationAction(
   }
 
   revalidatePath("/analytics");
-  redirect("/applications/open");
+  const safeReturn = returnPath === CLOSED_PATH ? CLOSED_PATH : OPEN_PATH;
+  redirect(safeReturn);
 }
