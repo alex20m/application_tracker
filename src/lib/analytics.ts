@@ -8,8 +8,8 @@ export type StatusCount = {
   color: string;
 };
 
-export type MonthlyEntry = {
-  month: string;
+export type DailyEntry = {
+  date: string;
   label: string;
   applications: number;
   interviews: number;
@@ -76,7 +76,7 @@ export type AnalyticsResult = {
 
   // ── Distribution & trend ─────────────────────────
   statusCounts: StatusCount[];
-  monthlyTrend: MonthlyEntry[];
+  dailyTrend: DailyEntry[];
 
   // ── Source performance ────────────────────────────
   sourceStats: SourceStat[];
@@ -104,10 +104,10 @@ export function daysBetween(startDate: string, endTimestamp: string): number {
   return Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
 }
 
-export function formatMonthLabel(yearMonth: string): string {
-  const [year, month] = yearMonth.split("-");
-  const date = new Date(Number(year), Number(month) - 1, 1);
-  return date.toLocaleString("en", { month: "short", year: "numeric" });
+export function formatDayLabel(date: string): string {
+  const [year, month, day] = date.split("-");
+  const d = new Date(Number(year), Number(month) - 1, Number(day));
+  return d.toLocaleString("en", { month: "short", day: "numeric" });
 }
 
 function mean(values: number[]): number | null {
@@ -273,23 +273,23 @@ export function computeAnalytics(
     }))
     .sort((a, b) => b.count - a.count);
 
-  // ── Monthly trend ─────────────────────────────────────────────────────────
-  const monthlyMap = new Map<
+  // ── Daily trend ───────────────────────────────────────────────────────────
+  const dailyMap = new Map<
     string,
     { applications: number; interviews: number; offers: number }
   >();
   for (const app of apps) {
     if (!app.applied_on) continue;
-    const month = app.applied_on.slice(0, 7);
-    const entry = monthlyMap.get(month) ?? { applications: 0, interviews: 0, offers: 0 };
+    const date = app.applied_on.slice(0, 10);
+    const entry = dailyMap.get(date) ?? { applications: 0, interviews: 0, offers: 0 };
     entry.applications++;
     if (INTERVIEWED_STATUSES.includes(app.status)) entry.interviews++;
     if (OFFERED_STATUSES.includes(app.status)) entry.offers++;
-    monthlyMap.set(month, entry);
+    dailyMap.set(date, entry);
   }
-  const monthlyTrend: MonthlyEntry[] = [...monthlyMap.entries()]
+  const dailyTrend: DailyEntry[] = [...dailyMap.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([month, data]) => ({ month, label: formatMonthLabel(month), ...data }));
+    .map(([date, data]) => ({ date, label: formatDayLabel(date), ...data }));
 
   // ── Source performance ────────────────────────────────────────────────────
   const sourceMap = new Map<
@@ -339,7 +339,7 @@ export function computeAnalytics(
     avgDaysInterviewToOffer: mean(daysInterviewToOffer),
     conversionRows,
     statusCounts,
-    monthlyTrend,
+    dailyTrend,
     sourceStats,
   };
 }

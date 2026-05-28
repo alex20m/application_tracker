@@ -213,7 +213,7 @@ export function AnalyticsView({ applications }: Props) {
       <section>
         <AnalyticsCharts
           statusCounts={a.statusCounts}
-          monthlyTrend={a.monthlyTrend}
+          dailyTrend={a.dailyTrend}
           sourceStats={a.sourceStats}
         />
       </section>
