@@ -56,6 +56,13 @@ body {
   border-radius: 4px;
 }
 
+/* Recharts renders SVG elements and Brush handles with tabIndex; suppress the
+   focus ring on all chart interactions since charts aren't keyboard-navigated. */
+.recharts-wrapper *:focus,
+.recharts-wrapper *:focus-visible {
+  outline: none;
+}
+
 /* react-day-picker: indigo palette + compact cells + dark mode */
 .rdp-root {
   --rdp-accent-color: #6366f1;
