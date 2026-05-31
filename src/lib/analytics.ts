@@ -11,9 +11,12 @@ export type StatusCount = {
 export type DailyEntry = {
   date: string;
   label: string;
-  applications: number;
+  applied: number;
   interviews: number;
   offers: number;
+  ghosted: number;
+  rejectedByCompany: number;
+  rejectedByMe: number;
 };
 
 export type ConversionRow = {
@@ -273,23 +276,74 @@ export function computeAnalytics(
     }))
     .sort((a, b) => b.count - a.count);
 
-  // ── Daily trend ───────────────────────────────────────────────────────────
-  const dailyMap = new Map<
-    string,
-    { applications: number; interviews: number; offers: number }
-  >();
+  // ── Cumulative milestone trend ────────────────────────────────────────────
+  const milestoneAdds = {
+    applied:           new Map<string, number>(),
+    interviews:        new Map<string, number>(),
+    offers:            new Map<string, number>(),
+    ghosted:           new Map<string, number>(),
+    rejectedByCompany: new Map<string, number>(),
+    rejectedByMe:      new Map<string, number>(),
+  };
+  let trendMinDate = "";
+  let trendMaxDate = "";
+
+  function trackMilestone(map: Map<string, number>, date: string) {
+    map.set(date, (map.get(date) ?? 0) + 1);
+    if (!trendMinDate || date < trendMinDate) trendMinDate = date;
+    if (date > trendMaxDate) trendMaxDate = date;
+  }
+
   for (const app of apps) {
     if (!app.applied_on) continue;
-    const date = app.applied_on.slice(0, 10);
-    const entry = dailyMap.get(date) ?? { applications: 0, interviews: 0, offers: 0 };
-    entry.applications++;
-    if (INTERVIEWED_STATUSES.includes(app.status)) entry.interviews++;
-    if (OFFERED_STATUSES.includes(app.status)) entry.offers++;
-    dailyMap.set(date, entry);
+    trackMilestone(milestoneAdds.applied, app.applied_on.slice(0, 10));
+    for (const ev of app.events) {
+      const d = ev.changed_at.slice(0, 10);
+      if (ev.to_status === STATUS.interviews) {
+        trackMilestone(milestoneAdds.interviews, d);
+      } else if (ev.to_status === STATUS.offer) {
+        trackMilestone(milestoneAdds.offers, d);
+      } else if (ev.to_status === STATUS.ghosted) {
+        trackMilestone(milestoneAdds.ghosted, d);
+      } else if (ev.to_status === STATUS.rejected || ev.to_status === STATUS.no_offer) {
+        trackMilestone(milestoneAdds.rejectedByCompany, d);
+      } else if (
+        ev.to_status === STATUS.cancelled ||
+        ev.to_status === STATUS.withdrew ||
+        ev.to_status === STATUS.declined
+      ) {
+        trackMilestone(milestoneAdds.rejectedByMe, d);
+      }
+    }
   }
-  const dailyTrend: DailyEntry[] = [...dailyMap.entries()]
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, data]) => ({ date, label: formatDayLabel(date), ...data }));
+
+  const dailyTrend: DailyEntry[] = [];
+  if (trendMinDate) {
+    let cumApplied = 0, cumInterviews = 0, cumOffers = 0;
+    let cumGhosted = 0, cumRejectedByCompany = 0, cumRejectedByMe = 0;
+    let cursor = new Date(trendMinDate + "T00:00:00.000Z");
+    const last = new Date(trendMaxDate + "T00:00:00.000Z");
+    while (cursor <= last) {
+      const d = cursor.toISOString().slice(0, 10);
+      cumApplied           += milestoneAdds.applied.get(d)           ?? 0;
+      cumInterviews        += milestoneAdds.interviews.get(d)        ?? 0;
+      cumOffers            += milestoneAdds.offers.get(d)            ?? 0;
+      cumGhosted           += milestoneAdds.ghosted.get(d)           ?? 0;
+      cumRejectedByCompany += milestoneAdds.rejectedByCompany.get(d) ?? 0;
+      cumRejectedByMe      += milestoneAdds.rejectedByMe.get(d)      ?? 0;
+      dailyTrend.push({
+        date: d,
+        label: formatDayLabel(d),
+        applied:           cumApplied,
+        interviews:        cumInterviews,
+        offers:            cumOffers,
+        ghosted:           cumGhosted,
+        rejectedByCompany: cumRejectedByCompany,
+        rejectedByMe:      cumRejectedByMe,
+      });
+      cursor = new Date(cursor.getTime() + 86_400_000);
+    }
+  }
 
   // ── Source performance ────────────────────────────────────────────────────
   const sourceMap = new Map<
