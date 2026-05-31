@@ -221,6 +221,7 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
                   fill={`url(#grad-${s.key})`}
                   strokeWidth={2}
                   dot={false}
+                  activeDot={false}
                   connectNulls={false}
                 />
               ))}
