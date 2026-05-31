@@ -9,15 +9,27 @@ import { createApplicationAction } from "@/app/applications/actions";
 export default async function NewApplicationPage() {
   const { supabase, user } = await requireUser();
 
-  const { data: sourcesData } = await supabase
-    .from("applications")
-    .select("source")
-    .eq("user_id", user.id)
-    .not("source", "is", null)
-    .neq("source", "");
+  const [{ data: sourcesData }, { data: locationsData }] = await Promise.all([
+    supabase
+      .from("applications")
+      .select("source")
+      .eq("user_id", user.id)
+      .not("source", "is", null)
+      .neq("source", ""),
+    supabase
+      .from("applications")
+      .select("location")
+      .eq("user_id", user.id)
+      .not("location", "is", null)
+      .neq("location", ""),
+  ]);
 
   const existingSources = [...new Set(
     (sourcesData ?? []).map((r: { source: string | null }) => r.source as string)
+  )].sort();
+
+  const existingLocations = [...new Set(
+    (locationsData ?? []).map((r: { location: string | null }) => r.location as string)
   )].sort();
 
   return (
@@ -39,7 +51,7 @@ export default async function NewApplicationPage() {
         </div>
 
         <div className={`max-w-2xl ${CARD}`}>
-          <ApplicationForm action={createApplicationAction} existingSources={existingSources} />
+          <ApplicationForm action={createApplicationAction} existingSources={existingSources} existingLocations={existingLocations} />
         </div>
       </div>
     </AppShell>

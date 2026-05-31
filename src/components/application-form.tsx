@@ -17,9 +17,10 @@ type ApplicationFormProps = {
   ) => Promise<{ success: boolean; error?: string }>;
   returnPath?: string;
   existingSources?: string[];
+  existingLocations?: string[];
 };
 
-export function ApplicationForm({ application, action, returnPath = ROUTES.applications, existingSources = [] }: ApplicationFormProps) {
+export function ApplicationForm({ application, action, returnPath = ROUTES.applications, existingSources = [], existingLocations = [] }: ApplicationFormProps) {
   const [state, formAction, isPending] = useActionState(action, {
     success: false,
   });
@@ -70,7 +71,16 @@ export function ApplicationForm({ application, action, returnPath = ROUTES.appli
             defaultValue={application?.location || ""}
             className={INPUT}
             placeholder="Stockholm / Remote"
+            list={existingLocations.length > 0 ? "location-suggestions" : undefined}
+            autoComplete="off"
           />
+          {existingLocations.length > 0 && (
+            <datalist id="location-suggestions">
+              {existingLocations.map((l) => (
+                <option key={l} value={l} />
+              ))}
+            </datalist>
+          )}
         </div>
 
         <div className="flex flex-col gap-1.5">

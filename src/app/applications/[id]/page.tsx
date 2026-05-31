@@ -18,7 +18,7 @@ export default async function ApplicationDetailPage({
   const { id } = await params;
   const { supabase, user } = await requireUser();
 
-  const [{ data: application }, { data: sourcesData }] = await Promise.all([
+  const [{ data: application }, { data: sourcesData }, { data: locationsData }] = await Promise.all([
     supabase
       .from("applications")
       .select("*")
@@ -31,10 +31,20 @@ export default async function ApplicationDetailPage({
       .eq("user_id", user.id)
       .not("source", "is", null)
       .neq("source", ""),
+    supabase
+      .from("applications")
+      .select("location")
+      .eq("user_id", user.id)
+      .not("location", "is", null)
+      .neq("location", ""),
   ]);
 
   const existingSources = [...new Set(
     (sourcesData ?? []).map((r: { source: string | null }) => r.source as string)
+  )].sort();
+
+  const existingLocations = [...new Set(
+    (locationsData ?? []).map((r: { location: string | null }) => r.location as string)
   )].sort();
 
   const returnPath = application && isClosedStatus(application.status as ApplicationStatus)
@@ -76,7 +86,7 @@ export default async function ApplicationDetailPage({
         </div>
 
         <div className={`max-w-2xl ${CARD}`}>
-          <ApplicationForm action={boundAction} application={application} returnPath={returnPath} existingSources={existingSources} />
+          <ApplicationForm action={boundAction} application={application} returnPath={returnPath} existingSources={existingSources} existingLocations={existingLocations} />
         </div>
 
         <div className="max-w-2xl rounded-2xl border border-red-100 dark:border-red-500/20 bg-red-50 dark:bg-red-500/10 p-5 mobile:p-4">
