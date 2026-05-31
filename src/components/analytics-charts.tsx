@@ -118,7 +118,13 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
     const yMax = Math.max(1, ...dailyTrend.flatMap((e) => visibleSeries.map((s) => e[s.key])));
     // Chosen so the offset is ~2px at the chart's ~240px plot height across typical data ranges.
     const offset = Math.max(0.05, yMax * 0.008);
-    return dailyTrend.map((entry) => {
+    // For each series, find the index of the first non-zero day. The day before
+    // it (index firstNonZero - 1) is kept as 0 so Recharts draws a line rising
+    // from zero; all earlier days are nulled out (no line drawn yet).
+    const firstNonZeroIdx = new Map(
+      visibleSeries.map((s) => [s.key, dailyTrend.findIndex((e) => e[s.key] > 0)]),
+    );
+    return dailyTrend.map((entry, i) => {
       const groups = new Map<number, (typeof visibleSeries)[number][]>();
       for (const s of visibleSeries) {
         const v = entry[s.key];
@@ -136,10 +142,13 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
           display[s.key] = v + idx * offset;
         });
       }
-      // Suppress zero-value series so no line is drawn on days where a status
-      // hasn't started yet. Recharts treats null as a gap in the series.
+      // Suppress zero-value days, but keep the day immediately before the first
+      // non-zero value as exactly 0 so the rising line segment is visible.
       for (const s of visibleSeries) {
-        if (entry[s.key] === 0) display[s.key] = null;
+        if (entry[s.key] === 0) {
+          const fni = firstNonZeroIdx.get(s.key) ?? 0;
+          display[s.key] = fni > 0 && i === fni - 1 ? 0 : null;
+        }
       }
       return display;
     });
