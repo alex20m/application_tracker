@@ -244,8 +244,9 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
             </div>
           )}
 
+          <div className="overflow-hidden">
           <ResponsiveContainer width="100%" height={isMobile ? 240 : 270}>
-            <AreaChart data={jitterData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+            <AreaChart data={jitterData} margin={{ top: 4, right: 20, left: -20, bottom: 0 }}>
               <defs>
                 {visibleSeries.map((s) => (
                   <linearGradient key={s.key} id={`grad-${s.key}`} x1="0" y1="0" x2="0" y2="1">
@@ -290,6 +291,7 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
               />
             </AreaChart>
           </ResponsiveContainer>
+          </div>
         </div>
       )}
 
