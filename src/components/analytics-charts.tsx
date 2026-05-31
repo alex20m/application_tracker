@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import {
   AreaChart,
   Area,
@@ -32,6 +32,37 @@ const TREND_SERIES: Array<{ key: TrendKey; name: string; color: string }> = [
   { key: "rejectedByMe",      name: "Rejected by me",      color: STATUS_THEME[STATUS.withdrew].sankey },
 ];
 
+type TrendSeries = typeof TREND_SERIES[number];
+
+// For each entry, spread coincident non-zero lines symmetrically around their true value
+// so overlapping lines remain visually distinct. The jitter key is `${key}_jitter`.
+function applyJitter(
+  data: DailyEntry[],
+  series: TrendSeries[],
+  step: number,
+): Array<Record<string, number | string | null>> {
+  return data.map(entry => {
+    const out: Record<string, number | string | null> = { ...entry };
+    const byValue = new Map<number, TrendSeries[]>();
+    for (const s of series) {
+      const raw = entry[s.key];
+      if (raw === null) { out[`${s.key}_jitter`] = null; continue; }
+      const bucket = byValue.get(raw) ?? [];
+      bucket.push(s);
+      byValue.set(raw, bucket);
+    }
+    for (const [val, group] of byValue) {
+      if (group.length <= 1 || val === 0) {
+        for (const s of group) out[`${s.key}_jitter`] = val;
+      } else {
+        const start = val - step * (group.length - 1) / 2;
+        group.forEach((s, i) => { out[`${s.key}_jitter`] = start + i * step; });
+      }
+    }
+    return out;
+  });
+}
+
 // Custom Brush traveller with a wide invisible hit target for touch friendliness
 function BrushTraveller({
   x, y, width, height,
@@ -58,14 +89,16 @@ function BrushTraveller({
   );
 }
 
-// Custom tooltip avoids recharts default inline styles that ignore dark mode
+// Custom tooltip avoids recharts default inline styles that ignore dark mode.
+// `dataKey` ends with `_jitter` for the trend chart, so we look up the real value
+// from the original entry (p.payload) instead of showing the offset value.
 function ChartTooltip({
   active,
   payload,
   label,
 }: {
   active?: boolean;
-  payload?: Array<{ name: string; value: number; color: string }>;
+  payload?: Array<{ name: string; value: number; color: string; dataKey?: string; payload?: Record<string, number> }>;
   label?: string;
 }) {
   if (!active || !payload?.length) return null;
@@ -76,12 +109,16 @@ function ChartTooltip({
       {label && (
         <p className="font-semibold text-gray-800 dark:text-gray-200 mb-1">{label}</p>
       )}
-      {visible.map((p) => (
-        <p key={p.name} className="text-gray-700 dark:text-gray-300">
-          <span className="inline-block w-2 h-2 rounded-full mr-1.5" style={{ background: p.color }} />
-          {p.name}: <span className="font-medium">{p.value}</span>
-        </p>
-      ))}
+      {visible.map((p) => {
+        const realKey = p.dataKey?.endsWith("_jitter") ? p.dataKey.slice(0, -7) : undefined;
+        const value = realKey && p.payload ? (p.payload[realKey] ?? p.value) : p.value;
+        return (
+          <p key={p.name} className="text-gray-700 dark:text-gray-300">
+            <span className="inline-block w-2 h-2 rounded-full mr-1.5" style={{ background: p.color }} />
+            {p.name}: <span className="font-medium">{value}</span>
+          </p>
+        );
+      })}
     </div>
   );
 }
@@ -97,8 +134,18 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
   const pieTotal = statusCounts.reduce((sum, s) => sum + s.count, 0);
   const isMobile = useIsMobile();
 
-  const lastEntry = dailyTrend.at(-1);
-  const visibleSeries = TREND_SERIES.filter(s => (lastEntry?.[s.key] ?? 0) > 0);
+  // Memoized so jitterData has a stable reference during brush drags;
+  // without this the Brush resets its internal state on every onChange render.
+  const { visibleSeries, jitterData } = useMemo(() => {
+    const lastEntry = dailyTrend.at(-1);
+    const visible = TREND_SERIES.filter(s => (lastEntry?.[s.key] ?? 0) > 0);
+    const maxValue = dailyTrend.reduce((m, e) => {
+      for (const s of visible) m = Math.max(m, e[s.key] ?? 0);
+      return m;
+    }, 1);
+    const jitterStep = Math.max(0.3, maxValue * 0.015);
+    return { visibleSeries: visible, jitterData: applyJitter(dailyTrend, visible, jitterStep) };
+  }, [dailyTrend]);
 
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [isLocked, setIsLocked] = useState(false);
@@ -198,7 +245,7 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
           )}
 
           <ResponsiveContainer width="100%" height={isMobile ? 240 : 270}>
-            <AreaChart data={dailyTrend} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+            <AreaChart data={jitterData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
               <defs>
                 {visibleSeries.map((s) => (
                   <linearGradient key={s.key} id={`grad-${s.key}`} x1="0" y1="0" x2="0" y2="1">
@@ -215,7 +262,7 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
                 <Area
                   key={s.key}
                   type="linear"
-                  dataKey={s.key}
+                  dataKey={`${s.key}_jitter`}
                   name={s.name}
                   stroke={s.color}
                   fill={`url(#grad-${s.key})`}
