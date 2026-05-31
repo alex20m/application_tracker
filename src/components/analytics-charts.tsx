@@ -136,6 +136,11 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
           display[s.key] = v + idx * offset;
         });
       }
+      // Suppress zero-value series so no line is drawn on days where a status
+      // hasn't started yet. Recharts treats null as a gap in the series.
+      for (const s of visibleSeries) {
+        if (entry[s.key] === 0) display[s.key] = null;
+      }
       return display;
     });
   }, [dailyTrend, visibleSeries]);
