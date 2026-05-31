@@ -407,43 +407,57 @@ describe("computeAnalytics", () => {
 
   // ── Daily trend ────────────────────────────────────────────────────────────
 
-  it("groups applications by applied_on day", () => {
+  it("accumulates applied milestones cumulatively by day", () => {
     const r = computeAnalytics([
-      makeApplication({ status: STATUS.applied, applied_on: "2026-01-10" }),
-      makeApplication({ status: STATUS.applied, applied_on: "2026-01-10" }),
-      makeApplication({ status: STATUS.applied, applied_on: "2026-02-05" }),
+      makeApplication({ applied_on: "2026-01-10" }),
+      makeApplication({ applied_on: "2026-01-10" }),
+      makeApplication({ applied_on: "2026-02-05" }),
     ]);
-    expect(r.dailyTrend).toHaveLength(2);
-    expect(r.dailyTrend[0].applied).toBe(2);
-    expect(r.dailyTrend[1].applied).toBe(1);
+    const jan10 = r.dailyTrend.find(d => d.date === "2026-01-10")!;
+    const feb05 = r.dailyTrend.find(d => d.date === "2026-02-05")!;
+    expect(jan10.applied).toBe(2);
+    expect(feb05.applied).toBe(3); // cumulative: 2 + 1
   });
 
-  it("sorts daily trend chronologically", () => {
+  it("sorts daily trend chronologically and covers the full date range", () => {
     const r = computeAnalytics([
-      makeApplication({ status: STATUS.applied, applied_on: "2026-03-01" }),
-      makeApplication({ status: STATUS.applied, applied_on: "2026-01-01" }),
-      makeApplication({ status: STATUS.applied, applied_on: "2026-02-01" }),
+      makeApplication({ applied_on: "2026-03-01" }),
+      makeApplication({ applied_on: "2026-01-01" }),
+      makeApplication({ applied_on: "2026-02-01" }),
     ]);
     expect(r.dailyTrend[0].date).toBe("2026-01-01");
-    expect(r.dailyTrend[2].date).toBe("2026-03-01");
+    expect(r.dailyTrend.at(-1)!.date).toBe("2026-03-01");
+    expect(r.dailyTrend.length).toBeGreaterThan(3); // continuous daily range
   });
 
-  it("counts each status separately in daily trend", () => {
+  it("tracks interview and rejection milestones from event dates", () => {
     const r = computeAnalytics([
-      makeApplication({ status: STATUS.interviews, applied_on: "2026-01-01" }),
-      makeApplication({ status: STATUS.offer, applied_on: "2026-01-01" }),
-      makeApplication({ status: STATUS.applied, applied_on: "2026-01-20" }),
+      makeApplication({
+        applied_on: "2026-01-01",
+        events: [
+          makeStatusEvent({ from_status: null, to_status: STATUS.interviews, changed_at: "2026-01-15T12:00:00.000Z" }),
+        ],
+      }),
+      makeApplication({
+        applied_on: "2026-01-01",
+        events: [
+          makeStatusEvent({ from_status: null, to_status: STATUS.rejected, changed_at: "2026-01-20T12:00:00.000Z" }),
+        ],
+      }),
     ]);
-    const day = r.dailyTrend.find((d) => d.date === "2026-01-01")!;
-    expect(day.interviews).toBe(1);
-    expect(day.offer).toBe(1);
-    expect(day.applied).toBe(0);
+    const jan01 = r.dailyTrend.find(d => d.date === "2026-01-01")!;
+    expect(jan01.applied).toBe(2);
+    expect(jan01.interviews).toBe(0); // interview hasn't happened yet
+    const jan15 = r.dailyTrend.find(d => d.date === "2026-01-15")!;
+    expect(jan15.interviews).toBe(1);
+    const jan20 = r.dailyTrend.find(d => d.date === "2026-01-20")!;
+    expect(jan20.rejectedByCompany).toBe(1);
   });
 
   it("skips apps without applied_on in daily trend", () => {
     const r = computeAnalytics([
-      makeApplication({ status: STATUS.applied, applied_on: null }),
-      makeApplication({ status: STATUS.applied, applied_on: "2026-01-01" }),
+      makeApplication({ applied_on: null }),
+      makeApplication({ applied_on: "2026-01-01" }),
     ]);
     expect(r.dailyTrend).toHaveLength(1);
   });

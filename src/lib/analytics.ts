@@ -11,7 +11,13 @@ export type StatusCount = {
 export type DailyEntry = {
   date: string;
   label: string;
-} & Record<Exclude<ApplicationStatus, "wishlist">, number>;
+  applied: number;
+  interviews: number;
+  offers: number;
+  ghosted: number;
+  rejectedByCompany: number;
+  rejectedByMe: number;
+};
 
 export type ConversionRow = {
   key: string;
@@ -270,28 +276,74 @@ export function computeAnalytics(
     }))
     .sort((a, b) => b.count - a.count);
 
-  // ── Daily trend (one count per status per day, wishlist excluded) ────────
-  const TREND_STATUSES = (Object.values(STATUS) as ApplicationStatus[]).filter(
-    (s) => s !== STATUS.wishlist
-  ) as Exclude<ApplicationStatus, "wishlist">[];
-  const zeroEntry = () =>
-    Object.fromEntries(TREND_STATUSES.map((s) => [s, 0])) as Record<
-      Exclude<ApplicationStatus, "wishlist">,
-      number
-    >;
-  const dailyMap = new Map<string, DailyEntry>();
+  // ── Cumulative milestone trend ────────────────────────────────────────────
+  const milestoneAdds = {
+    applied:           new Map<string, number>(),
+    interviews:        new Map<string, number>(),
+    offers:            new Map<string, number>(),
+    ghosted:           new Map<string, number>(),
+    rejectedByCompany: new Map<string, number>(),
+    rejectedByMe:      new Map<string, number>(),
+  };
+  let trendMinDate = "";
+  let trendMaxDate = "";
+
+  function trackMilestone(map: Map<string, number>, date: string) {
+    map.set(date, (map.get(date) ?? 0) + 1);
+    if (!trendMinDate || date < trendMinDate) trendMinDate = date;
+    if (date > trendMaxDate) trendMaxDate = date;
+  }
+
   for (const app of apps) {
     if (!app.applied_on) continue;
-    const date = app.applied_on.slice(0, 10);
-    if (!dailyMap.has(date)) {
-      dailyMap.set(date, { date, label: formatDayLabel(date), ...zeroEntry() });
+    trackMilestone(milestoneAdds.applied, app.applied_on.slice(0, 10));
+    for (const ev of app.events) {
+      const d = ev.changed_at.slice(0, 10);
+      if (ev.to_status === STATUS.interviews) {
+        trackMilestone(milestoneAdds.interviews, d);
+      } else if (ev.to_status === STATUS.offer) {
+        trackMilestone(milestoneAdds.offers, d);
+      } else if (ev.to_status === STATUS.ghosted) {
+        trackMilestone(milestoneAdds.ghosted, d);
+      } else if (ev.to_status === STATUS.rejected || ev.to_status === STATUS.no_offer) {
+        trackMilestone(milestoneAdds.rejectedByCompany, d);
+      } else if (
+        ev.to_status === STATUS.cancelled ||
+        ev.to_status === STATUS.withdrew ||
+        ev.to_status === STATUS.declined
+      ) {
+        trackMilestone(milestoneAdds.rejectedByMe, d);
+      }
     }
-    const entry = dailyMap.get(date)!;
-    (entry as Record<string, number>)[app.status]++;
   }
-  const dailyTrend: DailyEntry[] = [...dailyMap.entries()]
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([, data]) => data);
+
+  const dailyTrend: DailyEntry[] = [];
+  if (trendMinDate) {
+    let cumApplied = 0, cumInterviews = 0, cumOffers = 0;
+    let cumGhosted = 0, cumRejectedByCompany = 0, cumRejectedByMe = 0;
+    let cursor = new Date(trendMinDate + "T00:00:00.000Z");
+    const last = new Date(trendMaxDate + "T00:00:00.000Z");
+    while (cursor <= last) {
+      const d = cursor.toISOString().slice(0, 10);
+      cumApplied           += milestoneAdds.applied.get(d)           ?? 0;
+      cumInterviews        += milestoneAdds.interviews.get(d)        ?? 0;
+      cumOffers            += milestoneAdds.offers.get(d)            ?? 0;
+      cumGhosted           += milestoneAdds.ghosted.get(d)           ?? 0;
+      cumRejectedByCompany += milestoneAdds.rejectedByCompany.get(d) ?? 0;
+      cumRejectedByMe      += milestoneAdds.rejectedByMe.get(d)      ?? 0;
+      dailyTrend.push({
+        date: d,
+        label: formatDayLabel(d),
+        applied:           cumApplied,
+        interviews:        cumInterviews,
+        offers:            cumOffers,
+        ghosted:           cumGhosted,
+        rejectedByCompany: cumRejectedByCompany,
+        rejectedByMe:      cumRejectedByMe,
+      });
+      cursor = new Date(cursor.getTime() + 86_400_000);
+    }
+  }
 
   // ── Source performance ────────────────────────────────────────────────────
   const sourceMap = new Map<

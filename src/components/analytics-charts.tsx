@@ -19,21 +19,18 @@ import {
 import type { PieSectorDataItem, PieSectorShapeProps } from "recharts";
 import { CARD, TEXT_H2, TEXT_BODY, TEXT_META } from "@/lib/ui";
 import type { StatusCount, DailyEntry, SourceStat } from "@/lib/analytics";
-import { STATUS, STATUS_NAMES, STATUS_THEME } from "@/lib/statuses";
+import { STATUS, STATUS_THEME } from "@/lib/statuses";
 
-// All non-wishlist statuses in display order for the trend chart
-const CHART_STATUSES = [
-  STATUS.applied,
-  STATUS.interviews,
-  STATUS.offer,
-  STATUS.accepted,
-  STATUS.rejected,
-  STATUS.ghosted,
-  STATUS.cancelled,
-  STATUS.withdrew,
-  STATUS.no_offer,
-  STATUS.declined,
-] as const;
+type TrendKey = Exclude<keyof DailyEntry, "date" | "label">;
+
+const TREND_SERIES: Array<{ key: TrendKey; name: string; color: string }> = [
+  { key: "applied",           name: "Applied",             color: STATUS_THEME[STATUS.applied].sankey },
+  { key: "interviews",        name: "Interviews",          color: STATUS_THEME[STATUS.interviews].sankey },
+  { key: "offers",            name: "Offers",              color: STATUS_THEME[STATUS.offer].sankey },
+  { key: "ghosted",           name: "Ghosted",             color: STATUS_THEME[STATUS.ghosted].sankey },
+  { key: "rejectedByCompany", name: "Rejected by company", color: STATUS_THEME[STATUS.rejected].sankey },
+  { key: "rejectedByMe",      name: "Rejected by me",      color: STATUS_THEME[STATUS.withdrew].sankey },
+];
 
 // Custom tooltip avoids recharts default inline styles that ignore dark mode
 function ChartTooltip({
@@ -70,6 +67,9 @@ type Props = {
 export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props) {
   const TICK = { fontSize: 11, fill: "currentColor", opacity: 0.5 };
   const pieTotal = statusCounts.reduce((sum, s) => sum + s.count, 0);
+
+  const lastEntry = dailyTrend.at(-1);
+  const visibleSeries = TREND_SERIES.filter(s => (lastEntry?.[s.key] ?? 0) > 0);
 
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [isLocked, setIsLocked] = useState(false);
@@ -150,17 +150,17 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
 
   return (
     <div className="space-y-4">
-      {/* Daily trend – one line per status */}
+      {/* Cumulative milestone trend */}
       {dailyTrend.length > 1 && (
         <div className={CARD}>
           <h2 className={`${TEXT_H2} mb-4`}>Applications Over Time</h2>
           <ResponsiveContainer width="100%" height={270}>
             <AreaChart data={dailyTrend} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
               <defs>
-                {CHART_STATUSES.map((s) => (
-                  <linearGradient key={s} id={`grad-${s}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={STATUS_THEME[s].sankey} stopOpacity={0.25} />
-                    <stop offset="95%" stopColor={STATUS_THEME[s].sankey} stopOpacity={0} />
+                {visibleSeries.map((s) => (
+                  <linearGradient key={s.key} id={`grad-${s.key}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={s.color} stopOpacity={0.25} />
+                    <stop offset="95%" stopColor={s.color} stopOpacity={0} />
                   </linearGradient>
                 ))}
               </defs>
@@ -169,14 +169,14 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
               <YAxis allowDecimals={false} tick={TICK} axisLine={false} tickLine={false} />
               <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'rgba(128,128,128,0.2)', strokeWidth: 1, strokeDasharray: '3 3' }} />
               <Legend wrapperStyle={{ fontSize: 12 }} />
-              {CHART_STATUSES.map((s) => (
+              {visibleSeries.map((s) => (
                 <Area
-                  key={s}
+                  key={s.key}
                   type="linear"
-                  dataKey={s}
-                  name={STATUS_NAMES[s]}
-                  stroke={STATUS_THEME[s].sankey}
-                  fill={`url(#grad-${s})`}
+                  dataKey={s.key}
+                  name={s.name}
+                  stroke={s.color}
+                  fill={`url(#grad-${s.key})`}
                   strokeWidth={2}
                   dot={false}
                 />
