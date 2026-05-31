@@ -32,6 +32,32 @@ const TREND_SERIES: Array<{ key: TrendKey; name: string; color: string }> = [
   { key: "rejectedByMe",      name: "Rejected by me",      color: STATUS_THEME[STATUS.withdrew].sankey },
 ];
 
+// Custom Brush traveller with a wide invisible hit target for touch friendliness
+function BrushTraveller({
+  x, y, width, height,
+}: {
+  x: number; y: number; width: number; height: number;
+}) {
+  const cx = x + width / 2;
+  const pillH = 16;
+  const pillW = 4;
+  return (
+    <g>
+      {/* Transparent wide hit area */}
+      <rect x={x} y={y} width={width} height={height} fill="transparent" />
+      {/* Visible pill handle */}
+      <rect
+        x={cx - pillW / 2}
+        y={y + (height - pillH) / 2}
+        width={pillW}
+        height={pillH}
+        rx={2}
+        fill="#9ca3af"
+      />
+    </g>
+  );
+}
+
 // Custom tooltip avoids recharts default inline styles that ignore dark mode
 function ChartTooltip({
   active,
@@ -168,7 +194,7 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
             </div>
           )}
 
-          <ResponsiveContainer width="100%" height={isMobile ? 200 : 270}>
+          <ResponsiveContainer width="100%" height={isMobile ? 240 : 270}>
             <AreaChart data={dailyTrend} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
               <defs>
                 {visibleSeries.map((s) => (
@@ -194,23 +220,22 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
                   dot={false}
                 />
               ))}
-              {!isMobile && (
-                <Brush
-                  dataKey="label"
-                  startIndex={safeStart}
-                  endIndex={safeEnd}
-                  height={24}
-                  travellerWidth={6}
-                  stroke="#9ca3af"
-                  fill="rgba(156,163,175,0.08)"
-                  onChange={({ startIndex, endIndex }) => {
-                    if (startIndex !== undefined && endIndex !== undefined) {
-                      setBrushStart(startIndex);
-                      setBrushEnd(endIndex);
-                    }
-                  }}
-                />
-              )}
+              <Brush
+                dataKey="label"
+                startIndex={safeStart}
+                endIndex={safeEnd}
+                height={24}
+                travellerWidth={isMobile ? 20 : 6}
+                traveller={<BrushTraveller x={0} y={0} width={0} height={0} />}
+                stroke="#9ca3af"
+                fill="rgba(156,163,175,0.08)"
+                onChange={({ startIndex, endIndex }) => {
+                  if (startIndex !== undefined && endIndex !== undefined) {
+                    setBrushStart(startIndex);
+                    setBrushEnd(endIndex);
+                  }
+                }}
+              />
             </AreaChart>
           </ResponsiveContainer>
         </div>
