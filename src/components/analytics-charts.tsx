@@ -70,6 +70,29 @@ function ChartTooltip({
   );
 }
 
+function BrushHandle({ x, y, width, height }: { x: number; y: number; width: number; height: number }) {
+  const cx = x + width / 2;
+  const midY = y + height / 2;
+  return (
+    <g>
+      <rect x={x} y={y + 3} width={width} height={height - 6} rx={4} fill="var(--accent)" />
+      {([-4, 0, 4] as const).map((offset) => (
+        <line
+          key={offset}
+          x1={cx - 2.5}
+          y1={midY + offset}
+          x2={cx + 2.5}
+          y2={midY + offset}
+          stroke="white"
+          strokeWidth={1.5}
+          strokeLinecap="round"
+          opacity={0.8}
+        />
+      ))}
+    </g>
+  );
+}
+
 type Props = {
   statusCounts: StatusCount[];
   dailyTrend: DailyEntry[];
@@ -259,10 +282,12 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
                 dataKey="label"
                 startIndex={safeStart}
                 endIndex={safeEnd}
-                height={24}
-                travellerWidth={6}
-                stroke="#9ca3af"
-                fill="rgba(156,163,175,0.08)"
+                height={28}
+                travellerWidth={12}
+                stroke="var(--border)"
+                fill="var(--accent)"
+                fillOpacity={0.08}
+                traveller={BrushHandle}
                 onChange={({ startIndex, endIndex }) => {
                   if (startIndex !== undefined && endIndex !== undefined) {
                     setBrushStart(startIndex);
