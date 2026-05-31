@@ -447,9 +447,15 @@ describe("computeAnalytics", () => {
     ]);
     const jan01 = r.dailyTrend.find(d => d.date === "2026-01-01")!;
     expect(jan01.applied).toBe(2);
-    expect(jan01.interviews).toBe(0); // interview hasn't happened yet
+    // Leading-zero days are nulled out — only the day before the first event stays at 0
+    expect(jan01.interviews).toBeNull();
+    const jan14 = r.dailyTrend.find(d => d.date === "2026-01-14")!;
+    expect(jan14.interviews).toBe(0); // anchor: visible at 0 the day before first interview
     const jan15 = r.dailyTrend.find(d => d.date === "2026-01-15")!;
     expect(jan15.interviews).toBe(1);
+    // rejectedByCompany: Jan 19 is the anchor (0), Jan 20 is the first non-zero
+    const jan19 = r.dailyTrend.find(d => d.date === "2026-01-19")!;
+    expect(jan19.rejectedByCompany).toBe(0);
     const jan20 = r.dailyTrend.find(d => d.date === "2026-01-20")!;
     expect(jan20.rejectedByCompany).toBe(1);
   });
