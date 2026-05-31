@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import {
   AreaChart,
   Area,
@@ -65,21 +65,33 @@ function ChartTooltip({
   label,
 }: {
   active?: boolean;
-  payload?: Array<{ name: string; value: number; color: string }>;
+  payload?: Array<{
+    name: string;
+    value: number;
+    color: string;
+    dataKey: string;
+    payload: { __raw?: Record<string, number> };
+  }>;
   label?: string;
 }) {
   if (!active || !payload?.length) return null;
+  // Filter out the unnamed fill-only pass so each series appears once
+  const entries = payload.filter((p) => !!p.name);
+  if (!entries.length) return null;
   return (
     <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-xs shadow-md">
       {label && (
         <p className="font-semibold text-gray-800 dark:text-gray-200 mb-1">{label}</p>
       )}
-      {payload.map((p) => (
-        <p key={p.name} className="text-gray-700 dark:text-gray-300">
-          <span className="inline-block w-2 h-2 rounded-full mr-1.5" style={{ background: p.color }} />
-          {p.name}: <span className="font-medium">{p.value}</span>
-        </p>
-      ))}
+      {entries.map((p) => {
+        const rawValue = p.payload?.__raw?.[p.dataKey] ?? p.value;
+        return (
+          <p key={p.name} className="text-gray-700 dark:text-gray-300">
+            <span className="inline-block w-2 h-2 rounded-full mr-1.5" style={{ background: p.color }} />
+            {p.name}: <span className="font-medium">{rawValue}</span>
+          </p>
+        );
+      })}
     </div>
   );
 }
@@ -97,6 +109,36 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
 
   const lastEntry = dailyTrend.at(-1);
   const visibleSeries = TREND_SERIES.filter(s => (lastEntry?.[s.key] ?? 0) > 0);
+
+  // Build a presentation-only copy of dailyTrend where series sharing the same
+  // value on a given day are nudged apart by a small offset so their strokes sit
+  // side-by-side instead of perfectly overlapping. Raw values are preserved on
+  // __raw so the tooltip can display true integers.
+  const dailyTrendDisplay = useMemo(() => {
+    const yMax = Math.max(1, ...dailyTrend.flatMap((e) => visibleSeries.map((s) => e[s.key])));
+    // Chosen so the offset is ~2px at the chart's ~240px plot height across typical data ranges.
+    const offset = Math.max(0.05, yMax * 0.008);
+    return dailyTrend.map((entry) => {
+      const groups = new Map<number, (typeof visibleSeries)[number][]>();
+      for (const s of visibleSeries) {
+        const v = entry[s.key];
+        const arr = groups.get(v) ?? [];
+        arr.push(s);
+        groups.set(v, arr);
+      }
+      const display: Record<string, unknown> & { __raw: Record<string, number> } = {
+        ...entry,
+        __raw: entry as unknown as Record<string, number>,
+      };
+      for (const [v, members] of groups) {
+        if (members.length < 2) continue;
+        members.forEach((s, idx) => {
+          display[s.key] = v + idx * offset;
+        });
+      }
+      return display;
+    });
+  }, [dailyTrend, visibleSeries]);
 
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [isLocked, setIsLocked] = useState(false);
@@ -196,7 +238,7 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
           )}
 
           <ResponsiveContainer width="100%" height={isMobile ? 240 : 270}>
-            <AreaChart data={dailyTrend} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+            <AreaChart data={dailyTrendDisplay} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
               <defs>
                 {visibleSeries.map((s) => (
                   <linearGradient key={s.key} id={`grad-${s.key}`} x1="0" y1="0" x2="0" y2="1">
@@ -209,14 +251,30 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
               <XAxis dataKey="label" tick={TICK} axisLine={false} tickLine={false} interval={tickInterval} />
               <YAxis allowDecimals={false} tick={TICK} axisLine={false} tickLine={false} />
               <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'rgba(128,128,128,0.2)', strokeWidth: 1, strokeDasharray: '3 3' }} />
+              {/* Pass A: fills only — all fills painted before any stroke */}
               {visibleSeries.map((s) => (
                 <Area
-                  key={s.key}
+                  key={`fill-${s.key}`}
+                  type="linear"
+                  dataKey={s.key}
+                  name=""
+                  stroke="none"
+                  fill={`url(#grad-${s.key})`}
+                  strokeWidth={0}
+                  dot={false}
+                  legendType="none"
+                  activeDot={false}
+                />
+              ))}
+              {/* Pass B: strokes only — painted last so no fill can cover them */}
+              {visibleSeries.map((s) => (
+                <Area
+                  key={`stroke-${s.key}`}
                   type="linear"
                   dataKey={s.key}
                   name={s.name}
                   stroke={s.color}
-                  fill={`url(#grad-${s.key})`}
+                  fill="none"
                   strokeWidth={2}
                   dot={false}
                 />
