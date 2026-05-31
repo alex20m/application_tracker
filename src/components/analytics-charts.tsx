@@ -11,7 +11,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
   Cell,
   Brush,
@@ -20,6 +19,7 @@ import type { PieSectorDataItem, PieSectorShapeProps } from "recharts";
 import { CARD, TEXT_H2, TEXT_BODY, TEXT_META } from "@/lib/ui";
 import type { StatusCount, DailyEntry, SourceStat } from "@/lib/analytics";
 import { STATUS, STATUS_THEME } from "@/lib/statuses";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 
 type TrendKey = Exclude<keyof DailyEntry, "date" | "label">;
 
@@ -31,6 +31,32 @@ const TREND_SERIES: Array<{ key: TrendKey; name: string; color: string }> = [
   { key: "rejectedByCompany", name: "Rejected by company", color: STATUS_THEME[STATUS.rejected].sankey },
   { key: "rejectedByMe",      name: "Rejected by me",      color: STATUS_THEME[STATUS.withdrew].sankey },
 ];
+
+// Custom Brush traveller with a wide invisible hit target for touch friendliness
+function BrushTraveller({
+  x, y, width, height,
+}: {
+  x: number; y: number; width: number; height: number;
+}) {
+  const cx = x + width / 2;
+  const pillH = 16;
+  const pillW = 4;
+  return (
+    <g>
+      {/* Transparent wide hit area */}
+      <rect x={x} y={y} width={width} height={height} fill="transparent" />
+      {/* Visible pill handle */}
+      <rect
+        x={cx - pillW / 2}
+        y={y + (height - pillH) / 2}
+        width={pillW}
+        height={pillH}
+        rx={2}
+        fill="#9ca3af"
+      />
+    </g>
+  );
+}
 
 // Custom tooltip avoids recharts default inline styles that ignore dark mode
 function ChartTooltip({
@@ -67,6 +93,7 @@ type Props = {
 export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props) {
   const TICK = { fontSize: 11, fill: "currentColor", opacity: 0.5 };
   const pieTotal = statusCounts.reduce((sum, s) => sum + s.count, 0);
+  const isMobile = useIsMobile();
 
   const lastEntry = dailyTrend.at(-1);
   const visibleSeries = TREND_SERIES.filter(s => (lastEntry?.[s.key] ?? 0) > 0);
@@ -75,15 +102,16 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
   const [isLocked, setIsLocked] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  const [brushStart, setBrushStart] = useState(() => Math.max(0, dailyTrend.length - 60));
+  const [brushStart, setBrushStart] = useState(0);
   const [brushEnd, setBrushEnd] = useState(() => Math.max(0, dailyTrend.length - 1));
 
   const maxIdx = Math.max(0, dailyTrend.length - 1);
   const safeStart = Math.min(brushStart, maxIdx);
   const safeEnd = Math.min(brushEnd, maxIdx);
   const visibleDays = Math.max(1, safeEnd - safeStart + 1);
-  // Target ~12 labels; interval=N skips N ticks between labels. 0 = every day.
-  const tickInterval = Math.max(0, Math.ceil(visibleDays / 12) - 1);
+  // Target fewer labels on mobile to avoid overlap; interval=N skips N ticks between labels.
+  const labelTarget = isMobile ? 5 : 12;
+  const tickInterval = Math.max(0, Math.ceil(visibleDays / labelTarget) - 1);
 
   // Reset when tapping/clicking outside the status card
   useEffect(() => {
@@ -153,8 +181,21 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
       {/* Cumulative milestone trend */}
       {dailyTrend.length > 1 && (
         <div className={CARD}>
-          <h2 className={`${TEXT_H2} mb-4`}>Applications Over Time</h2>
-          <ResponsiveContainer width="100%" height={270}>
+          <h2 className={`${TEXT_H2} mb-3`}>Applications Over Time</h2>
+
+          {/* Custom legend outside the chart — prevents overlap on mobile */}
+          {visibleSeries.length > 0 && (
+            <div className="flex flex-wrap gap-x-4 gap-y-1.5 mb-3">
+              {visibleSeries.map((s) => (
+                <span key={s.key} className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400">
+                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: s.color }} />
+                  {s.name}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <ResponsiveContainer width="100%" height={isMobile ? 240 : 270}>
             <AreaChart data={dailyTrend} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
               <defs>
                 {visibleSeries.map((s) => (
@@ -168,7 +209,6 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
               <XAxis dataKey="label" tick={TICK} axisLine={false} tickLine={false} interval={tickInterval} />
               <YAxis allowDecimals={false} tick={TICK} axisLine={false} tickLine={false} />
               <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'rgba(128,128,128,0.2)', strokeWidth: 1, strokeDasharray: '3 3' }} />
-              <Legend wrapperStyle={{ fontSize: 12 }} />
               {visibleSeries.map((s) => (
                 <Area
                   key={s.key}
@@ -186,7 +226,8 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
                 startIndex={safeStart}
                 endIndex={safeEnd}
                 height={24}
-                travellerWidth={6}
+                travellerWidth={isMobile ? 20 : 6}
+                traveller={<BrushTraveller x={0} y={0} width={0} height={0} />}
                 stroke="#9ca3af"
                 fill="rgba(156,163,175,0.08)"
                 onChange={({ startIndex, endIndex }) => {
