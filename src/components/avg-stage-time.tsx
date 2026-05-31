@@ -15,10 +15,10 @@ import { CARD, TEXT_H2, TEXT_META, TEXT_MUTED, INPUT, LABEL } from "@/lib/ui";
 import type { ApplicationRecord } from "@/lib/types";
 
 // Statuses that can meaningfully serve as the start of a duration measurement.
+// Ghosted is excluded: it is a terminal-ish state with no meaningful forward journey to measure.
 const START_STATUSES: ApplicationStatus[] = [
   STATUS.wishlist,
   STATUS.applied,
-  STATUS.ghosted,
   STATUS.interviews,
   STATUS.offer,
 ];
