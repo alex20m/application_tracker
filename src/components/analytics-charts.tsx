@@ -80,8 +80,10 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
   const TICK = { fontSize: 11, fill: "currentColor", opacity: 0.5 };
   const pieTotal = statusCounts.reduce((sum, s) => sum + s.count, 0);
 
-  const lastEntry = dailyTrend.at(-1);
-  const visibleSeries = TREND_SERIES.filter(s => (lastEntry?.[s.key] ?? 0) > 0);
+  const visibleSeries = useMemo(
+    () => TREND_SERIES.filter(s => (dailyTrend.at(-1)?.[s.key] ?? 0) > 0),
+    [dailyTrend],
+  );
 
   // Build a presentation-only copy of dailyTrend where series sharing the same
   // value on a given day are nudged apart by a small offset so their strokes sit
