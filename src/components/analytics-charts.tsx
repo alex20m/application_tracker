@@ -102,15 +102,16 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
   const [isLocked, setIsLocked] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  const [brushStart, setBrushStart] = useState(() => Math.max(0, dailyTrend.length - 60));
+  const [brushStart, setBrushStart] = useState(0);
   const [brushEnd, setBrushEnd] = useState(() => Math.max(0, dailyTrend.length - 1));
 
   const maxIdx = Math.max(0, dailyTrend.length - 1);
   const safeStart = Math.min(brushStart, maxIdx);
   const safeEnd = Math.min(brushEnd, maxIdx);
   const visibleDays = Math.max(1, safeEnd - safeStart + 1);
-  // Target ~12 labels; interval=N skips N ticks between labels. 0 = every day.
-  const tickInterval = Math.max(0, Math.ceil(visibleDays / 12) - 1);
+  // Target fewer labels on mobile to avoid overlap; interval=N skips N ticks between labels.
+  const labelTarget = isMobile ? 5 : 12;
+  const tickInterval = Math.max(0, Math.ceil(visibleDays / labelTarget) - 1);
 
   // Reset when tapping/clicking outside the status card
   useEffect(() => {
