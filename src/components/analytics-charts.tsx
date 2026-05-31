@@ -43,12 +43,14 @@ function ChartTooltip({
   label?: string;
 }) {
   if (!active || !payload?.length) return null;
+  // Fill-only areas have name="" — exclude them so each series appears once.
+  const namedEntries = payload.filter(p => !!p.name);
   return (
     <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-xs shadow-md">
       {label && (
         <p className="font-semibold text-gray-800 dark:text-gray-200 mb-1">{label}</p>
       )}
-      {payload.map((p) => (
+      {namedEntries.map((p) => (
         <p key={p.name} className="text-gray-700 dark:text-gray-300">
           <span className="inline-block w-2 h-2 rounded-full mr-1.5" style={{ background: p.color }} />
           {p.name}: <span className="font-medium">{p.value}</span>
@@ -169,14 +171,30 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
               <YAxis allowDecimals={false} tick={TICK} axisLine={false} tickLine={false} />
               <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'rgba(128,128,128,0.2)', strokeWidth: 1, strokeDasharray: '3 3' }} />
               <Legend wrapperStyle={{ fontSize: 12 }} />
+              {/* Pass 1: fills only, rendered first so strokes are never covered */}
               {visibleSeries.map((s) => (
                 <Area
-                  key={s.key}
+                  key={`fill-${s.key}`}
+                  type="linear"
+                  dataKey={s.key}
+                  name=""
+                  stroke="none"
+                  strokeWidth={0}
+                  fill={`url(#grad-${s.key})`}
+                  dot={false}
+                  legendType="none"
+                  activeDot={false}
+                />
+              ))}
+              {/* Pass 2: strokes only, rendered last so all lines stay visible */}
+              {visibleSeries.map((s) => (
+                <Area
+                  key={`stroke-${s.key}`}
                   type="linear"
                   dataKey={s.key}
                   name={s.name}
                   stroke={s.color}
-                  fill={`url(#grad-${s.key})`}
+                  fill="none"
                   strokeWidth={2}
                   dot={false}
                 />
