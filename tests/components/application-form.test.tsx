@@ -77,6 +77,33 @@ describe("ApplicationForm — error state", () => {
   });
 });
 
+describe("ApplicationForm — location suggestions (existingLocations prop)", () => {
+  it("does not render a datalist when existingLocations is empty", () => {
+    render(<ApplicationForm action={noopAction} />);
+    expect(document.getElementById("location-suggestions")).not.toBeInTheDocument();
+  });
+
+  it("does not attach list attribute to location input when existingLocations is empty", () => {
+    render(<ApplicationForm action={noopAction} />);
+    const input = document.getElementById("location") as HTMLInputElement;
+    expect(input.list).toBeNull();
+  });
+
+  it("renders a datalist with provided locations", () => {
+    render(<ApplicationForm action={noopAction} existingLocations={["Stockholm", "Remote"]} />);
+    const datalist = document.getElementById("location-suggestions") as HTMLDataListElement;
+    expect(datalist).toBeInTheDocument();
+    const values = Array.from(datalist.options).map((o) => o.value);
+    expect(values).toEqual(["Stockholm", "Remote"]);
+  });
+
+  it("attaches datalist to location input via list attribute", () => {
+    render(<ApplicationForm action={noopAction} existingLocations={["Stockholm"]} />);
+    const input = document.getElementById("location") as HTMLInputElement;
+    expect(input.getAttribute("list")).toBe("location-suggestions");
+  });
+});
+
 describe("ApplicationForm — source suggestions (existingSources prop)", () => {
   it("does not render a datalist when existingSources is empty", () => {
     render(<ApplicationForm action={noopAction} />);
