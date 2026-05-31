@@ -196,7 +196,7 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
           )}
 
           <ResponsiveContainer width="100%" height={isMobile ? 240 : 270}>
-            <AreaChart tabIndex={-1} data={dailyTrend} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+            <AreaChart data={dailyTrend} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
               <defs>
                 {visibleSeries.map((s) => (
                   <linearGradient key={s.key} id={`grad-${s.key}`} x1="0" y1="0" x2="0" y2="1">
