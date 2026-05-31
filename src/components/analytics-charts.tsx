@@ -195,6 +195,7 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
             </div>
           )}
 
+          <div className="outline-none [&_svg]:outline-none">
           <ResponsiveContainer width="100%" height={isMobile ? 240 : 270}>
             <AreaChart data={dailyTrend} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
               <defs>
@@ -239,6 +240,7 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
               />
             </AreaChart>
           </ResponsiveContainer>
+          </div>
         </div>
       )}
 
