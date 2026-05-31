@@ -69,12 +69,14 @@ function ChartTooltip({
   label?: string;
 }) {
   if (!active || !payload?.length) return null;
+  const visible = payload.filter((p) => p.value !== null);
+  if (!visible.length) return null;
   return (
     <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-xs shadow-md">
       {label && (
         <p className="font-semibold text-gray-800 dark:text-gray-200 mb-1">{label}</p>
       )}
-      {payload.map((p) => (
+      {visible.map((p) => (
         <p key={p.name} className="text-gray-700 dark:text-gray-300">
           <span className="inline-block w-2 h-2 rounded-full mr-1.5" style={{ background: p.color }} />
           {p.name}: <span className="font-medium">{p.value}</span>
@@ -220,6 +222,7 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
                   fill={`url(#grad-${s.key})`}
                   strokeWidth={2}
                   dot={false}
+                  connectNulls={false}
                 />
               ))}
               <Brush

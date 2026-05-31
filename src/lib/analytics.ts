@@ -11,12 +11,12 @@ export type StatusCount = {
 export type DailyEntry = {
   date: string;
   label: string;
-  applied: number;
-  interviews: number;
-  offers: number;
-  ghosted: number;
-  rejectedByCompany: number;
-  rejectedByMe: number;
+  applied: number | null;
+  interviews: number | null;
+  offers: number | null;
+  ghosted: number | null;
+  rejectedByCompany: number | null;
+  rejectedByMe: number | null;
 };
 
 export type ConversionRow = {
@@ -342,6 +342,21 @@ export function computeAnalytics(
         rejectedByMe:      cumRejectedByMe,
       });
       cursor = new Date(cursor.getTime() + 86_400_000);
+    }
+
+    // For each series, null out days where the cumulative value is still 0,
+    // but keep the day immediately before the first non-zero entry at 0 so the
+    // line visually starts from 0 rather than appearing out of nowhere.
+    const trendSeriesKeys = [
+      "applied", "interviews", "offers", "ghosted", "rejectedByCompany", "rejectedByMe",
+    ] as const;
+    for (const key of trendSeriesKeys) {
+      const firstNonZeroIdx = dailyTrend.findIndex(e => (e[key] as number) > 0);
+      if (firstNonZeroIdx <= 0) continue;
+      for (let i = 0; i < firstNonZeroIdx - 1; i++) {
+        dailyTrend[i][key] = null;
+      }
+      // dailyTrend[firstNonZeroIdx - 1][key] stays at 0 — the visible "anchor" point
     }
   }
 
