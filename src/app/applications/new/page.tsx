@@ -1,12 +1,23 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
-import { ROUTES } from "@/lib/env";
 import { CARD, SECTION_STACK, TEXT_H1, TEXT_MUTED } from "@/lib/ui";
 import { AppShell } from "@/components/app-shell";
 import { ApplicationForm } from "@/components/application-form";
 import { createApplicationAction } from "@/app/applications/actions";
 
-export default async function NewApplicationPage() {
+type NewApplicationPageProps = {
+  searchParams: Promise<{ from?: string }>;
+};
+
+function returnPathFromParam(from: string | undefined): string {
+  if (from === "closed") return "/applications?filter=closed";
+  if (from === "all") return "/applications?filter=all";
+  return "/applications";
+}
+
+export default async function NewApplicationPage({ searchParams }: NewApplicationPageProps) {
+  const { from } = await searchParams;
+  const returnPath = returnPathFromParam(from);
   const { supabase, user } = await requireUser();
 
   const [{ data: sourcesData }, { data: locationsData }] = await Promise.all([
@@ -36,7 +47,7 @@ export default async function NewApplicationPage() {
     <AppShell email={user.email || ""}>
       <div className={SECTION_STACK}>
         <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-          <Link href={ROUTES.applications} className="transition hover:text-gray-700 dark:hover:text-gray-300">
+          <Link href={returnPath} className="transition hover:text-gray-700 dark:hover:text-gray-300">
             Applications
           </Link>
           <span className="text-gray-300 dark:text-gray-600">/</span>
@@ -51,7 +62,7 @@ export default async function NewApplicationPage() {
         </div>
 
         <div className={`max-w-2xl ${CARD}`}>
-          <ApplicationForm action={createApplicationAction} existingSources={existingSources} existingLocations={existingLocations} />
+          <ApplicationForm action={createApplicationAction} returnPath={returnPath} existingSources={existingSources} existingLocations={existingLocations} />
         </div>
       </div>
     </AppShell>

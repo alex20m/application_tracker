@@ -95,4 +95,17 @@ describe("deleteAllApplicationsAction", () => {
       [...CLOSED_STATUSES].every((s) => (call[1] as string[]).includes(s))
     )).toBe(true);
   });
+
+  it("returns { success: true } on success for all scope", async () => {
+    const result = await deleteAllApplicationsAction("all");
+    expect(result.success).toBe(true);
+    expect(mockSupabase.from).toHaveBeenCalledWith("applications");
+  });
+
+  it("does not filter by status when scope is all", async () => {
+    await deleteAllApplicationsAction("all");
+    const deleteBuilder = mockSupabase.from.mock.results[0].value.delete.mock.results[0].value;
+    const inCalls = deleteBuilder.in.mock.calls as [string, unknown[]][];
+    expect(inCalls.some((call) => call[0] === "status")).toBe(false);
+  });
 });

@@ -1,8 +1,7 @@
 import Link from "next/link";
-import { ROUTES } from "@/lib/env";
 
 type ApplicationsTabsProps = {
-  active: "open" | "closed";
+  active: "open" | "closed" | "all";
 };
 
 const PILL_ACTIVE =
@@ -14,16 +13,22 @@ export function ApplicationsTabs({ active }: ApplicationsTabsProps) {
   return (
     <div className="flex items-center gap-1 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 p-1 w-fit">
       <Link
-        href={ROUTES.applications}
+        href="/applications"
         className={active === "open" ? PILL_ACTIVE : PILL_INACTIVE}
       >
         Open
       </Link>
       <Link
-        href={ROUTES.closedApplications}
+        href="/applications?filter=closed"
         className={active === "closed" ? PILL_ACTIVE : PILL_INACTIVE}
       >
         Closed
+      </Link>
+      <Link
+        href="/applications?filter=all"
+        className={active === "all" ? PILL_ACTIVE : PILL_INACTIVE}
+      >
+        All
       </Link>
     </div>
   );

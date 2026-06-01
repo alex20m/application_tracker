@@ -8,9 +8,10 @@ import Link from "next/link";
 
 type ApplicationListProps = {
   applications: ApplicationRecord[];
+  fromFilter?: "open" | "closed" | "all";
 };
 
-export function ApplicationList({ applications }: ApplicationListProps) {
+export function ApplicationList({ applications, fromFilter }: ApplicationListProps) {
   if (!applications.length) {
     return (
       <div className="rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-8 py-16 text-center mobile:px-4 mobile:py-10">
@@ -28,7 +29,11 @@ export function ApplicationList({ applications }: ApplicationListProps) {
           className="group relative flex overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm transition hover:bg-gray-50 hover:border-gray-400 hover:shadow-lg hover:shadow-gray-200/80 dark:hover:bg-gray-800 dark:hover:border-gray-500 dark:hover:shadow-lg dark:hover:shadow-black/40"
         >
           {/* Stretched link — makes entire card clickable except status section */}
-          <Link href={`/applications/${app.id}`} className="absolute inset-0" aria-label={`${app.company} – ${app.role}`} />
+          <Link
+            href={`/applications/${app.id}${fromFilter && fromFilter !== "open" ? `?from=${fromFilter}` : ""}`}
+            className="absolute inset-0"
+            aria-label={`${app.company} – ${app.role}`}
+          />
 
           {/* Status color strip */}
           <div className={`w-1 flex-shrink-0 ${STATUS_THEME[app.status].border}`} />
