@@ -85,7 +85,7 @@ export async function transitionApplicationStatusAction(
 
   const { data: currentApp } = await supabase
     .from("applications")
-    .select("*")
+    .select("status, events")
     .eq("id", applicationId)
     .eq("user_id", user.id)
     .single();

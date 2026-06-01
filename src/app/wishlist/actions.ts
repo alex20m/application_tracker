@@ -53,7 +53,7 @@ export async function createWishlistAction(
     return { success: false, error: sanitizeActionError(error, "wishlist:create") };
   }
 
-  revalidateApplicationViews();
+  revalidateApplicationViews("wishlist");
   redirect("/wishlist");
 }
 
@@ -100,7 +100,7 @@ export async function updateWishlistAction(
     return { success: false, error: sanitizeActionError(error, "wishlist:update") };
   }
 
-  revalidateApplicationViews();
+  revalidateApplicationViews("wishlist");
   redirect("/wishlist");
 }
 
@@ -148,7 +148,7 @@ export async function applyWishlistAction(
     return { success: false, error: sanitizeActionError(error, "wishlist:apply") };
   }
 
-  revalidateApplicationViews();
+  revalidateApplicationViews("wishlist");
   return { success: true };
 }
 
@@ -167,7 +167,7 @@ export async function deleteWishlistAction(formData: FormData): Promise<void> {
 
   if (error) console.error("[wishlist:delete]", error);
 
-  revalidateApplicationViews();
+  revalidateApplicationViews("wishlist");
 }
 
 export async function deleteAllWishlistAction(): Promise<{ success: boolean; error?: string }> {
@@ -181,6 +181,6 @@ export async function deleteAllWishlistAction(): Promise<{ success: boolean; err
 
   if (error) return { success: false, error: sanitizeActionError(error, "wishlist:delete-all") };
 
-  revalidateApplicationViews();
+  revalidateApplicationViews("wishlist");
   return { success: true };
 }
