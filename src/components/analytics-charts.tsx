@@ -258,7 +258,7 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis dataKey="label" tick={TICK} axisLine={false} tickLine={false} interval={tickInterval} />
               <YAxis allowDecimals={false} tick={TICK} axisLine={false} tickLine={false} />
-              <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'rgba(128,128,128,0.2)', strokeWidth: 1, strokeDasharray: '3 3' }} />
+              <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'rgba(100,100,100,0.55)', strokeWidth: 2 }} />
               {visibleSeries.map((s) => (
                 <Area
                   key={s.key}
@@ -269,7 +269,7 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
                   fill={`url(#grad-${s.key})`}
                   strokeWidth={2}
                   dot={false}
-                  activeDot={false}
+                  activeDot={{ r: 5, fill: s.color, stroke: 'var(--background, white)', strokeWidth: 2 }}
                   connectNulls={false}
                 />
               ))}
