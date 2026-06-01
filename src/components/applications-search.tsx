@@ -7,9 +7,10 @@ import { ApplicationList } from "@/components/application-list";
 
 type ApplicationsSearchProps = {
   applications: ApplicationRecord[];
+  fromFilter?: "open" | "closed" | "all";
 };
 
-export function ApplicationsSearch({ applications }: ApplicationsSearchProps) {
+export function ApplicationsSearch({ applications, fromFilter }: ApplicationsSearchProps) {
   const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {
@@ -42,7 +43,7 @@ export function ApplicationsSearch({ applications }: ApplicationsSearchProps) {
           </p>
         </div>
       ) : (
-        <ApplicationList applications={filtered} />
+        <ApplicationList applications={filtered} fromFilter={fromFilter} />
       )}
     </div>
   );

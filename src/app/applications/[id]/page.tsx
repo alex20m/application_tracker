@@ -1,21 +1,28 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
-import { ROUTES } from "@/lib/env";
-import { isClosedStatus, type ApplicationStatus } from "@/lib/statuses";
 import { CARD, SECTION_STACK, TEXT_H1, TEXT_H3, TEXT_META, TEXT_MUTED } from "@/lib/ui";
 import { AppShell } from "@/components/app-shell";
 import { ApplicationForm } from "@/components/application-form";
 import { DeleteApplicationButton } from "@/components/delete-application-button";
 import { updateApplicationAction } from "./actions";
 
+function returnPathFromParam(from: string | undefined): string {
+  if (from === "closed") return "/applications?filter=closed";
+  if (from === "all") return "/applications?filter=all";
+  return "/applications";
+}
+
 type ApplicationDetailPageProps = {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ from?: string }>;
 };
 
 export default async function ApplicationDetailPage({
   params,
+  searchParams,
 }: ApplicationDetailPageProps) {
   const { id } = await params;
+  const { from } = await searchParams;
   const { supabase, user } = await requireUser();
 
   const [{ data: application }, { data: sourcesData }, { data: locationsData }] = await Promise.all([
@@ -47,9 +54,7 @@ export default async function ApplicationDetailPage({
     (locationsData ?? []).map((r: { location: string | null }) => r.location as string)
   )].sort();
 
-  const returnPath = application && isClosedStatus(application.status as ApplicationStatus)
-    ? ROUTES.closedApplications
-    : ROUTES.applications;
+  const returnPath = returnPathFromParam(from);
 
   if (!application) {
     return (
@@ -57,7 +62,7 @@ export default async function ApplicationDetailPage({
         <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-12 text-center shadow-sm mobile:p-8">
           <p className="text-sm text-red-600 dark:text-red-400">Application not found.</p>
           <Link
-            href={ROUTES.applications}
+            href="/applications"
             className="mt-4 inline-block text-sm text-indigo-600 dark:text-indigo-400 transition hover:text-indigo-800 dark:hover:text-indigo-300"
           >
             Back to Applications

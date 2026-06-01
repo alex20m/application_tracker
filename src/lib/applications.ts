@@ -3,8 +3,7 @@ import { STATUS, type ApplicationStatus } from "./statuses";
 import type { StatusEvent } from "./types";
 
 export function revalidateApplicationViews() {
-  revalidatePath("/applications/open");
-  revalidatePath("/applications/closed");
+  revalidatePath("/applications");
   revalidatePath("/wishlist");
   revalidatePath("/analytics");
 }

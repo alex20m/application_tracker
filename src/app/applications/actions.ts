@@ -66,7 +66,9 @@ export async function createApplicationAction(
   }
 
   revalidatePath("/analytics");
-  redirect("/applications/open");
+  const returnPath = formData.get("return_path") as string | null;
+  const ALLOWED = ["/applications", "/applications?filter=closed", "/applications?filter=all"];
+  redirect(ALLOWED.includes(returnPath ?? "") ? returnPath! : "/applications");
 }
 
 export async function transitionApplicationStatusAction(
@@ -134,7 +136,7 @@ export async function updateApplicationNoteAction(formData: FormData): Promise<v
 
   if (error) console.error("[application:update-note]", error);
 
-  revalidatePath("/applications/open");
+  revalidatePath("/applications");
 }
 
 export async function deleteApplicationFromListAction(formData: FormData): Promise<void> {
@@ -155,17 +157,18 @@ export async function deleteApplicationFromListAction(formData: FormData): Promi
 }
 
 export async function deleteAllApplicationsAction(
-  scope: "open" | "closed"
+  scope: "open" | "closed" | "all"
 ): Promise<{ success: boolean; error?: string }> {
   const { supabase, user } = await requireUser();
 
-  const statuses = scope === "open" ? [...ACTIVE_STATUSES] : [...CLOSED_STATUSES];
+  let query = supabase.from("applications").delete().eq("user_id", user.id);
 
-  const { error } = await supabase
-    .from("applications")
-    .delete()
-    .eq("user_id", user.id)
-    .in("status", statuses);
+  if (scope !== "all") {
+    const statuses = scope === "open" ? [...ACTIVE_STATUSES] : [...CLOSED_STATUSES];
+    query = query.in("status", statuses);
+  }
+
+  const { error } = await query;
 
   if (error) return { success: false, error: sanitizeActionError(error, "application:delete-all") };
 

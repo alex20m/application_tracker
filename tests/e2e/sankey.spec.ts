@@ -14,7 +14,7 @@ test.describe("Sankey chart", () => {
     await withApplication({ company: "SankeyTest Co" });
 
     // Transition to interviews so there's a real flow to render
-    await page.goto("/applications/open");
+    await page.goto("/applications");
     await page.getByRole("button", { name: /move to/i }).first().click();
     await page.getByRole("button", { name: /interviews/i }).click();
     await expect(page.getByText(/interviews/i).first()).toBeVisible({ timeout: 10000 });

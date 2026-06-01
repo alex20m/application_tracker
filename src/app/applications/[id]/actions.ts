@@ -4,10 +4,10 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import { STATUS, type ApplicationStatus } from "@/lib/statuses";
-
-const OPEN_PATH = "/applications/open";
-const CLOSED_PATH = "/applications/closed";
 import { appendStatusEvent } from "@/lib/applications";
+
+const DEFAULT_PATH = "/applications";
+const ALLOWED_RETURN_PATHS = ["/applications", "/applications?filter=closed", "/applications?filter=all"] as const;
 import { GENERIC_ACTION_ERROR, sanitizeActionError } from "@/lib/ui";
 import { ApplicationUpdateSchema } from "@/lib/schemas";
 import { z } from "zod";
@@ -85,13 +85,13 @@ export async function updateApplicationAction(
   }
 
   revalidatePath("/analytics");
-  const returnPath = formData.get("return_path");
-  redirect(returnPath === CLOSED_PATH ? CLOSED_PATH : OPEN_PATH);
+  const returnPath = formData.get("return_path") as string | null;
+  redirect((ALLOWED_RETURN_PATHS as readonly string[]).includes(returnPath ?? "") ? returnPath! : DEFAULT_PATH);
 }
 
 export async function deleteApplicationAction(
   applicationId: string,
-  returnPath: string = OPEN_PATH
+  returnPath: string = DEFAULT_PATH
 ): Promise<{
   success: boolean;
   error?: string;
@@ -113,6 +113,6 @@ export async function deleteApplicationAction(
   }
 
   revalidatePath("/analytics");
-  const safeReturn = returnPath === CLOSED_PATH ? CLOSED_PATH : OPEN_PATH;
+  const safeReturn = (ALLOWED_RETURN_PATHS as readonly string[]).includes(returnPath) ? returnPath : DEFAULT_PATH;
   redirect(safeReturn);
 }
