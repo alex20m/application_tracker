@@ -425,7 +425,7 @@ describe("computeAnalytics", () => {
       makeApplication({ applied_on: "2026-01-01" }),
       makeApplication({ applied_on: "2026-02-01" }),
     ]);
-    expect(r.dailyTrend[0].date).toBe("2026-01-01");
+    expect(r.dailyTrend[0].date).toBe("2025-12-31"); // synthetic zero anchor day prepended
     expect(r.dailyTrend.at(-1)!.date).toBe("2026-03-01");
     expect(r.dailyTrend.length).toBeGreaterThan(3); // continuous daily range
   });
@@ -465,7 +465,7 @@ describe("computeAnalytics", () => {
       makeApplication({ applied_on: null }),
       makeApplication({ applied_on: "2026-01-01" }),
     ]);
-    expect(r.dailyTrend).toHaveLength(1);
+    expect(r.dailyTrend).toHaveLength(2); // zero anchor day + the one real day
   });
 
   // ── Source stats ───────────────────────────────────────────────────────────
