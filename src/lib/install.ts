@@ -39,6 +39,12 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
+declare global {
+  interface Window {
+    __pwaInstallPrompt?: BeforeInstallPromptEvent;
+  }
+}
+
 export interface InstallPromptState {
   canPrompt: boolean;
   platform: Platform;
@@ -47,10 +53,18 @@ export interface InstallPromptState {
 }
 
 export function useInstallPrompt(): InstallPromptState {
+  // Lazy initializer: if beforeinstallprompt already fired before React
+  // hydrated, sw-register.js stashes it on window.__pwaInstallPrompt.
+  // Reading it here at mount time means we never miss the event due to
+  // the useEffect/paint timing race.
   const [deferredPrompt, setDeferredPrompt] =
-    useState<BeforeInstallPromptEvent | null>(null);
+    useState<BeforeInstallPromptEvent | null>(() => {
+      if (typeof window === "undefined") return null;
+      const early = window.__pwaInstallPrompt ?? null;
+      if (early) window.__pwaInstallPrompt = undefined;
+      return early;
+    });
   const [installed, setInstalled] = useState(false);
-  // Lazy initializers avoid setState-in-effect lint errors and are SSR-safe
   const [platform] = useState<Platform>(detectPlatform);
   const [standalone] = useState<boolean>(isStandalone);
 
