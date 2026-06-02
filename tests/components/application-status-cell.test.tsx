@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { ApplicationStatusQuickActions } from "@/components/application-status-quick-actions";
+import { ApplicationStatusCell } from "@/components/application-status-cell";
 import { STATUS, STATUS_NAMES, STATUS_NEXT } from "@/lib/statuses";
 
 const mockTransitionAction = vi.fn();
@@ -12,10 +12,10 @@ vi.mock("@/app/applications/actions", () => ({
 
 const APP_ID = "app-uuid-001";
 
-describe("ApplicationStatusQuickActions", () => {
+describe("ApplicationStatusCell", () => {
   it("renders 'Move to →' button for a non-terminal status", () => {
     render(
-      <ApplicationStatusQuickActions
+      <ApplicationStatusCell
         applicationId={APP_ID}
         currentStatus={STATUS.applied}
       />
@@ -25,7 +25,7 @@ describe("ApplicationStatusQuickActions", () => {
 
   it("renders 'Final status' text for a terminal status (no transitions)", () => {
     render(
-      <ApplicationStatusQuickActions
+      <ApplicationStatusCell
         applicationId={APP_ID}
         currentStatus={STATUS.accepted}
       />
@@ -37,7 +37,7 @@ describe("ApplicationStatusQuickActions", () => {
   it("reveals exactly the STATUS_NEXT targets after clicking 'Move to →'", async () => {
     const user = userEvent.setup();
     render(
-      <ApplicationStatusQuickActions
+      <ApplicationStatusCell
         applicationId={APP_ID}
         currentStatus={STATUS.applied}
       />
@@ -56,7 +56,7 @@ describe("ApplicationStatusQuickActions", () => {
   it("shows a Cancel button when expanded", async () => {
     const user = userEvent.setup();
     render(
-      <ApplicationStatusQuickActions
+      <ApplicationStatusCell
         applicationId={APP_ID}
         currentStatus={STATUS.applied}
       />
@@ -69,7 +69,7 @@ describe("ApplicationStatusQuickActions", () => {
   it("collapses back when Cancel is clicked", async () => {
     const user = userEvent.setup();
     render(
-      <ApplicationStatusQuickActions
+      <ApplicationStatusCell
         applicationId={APP_ID}
         currentStatus={STATUS.applied}
       />
@@ -82,7 +82,7 @@ describe("ApplicationStatusQuickActions", () => {
   it("calls the transition action with correct formData when a target is clicked", async () => {
     const user = userEvent.setup();
     render(
-      <ApplicationStatusQuickActions
+      <ApplicationStatusCell
         applicationId={APP_ID}
         currentStatus={STATUS.applied}
       />

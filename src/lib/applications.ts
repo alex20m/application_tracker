@@ -2,9 +2,15 @@ import { revalidatePath } from "next/cache";
 import { STATUS, type ApplicationStatus } from "./statuses";
 import type { StatusEvent } from "./types";
 
-export function revalidateApplicationViews() {
-  revalidatePath("/applications");
-  revalidatePath("/wishlist");
+type ViewScope = "applications" | "wishlist";
+
+export function revalidateApplicationViews(scope: ViewScope = "applications") {
+  if (scope === "wishlist") {
+    revalidatePath("/wishlist");
+    revalidatePath("/applications");
+  } else {
+    revalidatePath("/applications");
+  }
   revalidatePath("/analytics");
 }
 

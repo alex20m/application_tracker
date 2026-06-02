@@ -2,8 +2,7 @@ import type { ApplicationRecord } from "@/lib/types";
 import { FormattedDate } from "@/lib/date";
 import { STATUS_THEME } from "@/lib/statuses";
 import { TEXT_BODY, TEXT_META, TEXT_MUTED, ROW_STACK } from "@/lib/ui";
-import { ApplicationStatusQuickActions } from "@/components/application-status-quick-actions";
-import { StatusBadge } from "@/components/status-badge";
+import { ApplicationStatusCell } from "@/components/application-status-cell";
 import Link from "next/link";
 
 type ApplicationListProps = {
@@ -59,9 +58,8 @@ export function ApplicationList({ applications, fromFilter }: ApplicationListPro
             )}
 
             {/* Badge + actions — above the stretched link so buttons remain clickable */}
-            <div className="relative z-10 flex flex-shrink-0 flex-col items-end gap-1.5 ml-auto order-3 mobile:order-2">
-              <StatusBadge status={app.status} />
-              <ApplicationStatusQuickActions
+            <div className="relative z-10 flex flex-shrink-0 ml-auto order-3 mobile:order-2">
+              <ApplicationStatusCell
                 applicationId={app.id}
                 currentStatus={app.status}
               />
