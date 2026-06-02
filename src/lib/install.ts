@@ -50,13 +50,11 @@ export function useInstallPrompt(): InstallPromptState {
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(false);
-  const [platform, setPlatform] = useState<Platform>("other");
-  const [standalone, setStandalone] = useState(false);
+  // Lazy initializers avoid setState-in-effect lint errors and are SSR-safe
+  const [platform] = useState<Platform>(detectPlatform);
+  const [standalone] = useState<boolean>(isStandalone);
 
   useEffect(() => {
-    setPlatform(detectPlatform());
-    setStandalone(isStandalone());
-
     const onPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
