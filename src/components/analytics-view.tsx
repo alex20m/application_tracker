@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { computeAnalytics } from "@/lib/analytics";
-import { AnalyticsCharts } from "@/components/analytics-charts";
+import { ApplicationsTrendChart, StatusSourceCharts } from "@/components/analytics-charts";
 import { AvgStageTime } from "@/components/avg-stage-time";
 import { SankeyChart } from "@/components/sankey-chart";
 import { buildSankeyData } from "@/lib/sankey-builder";
@@ -142,11 +142,20 @@ export function AnalyticsView({ applications }: Props) {
         </div>
       </section>
 
-      {/* ── Charts ─────────────────────────────────────────── */}
+      {/* ── Application Flow ────────────────────────────────── */}
       <section>
-        <AnalyticsCharts
+        <SankeyChart data={sankeyData} />
+      </section>
+
+      {/* ── Applications Over Time ───────────────────────────── */}
+      <section>
+        <ApplicationsTrendChart dailyTrend={a.dailyTrend} />
+      </section>
+
+      {/* ── Current Status + Source Performance ─────────────── */}
+      <section>
+        <StatusSourceCharts
           statusCounts={a.statusCounts}
-          dailyTrend={a.dailyTrend}
           sourceStats={a.sourceStats}
         />
       </section>
@@ -154,11 +163,6 @@ export function AnalyticsView({ applications }: Props) {
       {/* ── Stage Duration ──────────────────────────────────── */}
       <section>
         <AvgStageTime applications={filtered} />
-      </section>
-
-      {/* ── Application Flow ────────────────────────────────── */}
-      <section>
-        <SankeyChart data={sankeyData} />
       </section>
     </div>
   );
