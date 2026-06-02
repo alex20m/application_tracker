@@ -4,6 +4,7 @@ import { ThemeSelector } from "@/components/theme-selector";
 import { ChangePasswordForm } from "@/components/change-password-form";
 import { DeleteAccountForm } from "@/components/delete-account-form";
 import { CARD, SECTION_STACK, TEXT_H1, TEXT_H3 } from "@/lib/ui";
+import { InstallAppButton } from "@/components/install-app-button";
 import { changePasswordAction, deleteAccountAction } from "./actions";
 
 export default async function SettingsPage() {
@@ -20,6 +21,8 @@ export default async function SettingsPage() {
           <h2 className={`${TEXT_H3} mb-4`}>Appearance</h2>
           <ThemeSelector />
         </div>
+
+        <InstallAppButton variant="card" />
 
         {user.email && (
           <div className={CARD}>
