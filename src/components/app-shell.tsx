@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ROUTES } from "@/lib/env";
 import { BTN_GHOST, PAGE_CONTAINER, PAGE_VERTICAL } from "@/lib/ui";
+import { InstallAppButton } from "@/components/install-app-button";
 
 type AppShellProps = {
   email: string;
@@ -55,6 +56,7 @@ export function AppShell({ email, children }: AppShellProps) {
             ))}
           </nav>
           <div className="flex items-center gap-3 mobile:hidden">
+            <InstallAppButton variant="chip" />
             <span className="text-xs text-gray-500 dark:text-gray-500">{email}</span>
             <form action={ROUTES.signOut} method="post">
               <button
@@ -127,6 +129,7 @@ export function AppShell({ email, children }: AppShellProps) {
             </nav>
 
             <div className="mt-auto border-t border-gray-200 dark:border-gray-700 p-4 space-y-3">
+              <InstallAppButton variant="chip" />
               <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{email}</p>
               <form action={ROUTES.signOut} method="post">
                 <button
