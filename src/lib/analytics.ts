@@ -319,6 +319,14 @@ export function computeAnalytics(
 
   const dailyTrend: DailyEntry[] = [];
   if (trendMinDate) {
+    // Prepend a synthetic zero day so every series has a visible "start from 0" anchor.
+    const dayBefore = new Date(new Date(trendMinDate + "T00:00:00.000Z").getTime() - 86_400_000);
+    const dayBeforeStr = dayBefore.toISOString().slice(0, 10);
+    dailyTrend.push({
+      date: dayBeforeStr, label: formatDayLabel(dayBeforeStr),
+      applied: 0, interviews: 0, offers: 0, ghosted: 0, rejectedByCompany: 0, rejectedByMe: 0,
+    });
+
     let cumApplied = 0, cumInterviews = 0, cumOffers = 0;
     let cumGhosted = 0, cumRejectedByCompany = 0, cumRejectedByMe = 0;
     let cursor = new Date(trendMinDate + "T00:00:00.000Z");

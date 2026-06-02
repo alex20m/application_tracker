@@ -257,7 +257,7 @@ export function AnalyticsCharts({ statusCounts, dailyTrend, sourceStats }: Props
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis dataKey="label" tick={TICK} axisLine={false} tickLine={false} interval={tickInterval} />
-              <YAxis allowDecimals={false} tick={TICK} axisLine={false} tickLine={false} />
+              <YAxis allowDecimals={false} tick={TICK} axisLine={false} tickLine={false} domain={[0, 'auto']} />
               <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'rgba(100,100,100,0.55)', strokeWidth: 2 }} />
               {visibleSeries.map((s) => (
                 <Area
