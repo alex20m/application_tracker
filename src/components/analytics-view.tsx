@@ -37,7 +37,7 @@ type StatCardProps = {
 
 function StatCard({ label, value, accent }: StatCardProps) {
   return (
-    <div className={CARD}>
+    <div className="rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700/60 p-4 mobile:p-3">
       <p className={`${TEXT_META} mb-1`}>{label}</p>
       <p
         className={`text-3xl font-bold mobile:text-2xl ${
@@ -118,25 +118,27 @@ export function AnalyticsView({ applications }: Props) {
 
       {/* ── Overview ─────────────────────────────────────── */}
       <section>
-        <h2 className={`${TEXT_H2} mb-3`}>Overview</h2>
-        <div className="grid grid-cols-4 gap-4 mobile:grid-cols-2 mobile:gap-3">
-          <StatCard
-            label="Total Roles Applied"
-            value={String(a.totalApplications)}
-          />
-          <StatCard
-            label="Open Applications"
-            value={String(a.activeCount)}
-          />
-          <StatCard
-            label="Interview Rate"
-            value={pct(a.interviewRate)}
-            accent
-          />
-          <StatCard
-            label="Avg. to First Response"
-            value={days(a.avgDaysToFirstResponse)}
-          />
+        <div className={CARD}>
+          <h2 className={`${TEXT_H2} mb-4`}>Overview</h2>
+          <div className="grid grid-cols-4 gap-3 mobile:grid-cols-2">
+            <StatCard
+              label="Total Roles Applied"
+              value={String(a.totalApplications)}
+            />
+            <StatCard
+              label="Open Applications"
+              value={String(a.activeCount)}
+            />
+            <StatCard
+              label="Interview Rate"
+              value={pct(a.interviewRate)}
+              accent
+            />
+            <StatCard
+              label="Avg. to First Response"
+              value={days(a.avgDaysToFirstResponse)}
+            />
+          </div>
         </div>
       </section>
 
