@@ -1,7 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
-
 export type Platform =
   | "android"
   | "ios"
@@ -34,58 +32,13 @@ export function isStandalone(): boolean {
   );
 }
 
-interface BeforeInstallPromptEvent extends Event {
+export interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
-export interface InstallPromptState {
-  canPrompt: boolean;
-  platform: Platform;
-  standalone: boolean;
-  promptInstall: () => Promise<"accepted" | "dismissed" | "unsupported">;
-}
-
-export function useInstallPrompt(): InstallPromptState {
-  const [deferredPrompt, setDeferredPrompt] =
-    useState<BeforeInstallPromptEvent | null>(null);
-  const [installed, setInstalled] = useState(false);
-  // Lazy initializers avoid setState-in-effect lint errors and are SSR-safe
-  const [platform] = useState<Platform>(detectPlatform);
-  const [standalone] = useState<boolean>(isStandalone);
-
-  useEffect(() => {
-    const onPrompt = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
-    };
-    const onInstalled = () => {
-      setDeferredPrompt(null);
-      setInstalled(true);
-    };
-
-    window.addEventListener("beforeinstallprompt", onPrompt);
-    window.addEventListener("appinstalled", onInstalled);
-    return () => {
-      window.removeEventListener("beforeinstallprompt", onPrompt);
-      window.removeEventListener("appinstalled", onInstalled);
-    };
-  }, []);
-
-  const promptInstall = async (): Promise<
-    "accepted" | "dismissed" | "unsupported"
-  > => {
-    if (!deferredPrompt) return "unsupported";
-    await deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    setDeferredPrompt(null);
-    return outcome;
-  };
-
-  return {
-    canPrompt: !!deferredPrompt && !installed,
-    platform,
-    standalone,
-    promptInstall,
-  };
+declare global {
+  interface Window {
+    __pwaInstallPrompt?: BeforeInstallPromptEvent;
+  }
 }
