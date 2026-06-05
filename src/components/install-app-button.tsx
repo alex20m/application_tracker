@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useInstallPrompt } from "@/lib/install";
+import { useState, useEffect } from "react";
+import { detectPlatform, isStandalone } from "@/lib/install";
 import { InstallInstructionsModal } from "@/components/install-instructions-modal";
 import { BTN_GHOST, BTN_PRIMARY, CARD, TEXT_H3 } from "@/lib/ui";
 
@@ -30,29 +30,38 @@ function DownloadIcon() {
 }
 
 export function InstallAppButton({ variant }: Props) {
-  const { canPrompt, platform, standalone, promptInstall } = useInstallPrompt();
   const [showModal, setShowModal] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const [platform] = useState(detectPlatform);
+  const [standalone] = useState(isStandalone);
 
-  if (standalone || dismissed) return null;
+  useEffect(() => {
+    const onInstalled = () => setHidden(true);
+    window.addEventListener("appinstalled", onInstalled);
+    return () => window.removeEventListener("appinstalled", onInstalled);
+  }, []);
 
-  const needsInstructions = platform === "ios" || platform === "safari-macos";
-  const isUnsupported = !canPrompt && !needsInstructions;
+  if (standalone || hidden) return null;
 
   const handleClick = async () => {
-    if (needsInstructions) {
-      setShowModal(true);
-      return;
+    const event = window.__pwaInstallPrompt;
+    if (event) {
+      try {
+        await event.prompt();
+        const { outcome } = await event.userChoice;
+        window.__pwaInstallPrompt = undefined;
+        if (outcome === "accepted") {
+          setHidden(true);
+          return;
+        }
+      } catch {
+        // event already consumed or unavailable — fall through to modal
+      }
     }
-    if (canPrompt) {
-      const outcome = await promptInstall();
-      if (outcome === "accepted") setDismissed(true);
-    }
+    setShowModal(true);
   };
 
   if (variant === "chip") {
-    // Don't render the chip on unsupported browsers — no useful action
-    if (isUnsupported) return null;
     return (
       <>
         <button
@@ -74,7 +83,6 @@ export function InstallAppButton({ variant }: Props) {
     );
   }
 
-  // card variant — always show on settings page, even for unsupported browsers
   return (
     <>
       <div className={CARD}>
@@ -83,22 +91,14 @@ export function InstallAppButton({ variant }: Props) {
           Add AppTrack to your device for quick access — works like a native
           app, no App Store required.
         </p>
-        {isUnsupported ? (
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Your browser doesn&apos;t support one-click install. Bookmark this
-            page for quick access, or open it in Chrome (Android/desktop) or
-            Safari (iPhone/iPad/Mac).
-          </p>
-        ) : (
-          <button
-            type="button"
-            onClick={handleClick}
-            className={`${BTN_PRIMARY} flex items-center gap-2`}
-          >
-            <DownloadIcon />
-            {needsInstructions ? "How to install" : "Install AppTrack"}
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={handleClick}
+          className={`${BTN_PRIMARY} flex items-center gap-2`}
+        >
+          <DownloadIcon />
+          Install AppTrack
+        </button>
       </div>
       {showModal && (
         <InstallInstructionsModal

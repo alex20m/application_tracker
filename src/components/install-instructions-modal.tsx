@@ -126,6 +126,78 @@ function SafariMacSteps() {
   );
 }
 
+function ChromeDesktopSteps() {
+  return (
+    <div className="space-y-4">
+      <Step number={1}>
+        Look for the{" "}
+        <span className="font-medium text-gray-900 dark:text-gray-100">
+          install icon
+        </span>{" "}
+        at the right end of the address bar — it looks like a monitor with a
+        small down-arrow (
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+          className="inline-block align-middle text-indigo-500"
+        >
+          <rect x="2" y="3" width="20" height="14" rx="2" />
+          <path d="M8 21h8M12 17v4" />
+          <path d="M12 7v6M9 10l3 3 3-3" />
+        </svg>
+        ). Click it, then click{" "}
+        <span className="font-medium text-gray-900 dark:text-gray-100">
+          Install
+        </span>
+        .
+      </Step>
+      <Step number={2}>
+        Don&apos;t see the icon? Click the{" "}
+        <span className="font-medium text-gray-900 dark:text-gray-100">
+          three-dot menu
+        </span>{" "}
+        (⋮) in the top-right corner, then choose{" "}
+        <span className="font-medium text-gray-900 dark:text-gray-100">
+          Save and share → Install AppTrack
+        </span>
+        .
+      </Step>
+    </div>
+  );
+}
+
+function AndroidSteps() {
+  return (
+    <div className="space-y-4">
+      <Step number={1}>
+        Tap the{" "}
+        <span className="font-medium text-gray-900 dark:text-gray-100">
+          three-dot menu
+        </span>{" "}
+        (⋮) in the top-right corner of Chrome.
+      </Step>
+      <Step number={2}>
+        Tap{" "}
+        <span className="font-medium text-gray-900 dark:text-gray-100">
+          Add to Home screen
+        </span>
+        , then tap{" "}
+        <span className="font-medium text-gray-900 dark:text-gray-100">
+          Add
+        </span>
+        .
+      </Step>
+    </div>
+  );
+}
+
 function FallbackSteps() {
   return (
     <div className="space-y-4">
@@ -161,7 +233,9 @@ export function InstallInstructionsModal({ platform, onClose }: Props) {
       ? "Add to Home Screen"
       : platform === "safari-macos"
         ? "Add to Dock"
-        : "Install AppTrack";
+        : platform === "android"
+          ? "Add to Home Screen"
+          : "Install AppTrack";
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
@@ -207,7 +281,9 @@ export function InstallInstructionsModal({ platform, onClose }: Props) {
 
         {platform === "ios" && <IosSteps />}
         {platform === "safari-macos" && <SafariMacSteps />}
-        {platform !== "ios" && platform !== "safari-macos" && <FallbackSteps />}
+        {platform === "desktop-chromium" && <ChromeDesktopSteps />}
+        {platform === "android" && <AndroidSteps />}
+        {platform === "other" && <FallbackSteps />}
 
         <button
           type="button"
