@@ -45,6 +45,12 @@ declare global {
   }
 }
 
+// Module-level singletons — survive component unmount/remount across
+// client-side navigation. beforeinstallprompt fires once per page load,
+// so the prompt must be kept alive beyond any single component's lifetime.
+let _prompt: BeforeInstallPromptEvent | null = null;
+let _installed = false;
+
 export interface InstallPromptState {
   canPrompt: boolean;
   platform: Platform;
@@ -53,27 +59,31 @@ export interface InstallPromptState {
 }
 
 export function useInstallPrompt(): InstallPromptState {
-  // Lazy initializer: if beforeinstallprompt already fired before React
-  // hydrated, sw-register.js stashes it on window.__pwaInstallPrompt.
-  // Reading it here at mount time means we never miss the event due to
-  // the useEffect/paint timing race.
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(() => {
       if (typeof window === "undefined") return null;
-      const early = window.__pwaInstallPrompt ?? null;
-      if (early) window.__pwaInstallPrompt = undefined;
-      return early;
+      // Transfer the early-captured event (from sw-register.js) into the
+      // module-level store on first mount, then read from there on all
+      // subsequent mounts (e.g. after client-side navigation).
+      if (!_prompt && window.__pwaInstallPrompt) {
+        _prompt = window.__pwaInstallPrompt;
+        window.__pwaInstallPrompt = undefined;
+      }
+      return _prompt;
     });
-  const [installed, setInstalled] = useState(false);
+  const [installed, setInstalled] = useState(_installed);
   const [platform] = useState<Platform>(detectPlatform);
   const [standalone] = useState<boolean>(isStandalone);
 
   useEffect(() => {
     const onPrompt = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
+      _prompt = e as BeforeInstallPromptEvent;
+      setDeferredPrompt(_prompt);
     };
     const onInstalled = () => {
+      _prompt = null;
+      _installed = true;
       setDeferredPrompt(null);
       setInstalled(true);
     };
@@ -92,6 +102,7 @@ export function useInstallPrompt(): InstallPromptState {
     if (!deferredPrompt) return "unsupported";
     await deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
+    _prompt = null;
     setDeferredPrompt(null);
     return outcome;
   };
