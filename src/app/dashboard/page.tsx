@@ -1,11 +1,10 @@
-import type { ReactNode } from "react";
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { AppShell } from "@/components/app-shell";
 import { computeAnalytics } from "@/lib/analytics";
 import { ApplicationList } from "@/components/application-list";
 import { ROUTES } from "@/lib/env";
-import { CARD, BTN_PRIMARY_LINK, SECTION_STACK } from "@/lib/ui";
+import { BTN_PRIMARY_LINK, SECTION_STACK } from "@/lib/ui";
 import type { ApplicationRecord } from "@/lib/types";
 import { STATUS, ACTIVE_STATUSES } from "@/lib/statuses";
 
@@ -16,6 +15,15 @@ function getGreeting(): string {
   if (h < 12) return "Good morning";
   if (h < 17) return "Good afternoon";
   return "Good evening";
+}
+
+function getDateStamp(): string {
+  const now = new Date();
+  const day = now.toLocaleDateString("en-US", { weekday: "long" }).toUpperCase();
+  const month = now.toLocaleDateString("en-US", { month: "long" }).toUpperCase();
+  const date = now.getDate();
+  const year = now.getFullYear();
+  return `${day} · ${month} ${date}, ${year}`;
 }
 
 function pct(value: number | null): string {
@@ -37,6 +45,7 @@ type AttentionItem = {
   role: string;
   reason: string;
   reasonColor: string;
+  actionLabel: string;
 };
 
 function buildAttentionItems(applications: ApplicationRecord[]): AttentionItem[] {
@@ -52,6 +61,7 @@ function buildAttentionItems(applications: ApplicationRecord[]): AttentionItem[]
         role: app.role,
         reason: "Offer pending — respond when ready",
         reasonColor: "var(--st-offer)",
+        actionLabel: "Respond",
       });
       continue;
     }
@@ -66,8 +76,9 @@ function buildAttentionItems(applications: ApplicationRecord[]): AttentionItem[]
             id: app.id,
             company: app.company,
             role: app.role,
-            reason: `No activity for ${diffDays} days`,
+            reason: `No response in ${diffDays} days · auto-marked Ghosted`,
             reasonColor: "var(--st-ghosted)",
+            actionLabel: "Follow up",
           });
           continue;
         }
@@ -82,6 +93,7 @@ function buildAttentionItems(applications: ApplicationRecord[]): AttentionItem[]
         role: app.role,
         reason: "Interview in progress",
         reasonColor: "var(--st-interviews)",
+        actionLabel: "Prep notes",
       });
     }
   }
@@ -98,65 +110,44 @@ function buildAttentionItems(applications: ApplicationRecord[]): AttentionItem[]
 
 // ── Sub-components ───────────────────────────────────────────────────────────
 
-type KpiVariant = "good" | "info" | "neutral";
-
-function KpiTile({
-  title,
+function KpiCard({
+  label,
+  value,
+  valueColor,
   sub,
-  variant = "neutral",
-  icon,
 }: {
-  title: string;
+  label: string;
+  value: string;
+  valueColor?: string;
   sub?: string;
-  variant?: KpiVariant;
-  icon: ReactNode;
 }) {
-  const c: Record<KpiVariant, { bg: string; border: string; iconBg: string; iconColor: string }> = {
-    good: {
-      bg: "color-mix(in oklch, var(--st-offer) 8%, var(--surface))",
-      border: "color-mix(in oklch, var(--st-offer) 35%, transparent)",
-      iconBg: "color-mix(in oklch, var(--st-offer) 15%, var(--surface))",
-      iconColor: "color-mix(in oklch, var(--st-offer) 90%, white 10%)",
-    },
-    info: {
-      bg: "color-mix(in oklch, var(--accent) 8%, var(--surface))",
-      border: "color-mix(in oklch, var(--accent) 30%, transparent)",
-      iconBg: "color-mix(in oklch, var(--accent) 15%, var(--surface))",
-      iconColor: "var(--accent)",
-    },
-    neutral: {
-      bg: "var(--surface-2)",
-      border: "var(--border)",
-      iconBg: "var(--surface-3)",
-      iconColor: "var(--ink-2)",
-    },
-  };
-  const colors = c[variant];
-
   return (
-    <div
-      className="rounded-2xl border p-4 flex gap-3 shadow-sm"
-      style={{ background: colors.bg, borderColor: colors.border }}
-    >
-      <div
-        className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center"
-        style={{ background: colors.iconBg, color: colors.iconColor }}
+    <div className="rounded-2xl border border-border-base bg-surface p-5 shadow-sm flex flex-col gap-1.5">
+      <p className="text-[12.5px] text-ink-2">{label}</p>
+      <p
+        className="text-[36px] font-bold leading-none tracking-[-0.03em]"
+        style={valueColor ? { color: valueColor } : { color: "var(--text)" }}
       >
-        {icon}
-      </div>
-      <div className="min-w-0 flex flex-col justify-center">
-        <p className="text-[13.5px] font-semibold text-ink leading-snug">{title}</p>
-        {sub && <p className="text-[12.5px] text-ink-2 mt-0.5">{sub}</p>}
-      </div>
+        {value}
+      </p>
+      {sub && <p className="text-[12.5px] text-ink-3">{sub}</p>}
     </div>
   );
 }
 
-function NeedsAttentionCard({ items }: { items: AttentionItem[] }) {
+function NeedsAttentionCard({
+  items,
+  totalCount,
+}: {
+  items: AttentionItem[];
+  totalCount: number;
+}) {
   if (items.length === 0) {
     return (
-      <div className={`${CARD} flex flex-col`}>
-        <p className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-3 mb-4">Needs Attention</p>
+      <div className="rounded-2xl border border-border-base bg-surface p-[22px] shadow-sm flex flex-col">
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-[15px] font-semibold text-ink">Needs attention</span>
+        </div>
         <div className="flex-1 flex flex-col items-center justify-center py-8 text-center">
           <div className="w-10 h-10 rounded-2xl bg-surface-2 flex items-center justify-center mb-3">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
@@ -172,33 +163,47 @@ function NeedsAttentionCard({ items }: { items: AttentionItem[] }) {
   }
 
   return (
-    <div className={`${CARD} flex flex-col gap-2`}>
-      <p className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-3 mb-2">Needs Attention</p>
+    <div className="rounded-2xl border border-border-base bg-surface p-[22px] shadow-sm flex flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-[15px] font-semibold text-ink">Needs attention</span>
+          {totalCount > 0 && (
+            <span
+              className="inline-flex items-center rounded-full px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide"
+              style={{
+                background: "color-mix(in oklch, var(--st-rejected) 12%, var(--surface))",
+                color: "var(--st-rejected)",
+              }}
+            >
+              NEW
+            </span>
+          )}
+        </div>
+        <Link
+          href={ROUTES.applications}
+          className="text-[12.5px] font-medium text-accent hover:text-accent-strong transition"
+        >
+          View all
+        </Link>
+      </div>
       {items.map((item) => (
         <Link
           key={item.id}
           href={`/applications/${item.id}`}
-          className="flex items-center gap-3 rounded-xl border border-border-base bg-surface-2 px-3 py-2.5 transition hover:bg-surface-3 hover:border-border-strong group"
+          className="flex items-center gap-3 rounded-xl border border-border-base bg-surface-2 px-4 py-3 transition hover:bg-surface-3 hover:border-border-strong group"
         >
           <div
             className="w-2 h-2 rounded-full flex-shrink-0"
             style={{ background: item.reasonColor }}
           />
           <div className="flex-1 min-w-0">
-            <p className="text-[13px] font-semibold text-ink truncate">
+            <p className="text-[13.5px] font-semibold text-ink truncate">
               {item.company} — {item.role}
             </p>
             <p className="text-[12px] text-ink-3 mt-px">{item.reason}</p>
           </div>
-          <span
-            className="flex-shrink-0 text-[12px] font-semibold px-2.5 py-1 rounded-lg border transition"
-            style={{
-              color: item.reasonColor,
-              borderColor: `color-mix(in oklch, ${item.reasonColor} 30%, transparent)`,
-              background: `color-mix(in oklch, ${item.reasonColor} 8%, var(--surface))`,
-            }}
-          >
-            Go to application →
+          <span className="flex-shrink-0 text-[12px] font-medium px-3 py-1.5 rounded-lg border border-border-base bg-surface text-ink-2 transition group-hover:border-border-strong">
+            {item.actionLabel}
           </span>
         </Link>
       ))}
@@ -210,45 +215,49 @@ type FunnelStage = { label: string; count: number; color: string };
 
 function PipelineCard({ analytics }: { analytics: ReturnType<typeof computeAnalytics> }) {
   const stages: FunnelStage[] = [
-    { label: "Active", count: analytics.activeCount, color: "var(--st-applied)" },
-    { label: "Interviews", count: analytics.interviewedCount, color: "var(--st-interviews)" },
-    { label: "Offers", count: analytics.offeredCount, color: "var(--st-offer)" },
-    { label: "Accepted", count: analytics.totalApplications > 0 ? (analytics.offeredCount - (analytics.currentlyOfferCount)) : 0, color: "var(--st-accepted)" },
+    { label: "Applied", count: analytics.activeCount, color: "color-mix(in oklch, var(--st-applied) 30%, var(--surface-2))" },
+    { label: "Interviews", count: analytics.interviewedCount, color: "color-mix(in oklch, var(--st-interviews) 30%, var(--surface-2))" },
+    { label: "Offers", count: analytics.offeredCount, color: "color-mix(in oklch, var(--st-offer) 35%, var(--surface-2))" },
+    {
+      label: "Accepted",
+      count: analytics.totalApplications > 0 ? analytics.offeredCount - analytics.currentlyOfferCount : 0,
+      color: "color-mix(in oklch, var(--st-accepted) 35%, var(--surface-2))",
+    },
   ];
 
   const max = stages[0].count || 1;
 
   return (
-    <div className={`${CARD} flex flex-col gap-4`}>
-      <p className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-3">Pipeline</p>
-      <div className="space-y-3">
+    <div className="rounded-2xl border border-border-base bg-surface p-[22px] shadow-sm flex flex-col gap-4">
+      <p className="text-[15px] font-semibold text-ink">Pipeline</p>
+      <div className="space-y-2.5">
         {stages.map((stage) => (
-          <div key={stage.label}>
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[12.5px] text-ink-2">{stage.label}</span>
-              <span className="font-mono text-[13px] font-semibold text-ink" style={{ fontFeatureSettings: '"tnum"' }}>
-                {stage.count}
-              </span>
-            </div>
-            <div className="h-1.5 rounded-full bg-surface-2 overflow-hidden">
+          <div key={stage.label} className="flex items-center gap-3">
+            <span className="w-[78px] flex-shrink-0 text-[12.5px] text-ink-2 text-right">{stage.label}</span>
+            <div className="flex-1 h-8 rounded-lg bg-surface-2 overflow-hidden">
               <div
-                className="h-full rounded-full transition-all"
+                className="h-full rounded-lg flex items-center justify-end pr-2.5 transition-all"
                 style={{
-                  width: `${(stage.count / max) * 100}%`,
+                  width: `${Math.max((stage.count / max) * 100, stage.count > 0 ? 10 : 0)}%`,
                   background: stage.color,
+                  minWidth: stage.count > 0 ? "2rem" : "0",
                 }}
-              />
+              >
+                {stage.count > 0 && (
+                  <span className="text-[13px] font-bold leading-none text-ink">
+                    {stage.count}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         ))}
       </div>
       {analytics.interviewRate !== null && (
-        <p className="text-[12px] text-ink-3 pt-1 border-t border-border-base">
-          Interview conversion:{" "}
-          <span className="font-mono font-semibold text-ink-2">
-            {pct(analytics.interviewRate)}
-          </span>
-        </p>
+        <div className="flex items-center justify-between pt-2 border-t border-border-base">
+          <span className="text-[12.5px] text-ink-2">Interview conversion</span>
+          <span className="text-[14px] font-bold text-accent">{pct(analytics.interviewRate)}</span>
+        </div>
       )}
     </div>
   );
@@ -276,15 +285,8 @@ export default async function DashboardPage() {
     .filter((a) => a.status !== STATUS.wishlist)
     .slice(0, 3);
 
-  // Attention summary line
   const activeCount = analytics.activeCount;
   const attentionCount = attentionItems.length;
-  const summaryLine =
-    activeCount === 0
-      ? "Add your first application to get started."
-      : attentionCount > 0
-        ? `${activeCount} active application${activeCount !== 1 ? "s" : ""} · ${attentionCount} need${attentionCount === 1 ? "s" : ""} attention`
-        : `${activeCount} active application${activeCount !== 1 ? "s" : ""} · everything looks good`;
 
   // Interviews subtitle
   const interviewingApps = allApps.filter((a) => a.status === STATUS.interviews);
@@ -293,7 +295,7 @@ export default async function DashboardPage() {
       ? interviewingApps
           .slice(0, 2)
           .map((a) => a.company)
-          .join(", ") + (interviewingApps.length > 2 ? ` +${interviewingApps.length - 2}` : "")
+          .join(" · ") + (interviewingApps.length > 2 ? ` +${interviewingApps.length - 2}` : "")
       : undefined;
 
   return (
@@ -302,10 +304,33 @@ export default async function DashboardPage() {
         {/* ── Greeting header ─────────────────────────────── */}
         <div className="flex items-end justify-between gap-4 flex-wrap mobile:flex-col mobile:items-stretch mobile:gap-3">
           <div>
-            <h1 className="text-[27px] font-bold tracking-[-0.025em] leading-[1.18] text-ink mobile:text-2xl">
+            <p className="text-[11.5px] font-medium uppercase tracking-[0.08em] text-ink-3 mb-1">
+              {getDateStamp()}
+            </p>
+            <h1 className="text-[32px] font-bold tracking-[-0.03em] leading-[1.15] text-ink mobile:text-[26px]">
               {getGreeting()} 👋
             </h1>
-            <p className="text-[13.5px] text-ink-2 mt-1">{summaryLine}</p>
+            {activeCount > 0 ? (
+              <p className="text-[13.5px] text-ink-2 mt-1">
+                You have{" "}
+                <strong className="font-semibold text-ink">
+                  {activeCount} active application{activeCount !== 1 ? "s" : ""}
+                </strong>
+                {attentionCount > 0 ? (
+                  <>
+                    {" "}moving and{" "}
+                    <strong className="font-semibold text-ink">
+                      {attentionCount} thing{attentionCount !== 1 ? "s" : ""}
+                    </strong>
+                    {" "}that need attention.
+                  </>
+                ) : (
+                  <> · everything looks good.</>
+                )}
+              </p>
+            ) : (
+              <p className="text-[13.5px] text-ink-2 mt-1">Add your first application to get started.</p>
+            )}
           </div>
           <Link href={ROUTES.newApplication} className={BTN_PRIMARY_LINK}>
             <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
@@ -317,57 +342,40 @@ export default async function DashboardPage() {
 
         {/* ── KPI tiles ───────────────────────────────────── */}
         <div className="grid grid-cols-4 gap-3 mobile:grid-cols-2">
-          <KpiTile
-            title={`${analytics.activeCount} active`}
+          <KpiCard
+            label="Active"
+            value={String(analytics.activeCount)}
             sub="Applications in progress"
-            variant="info"
-            icon={
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <path d="M2 7L8 3.5L14 7L8 10.5L2 7Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
-                <path d="M2 10.5L8 14L14 10.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            }
           />
-          <KpiTile
-            title={`${analytics.currentlyInterviewingCount} interviewing`}
+          <KpiCard
+            label="In interviews"
+            value={String(analytics.currentlyInterviewingCount)}
             sub={interviewSub}
-            variant="good"
-            icon={
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <circle cx="6" cy="5" r="2.5" stroke="currentColor" strokeWidth="1.2" />
-                <path d="M1 14c0-2.8 2.2-5 5-5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-                <circle cx="11" cy="5" r="2.5" stroke="currentColor" strokeWidth="1.2" />
-                <path d="M11 9c2.8 0 5 2.2 5 5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-              </svg>
-            }
           />
-          <KpiTile
-            title={`Response rate is ${pct(analytics.responseRate)}`}
+          <KpiCard
+            label="Response rate"
+            value={pct(analytics.responseRate)}
+            valueColor={
+              analytics.responseRate !== null && analytics.responseRate > 0
+                ? "var(--st-offer)"
+                : undefined
+            }
             sub="Of applications got a reply"
-            variant="neutral"
-            icon={
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <path d="M5 5H3L7 2M3 5l4 3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M14 10a6 6 0 0 0-6-6H3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-              </svg>
-            }
           />
-          <KpiTile
-            title={`First reply in ${days(analytics.avgDaysToFirstResponse)}`}
-            sub="Average response time"
-            variant="neutral"
-            icon={
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.2" />
-                <path d="M8 5v3l2 2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+          <KpiCard
+            label="Avg. first reply"
+            value={days(analytics.avgDaysToFirstResponse)}
+            sub={
+              analytics.totalApplications > 0
+                ? `across ${analytics.totalApplications} applications`
+                : undefined
             }
           />
         </div>
 
         {/* ── Two-column: Needs Attention + Pipeline ───────── */}
         <div className="grid grid-cols-[1fr_300px] gap-4 mobile:grid-cols-1">
-          <NeedsAttentionCard items={attentionItems} />
+          <NeedsAttentionCard items={attentionItems} totalCount={attentionCount} />
           <PipelineCard analytics={analytics} />
         </div>
 
@@ -375,14 +383,12 @@ export default async function DashboardPage() {
         {recentApps.length > 0 && (
           <section>
             <div className="flex items-center justify-between mb-3">
-              <p className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-3">
-                Recent Activity
-              </p>
+              <p className="text-[15px] font-semibold text-ink">Recent activity</p>
               <Link
                 href={ROUTES.applications}
-                className="text-[12.5px] font-medium text-ink-3 hover:text-accent transition"
+                className="text-[13px] font-medium text-accent hover:text-accent-strong transition"
               >
-                View all →
+                All applications
               </Link>
             </div>
             <ApplicationList applications={recentApps} />
@@ -399,7 +405,9 @@ export default async function DashboardPage() {
               </svg>
             </div>
             <p className="text-[15px] font-semibold text-ink mb-1">Start tracking your job search</p>
-            <p className="text-[13px] text-ink-3 mb-6">Add your first application and AppTrack will help you see what&apos;s working.</p>
+            <p className="text-[13px] text-ink-3 mb-6">
+              Add your first application and AppTrack will help you see what&apos;s working.
+            </p>
             <Link href={ROUTES.newApplication} className={BTN_PRIMARY_LINK + " inline-flex"}>
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                 <path d="M7 1v12M1 7h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
