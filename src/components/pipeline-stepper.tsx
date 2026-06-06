@@ -36,50 +36,44 @@ export function PipelineStepper({ applicationId, status }: Props) {
 
   return (
     <div className="rounded-2xl border border-border-base bg-surface p-[22px] shadow-sm mobile:p-4">
-      <p className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-3 mb-4">Pipeline</p>
+      <p className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-3 mb-4">Pipeline Stage</p>
 
       {/* Stepper */}
-      <div className="flex items-center gap-0">
+      <div className="flex items-center">
         {STAGES.map((stage, i) => {
           const isDone = currentIdx > stage.stageIdx;
           const isCurrent = currentIdx === stage.stageIdx;
           const isLast = i === STAGES.length - 1;
+          const connectorDone = isDone;
 
           return (
             <div key={stage.stageIdx} className="flex flex-1 items-center min-w-0">
-              <div className="flex flex-col items-center min-w-0 flex-1">
-                {/* Circle */}
-                <div className={[
-                  "h-7 w-7 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0 transition-all",
+              {/* Pill */}
+              <div
+                className={[
+                  "flex-shrink-0 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-all whitespace-nowrap",
                   isDone
-                    ? "text-white"
+                    ? "text-[var(--st-offer)]"
                     : isCurrent
-                      ? "bg-accent text-accent-ink ring-2 ring-accent/30"
-                      : "bg-surface-2 border border-border-base text-ink-3",
+                      ? "text-white"
+                      : "border border-border-base text-ink-3",
                 ].join(" ")}
-                  style={isDone ? { background: "var(--st-offer)" } : undefined}
-                >
-                  {isDone ? (
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                      <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  ) : (
-                    <span>{i + 1}</span>
-                  )}
-                </div>
-                {/* Label */}
-                <span className={[
-                  "mt-1.5 text-[11.5px] font-medium whitespace-nowrap",
-                  isCurrent ? "text-accent-strong font-semibold" : isDone ? "text-ink-2" : "text-ink-3",
-                ].join(" ")}>
-                  {stage.label}
-                </span>
+                style={
+                  isDone
+                    ? { background: "color-mix(in oklch, var(--st-offer) 14%, var(--surface))", boxShadow: "inset 0 0 0 1px color-mix(in oklch, var(--st-offer) 28%, transparent)" }
+                    : isCurrent
+                      ? { background: "var(--accent)" }
+                      : { background: "var(--surface-2)" }
+                }
+              >
+                {stage.label}
               </div>
 
               {/* Connector */}
               {!isLast && (
-                <div className="flex-1 h-[2px] mx-1 rounded-full transition-all"
-                  style={{ background: isDone ? "var(--st-offer)" : "var(--border)" }}
+                <div
+                  className="flex-1 h-[2px] mx-1.5 rounded-full transition-all"
+                  style={{ background: connectorDone ? "var(--st-offer)" : "var(--border)" }}
                 />
               )}
             </div>
@@ -90,17 +84,16 @@ export function PipelineStepper({ applicationId, status }: Props) {
       {/* Move to row */}
       {!isFinal && nextStatuses.length > 0 && (
         <div className="mt-4 pt-4 border-t border-border-base">
-          <p className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-3 mb-2">Move to:</p>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[13px] text-ink-2 mr-1">Move to:</span>
             {nextStatuses.map((nextStatus) => (
               <button
                 key={nextStatus}
                 type="button"
                 onClick={() => handleMove(nextStatus)}
                 disabled={isPending}
-                className="flex items-center gap-1.5 rounded-lg border border-border-base bg-surface-2 px-3 py-1.5 text-[12.5px] font-medium text-ink-2 transition hover:bg-surface-3 hover:text-ink disabled:opacity-50"
+                className="rounded-xl border border-border-base bg-surface px-3.5 py-2 text-[13px] font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink disabled:opacity-50"
               >
-                <span className="status-dot h-2 w-2 rounded-full" data-status={nextStatus} />
                 {STATUS_NAMES[nextStatus]}
               </button>
             ))}
