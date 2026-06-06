@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { computeAnalytics } from "@/lib/analytics";
 import { ApplicationsTrendChart, StatusSourceCharts } from "@/components/analytics-charts";
 import { AvgStageTime } from "@/components/avg-stage-time";
@@ -10,7 +10,6 @@ import {
   CARD,
   LABEL,
   SECTION_STACK,
-  TEXT_H2,
   TEXT_H3,
   TEXT_MUTED,
 } from "@/lib/ui";
@@ -135,24 +134,59 @@ function InsightCard({ insight }: { insight: Insight }) {
 
 // ── KPI stat card ────────────────────────────────────────────────────────────
 
+type StatCardVariant = "good" | "warn" | "info" | "neutral";
+
 type StatCardProps = {
-  label: string;
-  value: string;
+  title: string;
   sub?: string;
-  accent?: boolean;
+  variant?: StatCardVariant;
+  icon: ReactNode;
 };
 
-function StatCard({ label, value, sub, accent }: StatCardProps) {
+function StatCard({ title, sub, variant = "neutral", icon }: StatCardProps) {
+  const c: Record<StatCardVariant, { bg: string; border: string; iconBg: string; iconColor: string }> = {
+    good: {
+      bg: "color-mix(in oklch, var(--st-offer) 8%, var(--surface))",
+      border: "color-mix(in oklch, var(--st-offer) 35%, transparent)",
+      iconBg: "color-mix(in oklch, var(--st-offer) 15%, var(--surface))",
+      iconColor: "color-mix(in oklch, var(--st-offer) 90%, white 10%)",
+    },
+    warn: {
+      bg: "color-mix(in oklch, var(--st-ghosted) 10%, var(--surface))",
+      border: "color-mix(in oklch, var(--st-ghosted) 40%, transparent)",
+      iconBg: "color-mix(in oklch, var(--st-ghosted) 18%, var(--surface))",
+      iconColor: "color-mix(in oklch, var(--st-ghosted) 90%, black 5%)",
+    },
+    info: {
+      bg: "color-mix(in oklch, var(--accent) 8%, var(--surface))",
+      border: "color-mix(in oklch, var(--accent) 30%, transparent)",
+      iconBg: "color-mix(in oklch, var(--accent) 15%, var(--surface))",
+      iconColor: "var(--accent)",
+    },
+    neutral: {
+      bg: "var(--surface-2)",
+      border: "var(--border)",
+      iconBg: "var(--surface-3)",
+      iconColor: "var(--ink-2)",
+    },
+  };
+  const colors = c[variant];
+
   return (
-    <div className="rounded-xl bg-surface-2 border border-border-base p-4 mobile:p-3">
-      <p className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-3 mb-1.5">{label}</p>
-      <p
-        className="font-mono text-[30px] font-semibold leading-none mobile:text-2xl"
-        style={{ fontFeatureSettings: '"tnum"', color: accent ? "var(--accent)" : "var(--text)" }}
+    <div
+      className="rounded-xl border p-4 flex gap-3 mobile:p-3"
+      style={{ background: colors.bg, borderColor: colors.border }}
+    >
+      <div
+        className="flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center"
+        style={{ background: colors.iconBg, color: colors.iconColor }}
       >
-        {value}
-      </p>
-      {sub && <p className="text-[12px] text-ink-3 mt-1">{sub}</p>}
+        {icon}
+      </div>
+      <div className="min-w-0 flex flex-col justify-center">
+        <p className="text-[13.5px] font-semibold text-ink leading-snug">{title}</p>
+        {sub && <p className="text-[12.5px] text-ink-2 mt-0.5">{sub}</p>}
+      </div>
     </div>
   );
 }
@@ -305,14 +339,51 @@ export function AnalyticsView({ applications }: Props) {
 
       {/* ── KPI tiles ─────────────────────────────────────── */}
       <section>
-        <div className={CARD}>
-          <h2 className={`${TEXT_H2} mb-4`}>Overview</h2>
-          <div className="grid grid-cols-4 gap-3 mobile:grid-cols-2">
-            <StatCard label="Total Applied" value={String(a.totalApplications)} />
-            <StatCard label="Open" value={String(a.activeCount)} />
-            <StatCard label="Interview Rate" value={pct(a.interviewRate)} accent />
-            <StatCard label="Avg. First Response" value={days(a.avgDaysToFirstResponse)} />
-          </div>
+        <div className="grid grid-cols-4 gap-3 mobile:grid-cols-2">
+          <StatCard
+            title={`${a.totalApplications} application${a.totalApplications !== 1 ? "s" : ""}`}
+            sub="Total submitted"
+            variant="neutral"
+            icon={
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <rect x="2" y="6" width="12" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
+                <path d="M5 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              </svg>
+            }
+          />
+          <StatCard
+            title={`${a.activeCount} open`}
+            sub="Active in pipeline"
+            variant="info"
+            icon={
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M2 7L8 3.5L14 7L8 10.5L2 7Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+                <path d="M2 10.5L8 14L14 10.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            }
+          />
+          <StatCard
+            title={`Interview rate is ${pct(a.interviewRate)}`}
+            sub={a.offerFromInterviewRate !== null ? `${pct(a.offerFromInterviewRate)} of interviews lead to an offer` : undefined}
+            variant="good"
+            icon={
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3 13V9M7 13V5M11 13V7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                <path d="M1 13h14" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              </svg>
+            }
+          />
+          <StatCard
+            title={`First reply in ${days(a.avgDaysToFirstResponse)}`}
+            sub="Average across applications"
+            variant="neutral"
+            icon={
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.2" />
+                <path d="M8 5v3l2 2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            }
+          />
         </div>
       </section>
 

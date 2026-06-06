@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { AppShell } from "@/components/app-shell";
@@ -97,27 +98,56 @@ function buildAttentionItems(applications: ApplicationRecord[]): AttentionItem[]
 
 // ── Sub-components ───────────────────────────────────────────────────────────
 
+type KpiVariant = "good" | "info" | "neutral";
+
 function KpiTile({
-  label,
-  value,
+  title,
   sub,
-  accent,
+  variant = "neutral",
+  icon,
 }: {
-  label: string;
-  value: string;
+  title: string;
   sub?: string;
-  accent?: boolean;
+  variant?: KpiVariant;
+  icon: ReactNode;
 }) {
+  const c: Record<KpiVariant, { bg: string; border: string; iconBg: string; iconColor: string }> = {
+    good: {
+      bg: "color-mix(in oklch, var(--st-offer) 8%, var(--surface))",
+      border: "color-mix(in oklch, var(--st-offer) 35%, transparent)",
+      iconBg: "color-mix(in oklch, var(--st-offer) 15%, var(--surface))",
+      iconColor: "color-mix(in oklch, var(--st-offer) 90%, white 10%)",
+    },
+    info: {
+      bg: "color-mix(in oklch, var(--accent) 8%, var(--surface))",
+      border: "color-mix(in oklch, var(--accent) 30%, transparent)",
+      iconBg: "color-mix(in oklch, var(--accent) 15%, var(--surface))",
+      iconColor: "var(--accent)",
+    },
+    neutral: {
+      bg: "var(--surface-2)",
+      border: "var(--border)",
+      iconBg: "var(--surface-3)",
+      iconColor: "var(--ink-2)",
+    },
+  };
+  const colors = c[variant];
+
   return (
-    <div className="rounded-2xl border border-border-base bg-surface p-5 shadow-sm mobile:p-4">
-      <p className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-3 mb-2">{label}</p>
-      <p
-        className="font-mono text-[30px] font-semibold leading-none"
-        style={{ fontFeatureSettings: '"tnum"', color: accent ? "var(--accent)" : "var(--text)" }}
+    <div
+      className="rounded-2xl border p-4 flex gap-3 shadow-sm"
+      style={{ background: colors.bg, borderColor: colors.border }}
+    >
+      <div
+        className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center"
+        style={{ background: colors.iconBg, color: colors.iconColor }}
       >
-        {value}
-      </p>
-      {sub && <p className="text-[12px] text-ink-3 mt-1.5">{sub}</p>}
+        {icon}
+      </div>
+      <div className="min-w-0 flex flex-col justify-center">
+        <p className="text-[13.5px] font-semibold text-ink leading-snug">{title}</p>
+        {sub && <p className="text-[12.5px] text-ink-2 mt-0.5">{sub}</p>}
+      </div>
     </div>
   );
 }
@@ -288,22 +318,50 @@ export default async function DashboardPage() {
         {/* ── KPI tiles ───────────────────────────────────── */}
         <div className="grid grid-cols-4 gap-3 mobile:grid-cols-2">
           <KpiTile
-            label="Active"
-            value={String(analytics.activeCount)}
+            title={`${analytics.activeCount} active`}
+            sub="Applications in progress"
+            variant="info"
+            icon={
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M2 7L8 3.5L14 7L8 10.5L2 7Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+                <path d="M2 10.5L8 14L14 10.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            }
           />
           <KpiTile
-            label="Interviewing"
-            value={String(analytics.currentlyInterviewingCount)}
+            title={`${analytics.currentlyInterviewingCount} interviewing`}
             sub={interviewSub}
-            accent
+            variant="good"
+            icon={
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <circle cx="6" cy="5" r="2.5" stroke="currentColor" strokeWidth="1.2" />
+                <path d="M1 14c0-2.8 2.2-5 5-5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+                <circle cx="11" cy="5" r="2.5" stroke="currentColor" strokeWidth="1.2" />
+                <path d="M11 9c2.8 0 5 2.2 5 5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              </svg>
+            }
           />
           <KpiTile
-            label="Response Rate"
-            value={pct(analytics.responseRate)}
+            title={`Response rate is ${pct(analytics.responseRate)}`}
+            sub="Of applications got a reply"
+            variant="neutral"
+            icon={
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M5 5H3L7 2M3 5l4 3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M14 10a6 6 0 0 0-6-6H3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              </svg>
+            }
           />
           <KpiTile
-            label="Avg. First Reply"
-            value={days(analytics.avgDaysToFirstResponse)}
+            title={`First reply in ${days(analytics.avgDaysToFirstResponse)}`}
+            sub="Average response time"
+            variant="neutral"
+            icon={
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.2" />
+                <path d="M8 5v3l2 2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            }
           />
         </div>
 
