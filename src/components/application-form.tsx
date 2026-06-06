@@ -36,7 +36,7 @@ export function ApplicationForm({ application, action, returnPath = ROUTES.appli
 
       <div className="grid gap-5 mobile:gap-4 grid-cols-2 mobile:grid-cols-1">
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="company" className={LABEL}>Company <span className="text-red-500">*</span></label>
+          <label htmlFor="company" className={LABEL}>Company <span className="text-[var(--st-rejected)]">*</span></label>
           <input
             id="company"
             type="text"
@@ -49,7 +49,7 @@ export function ApplicationForm({ application, action, returnPath = ROUTES.appli
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="role" className={LABEL}>Role <span className="text-red-500">*</span></label>
+          <label htmlFor="role" className={LABEL}>Role <span className="text-[var(--st-rejected)]">*</span></label>
           <input
             id="role"
             type="text"
@@ -62,7 +62,7 @@ export function ApplicationForm({ application, action, returnPath = ROUTES.appli
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="location" className={LABEL}>Location <span className="text-red-500">*</span></label>
+          <label htmlFor="location" className={LABEL}>Location <span className="text-[var(--st-rejected)]">*</span></label>
           <input
             id="location"
             type="text"
@@ -105,7 +105,7 @@ export function ApplicationForm({ application, action, returnPath = ROUTES.appli
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="applied-on" className={LABEL}>Applied On <span className="text-red-500">*</span></label>
+          <label htmlFor="applied-on" className={LABEL}>Applied On <span className="text-[var(--st-rejected)]">*</span></label>
           <DatePicker
             id="applied-on"
             name="applied_on"
@@ -116,7 +116,7 @@ export function ApplicationForm({ application, action, returnPath = ROUTES.appli
 
         {application ? (
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="status" className={LABEL}>Status <span className="text-red-500">*</span></label>
+            <label htmlFor="status" className={LABEL}>Status <span className="text-[var(--st-rejected)]">*</span></label>
             <select
               id="status"
               name="status"
@@ -151,7 +151,7 @@ export function ApplicationForm({ application, action, returnPath = ROUTES.appli
         />
       </div>
 
-      <div className="flex justify-end gap-3 pt-1">
+      <div className="flex items-center justify-end gap-3 pt-1">
         <Link href={returnPath} className={BTN_GHOST}>Cancel</Link>
         <button type="submit" disabled={isPending} className={BTN_PRIMARY}>
           {isPending ? "Saving…" : "Save Application"}

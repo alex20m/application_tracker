@@ -4,15 +4,40 @@ import { useTheme } from "next-themes";
 import { useSyncExternalStore } from "react";
 
 const options = [
-  { value: "light", label: "Light" },
-  { value: "dark", label: "Dark" },
-  { value: "system", label: "System" },
+  {
+    value: "light",
+    label: "Light",
+    swatch: (
+      <div className="w-full h-10 rounded-lg overflow-hidden flex border border-border-base">
+        <div className="flex-1 bg-[oklch(0.985_0.004_95)]" />
+        <div className="w-1/3 bg-[oklch(1_0_0)] border-l border-[oklch(0.912_0.006_90)]" />
+      </div>
+    ),
+  },
+  {
+    value: "dark",
+    label: "Dark",
+    swatch: (
+      <div className="w-full h-10 rounded-lg overflow-hidden flex border border-border-base">
+        <div className="flex-1 bg-[oklch(0.175_0.012_255)]" />
+        <div className="w-1/3 bg-[oklch(0.212_0.014_255)] border-l border-[oklch(0.305_0.014_255)]" />
+      </div>
+    ),
+  },
+  {
+    value: "system",
+    label: "System",
+    swatch: (
+      <div className="w-full h-10 rounded-lg overflow-hidden flex border border-border-base">
+        <div className="flex-1 bg-[oklch(0.985_0.004_95)]" />
+        <div className="flex-1 bg-[oklch(0.175_0.012_255)]" />
+      </div>
+    ),
+  },
 ] as const;
 
 export function ThemeSelector() {
   const { theme, setTheme } = useTheme();
-  // useSyncExternalStore returns false on the server and true on the client,
-  // avoiding hydration mismatch without calling setState inside an effect.
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
@@ -20,7 +45,7 @@ export function ThemeSelector() {
   );
 
   return (
-    <div className="flex gap-2 mobile:flex-col">
+    <div className="flex gap-3 mobile:flex-col">
       {options.map((option) => {
         const isActive = mounted && theme === option.value;
         return (
@@ -29,13 +54,14 @@ export function ThemeSelector() {
             type="button"
             onClick={() => setTheme(option.value)}
             className={[
-              "flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors mobile:min-h-11 mobile:text-base",
+              "flex-1 flex flex-col gap-2 rounded-[13px] border p-3 text-sm font-medium text-left transition-all mobile:min-h-11",
               isActive
-                ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300"
-                : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100",
+                ? "border-accent bg-accent-soft text-accent-strong ring-2 ring-accent/20"
+                : "border-border-base bg-surface text-ink-2 hover:bg-surface-2 hover:text-ink hover:border-border-strong",
             ].join(" ")}
           >
-            {option.label}
+            {option.swatch}
+            <span className="text-[13px] font-semibold">{option.label}</span>
           </button>
         );
       })}

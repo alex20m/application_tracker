@@ -13,28 +13,28 @@ vi.mock("@/app/applications/actions", () => ({
 const APP_ID = "app-uuid-001";
 
 describe("ApplicationStatusCell", () => {
-  it("renders 'Move to →' button for a non-terminal status", () => {
+  it("renders 'Move →' button for a non-terminal status", () => {
     render(
       <ApplicationStatusCell
         applicationId={APP_ID}
         currentStatus={STATUS.applied}
       />
     );
-    expect(screen.getByRole("button", { name: /move to/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /move/i })).toBeInTheDocument();
   });
 
-  it("renders 'Final status' text for a terminal status (no transitions)", () => {
+  it("renders 'Final' text for a terminal status (no transitions)", () => {
     render(
       <ApplicationStatusCell
         applicationId={APP_ID}
         currentStatus={STATUS.accepted}
       />
     );
-    expect(screen.getByText(/final status/i)).toBeInTheDocument();
+    expect(screen.getByText(/final/i)).toBeInTheDocument();
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 
-  it("reveals exactly the STATUS_NEXT targets after clicking 'Move to →'", async () => {
+  it("reveals exactly the STATUS_NEXT targets after clicking 'Move →'", async () => {
     const user = userEvent.setup();
     render(
       <ApplicationStatusCell
@@ -43,17 +43,17 @@ describe("ApplicationStatusCell", () => {
       />
     );
 
-    await user.click(screen.getByRole("button", { name: /move to/i }));
+    await user.click(screen.getByRole("button", { name: /move/i }));
 
     const expectedTargets = STATUS_NEXT[STATUS.applied];
     for (const target of expectedTargets) {
       expect(
-        screen.getByRole("button", { name: STATUS_NAMES[target] })
+        screen.getByRole("menuitem", { name: STATUS_NAMES[target] })
       ).toBeInTheDocument();
     }
   });
 
-  it("shows a Cancel button when expanded", async () => {
+  it("collapses popover on Escape key", async () => {
     const user = userEvent.setup();
     render(
       <ApplicationStatusCell
@@ -61,22 +61,27 @@ describe("ApplicationStatusCell", () => {
         currentStatus={STATUS.applied}
       />
     );
-    await user.click(screen.getByRole("button", { name: /move to/i }));
-    // Use exact string to avoid matching the "Cancelled" status button
-    expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /move/i }));
+    expect(screen.getByRole("menu")).toBeInTheDocument();
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
   });
 
-  it("collapses back when Cancel is clicked", async () => {
+  it("collapses popover when clicking outside", async () => {
     const user = userEvent.setup();
     render(
-      <ApplicationStatusCell
-        applicationId={APP_ID}
-        currentStatus={STATUS.applied}
-      />
+      <div>
+        <ApplicationStatusCell
+          applicationId={APP_ID}
+          currentStatus={STATUS.applied}
+        />
+        <button type="button">Outside</button>
+      </div>
     );
-    await user.click(screen.getByRole("button", { name: /move to/i }));
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
-    expect(screen.getByRole("button", { name: /move to/i })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /move/i }));
+    expect(screen.getByRole("menu")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Outside" }));
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
   });
 
   it("calls the transition action with correct formData when a target is clicked", async () => {
@@ -88,8 +93,8 @@ describe("ApplicationStatusCell", () => {
       />
     );
 
-    await user.click(screen.getByRole("button", { name: /move to/i }));
-    await user.click(screen.getByRole("button", { name: STATUS_NAMES[STATUS.interviews] }));
+    await user.click(screen.getByRole("button", { name: /move/i }));
+    await user.click(screen.getByRole("menuitem", { name: STATUS_NAMES[STATUS.interviews] }));
 
     expect(mockTransitionAction).toHaveBeenCalledOnce();
     const calledWithFormData: FormData = mockTransitionAction.mock.calls[0][0];

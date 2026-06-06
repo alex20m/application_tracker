@@ -5,10 +5,6 @@ import { useRouter } from "next/navigation";
 
 type Filter = "open" | "closed" | "all";
 
-const PILL_BASE = "cursor-pointer px-3 py-1.5 text-sm rounded-lg transition-colors";
-const PILL_ACTIVE = `${PILL_BASE} font-semibold bg-indigo-600 text-white`;
-const PILL_INACTIVE = `${PILL_BASE} font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100`;
-
 const TABS: { filter: Filter; label: string; href: string }[] = [
   { filter: "open", label: "Open", href: "/applications" },
   { filter: "closed", label: "Closed", href: "/applications?filter=closed" },
@@ -17,9 +13,11 @@ const TABS: { filter: Filter; label: string; href: string }[] = [
 
 export function ApplicationsFilterView({
   active,
+  counts,
   children,
 }: {
   active: Filter;
+  counts?: { open: number; closed: number; all: number };
   children: React.ReactNode;
 }) {
   const router = useRouter();
@@ -35,17 +33,35 @@ export function ApplicationsFilterView({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-1 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 p-1 w-fit">
-        {TABS.map(({ filter, label, href }) => (
-          <button
-            key={filter}
-            type="button"
-            onClick={() => navigate(filter, href)}
-            className={optimisticFilter === filter ? PILL_ACTIVE : PILL_INACTIVE}
-          >
-            {label}
-          </button>
-        ))}
+      {/* Segmented control */}
+      <div className="flex items-center gap-1 rounded-[11px] bg-surface-2 border border-border-base p-[3px] w-fit">
+        {TABS.map(({ filter, label, href }) => {
+          const isActive = optimisticFilter === filter;
+          const count = counts?.[filter];
+          return (
+            <button
+              key={filter}
+              type="button"
+              onClick={() => navigate(filter, href)}
+              className={[
+                "cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-[13px] transition-all",
+                isActive
+                  ? "bg-surface shadow-sm font-semibold text-ink"
+                  : "font-medium text-ink-3 hover:text-ink-2",
+              ].join(" ")}
+            >
+              {label}
+              {count !== undefined && (
+                <span className={[
+                  "font-mono text-[11px] leading-none",
+                  isActive ? "text-accent-strong" : "text-ink-3",
+                ].join(" ")}>
+                  {count}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       <div

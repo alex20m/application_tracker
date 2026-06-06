@@ -1,19 +1,14 @@
 "use client";
 
-import { useState, useOptimistic, useTransition } from "react";
+import { useState, useOptimistic, useTransition, useEffect, useRef } from "react";
 import { transitionApplicationStatusAction } from "@/app/applications/actions";
 import { StatusBadge } from "@/components/status-badge";
-import { BTN_SMALL, TEXT_MUTED } from "@/lib/ui";
-import { STATUS_NEXT, STATUS_NAMES, type ApplicationStatus } from "@/lib/statuses";
+import { FINAL_STATUSES, STATUS_NEXT, STATUS_NAMES, type ApplicationStatus } from "@/lib/statuses";
 
 type ApplicationStatusCellProps = {
   applicationId: string;
   currentStatus: ApplicationStatus;
 };
-
-const BTN_MOVE = `${BTN_SMALL} border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400 hover:border-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-500/15 hover:text-indigo-600 dark:hover:text-indigo-300`;
-const BTN_STATUS = `${BTN_SMALL} border-indigo-200 dark:border-indigo-500/40 bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-500/25`;
-const BTN_CANCEL = `${BTN_SMALL} border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300`;
 
 export function ApplicationStatusCell({
   applicationId,
@@ -22,8 +17,10 @@ export function ApplicationStatusCell({
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [optimisticStatus, setOptimisticStatus] = useOptimistic(currentStatus);
+  const popoverRef = useRef<HTMLDivElement>(null);
 
   const nextStatuses = STATUS_NEXT[optimisticStatus] ?? [];
+  const isFinal = FINAL_STATUSES.includes(optimisticStatus);
 
   const handleChangeStatus = (nextStatus: ApplicationStatus) => {
     setIsOpen(false);
@@ -37,42 +34,60 @@ export function ApplicationStatusCell({
     });
   };
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsOpen(false);
+    };
+    const onClickOutside = (e: MouseEvent) => {
+      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("mousedown", onClickOutside);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("mousedown", onClickOutside);
+    };
+  }, [isOpen]);
+
   return (
-    <div className="flex flex-col items-end gap-1.5">
+    <div className="relative flex flex-col items-end gap-1" ref={popoverRef}>
       <StatusBadge status={optimisticStatus} />
 
-      {nextStatuses.length === 0 ? (
-        <span className={TEXT_MUTED}>Final status</span>
-      ) : !isOpen ? (
+      {isFinal ? (
+        <span className="font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-ink-3">Final</span>
+      ) : (
         <button
           type="button"
-          onClick={() => setIsOpen(true)}
+          onClick={(e) => { e.preventDefault(); setIsOpen(!isOpen); }}
           disabled={isPending}
-          className={BTN_MOVE}
+          className="cursor-pointer rounded-md px-2 py-0.5 text-[11.5px] font-medium text-ink-3 transition hover:bg-surface-2 hover:text-accent disabled:opacity-40"
         >
-          Move to →
+          Move →
         </button>
-      ) : (
-        <div className="flex flex-wrap justify-end gap-1">
+      )}
+
+      {/* Popover */}
+      {isOpen && nextStatuses.length > 0 && (
+        <div
+          role="menu"
+          className="absolute right-0 top-full mt-1 z-20 min-w-[140px] rounded-xl border border-border-base bg-surface shadow-lg py-1"
+        >
           {nextStatuses.map((status) => (
             <button
               key={status}
               type="button"
-              onClick={() => handleChangeStatus(status)}
+              role="menuitem"
+              onClick={(e) => { e.preventDefault(); handleChangeStatus(status); }}
               disabled={isPending}
-              className={BTN_STATUS}
+              className="flex w-full items-center gap-2 px-3 py-2 text-[13px] text-ink-2 transition hover:bg-surface-2 hover:text-ink disabled:opacity-50"
             >
+              <span className="status-dot h-2 w-2 rounded-full flex-shrink-0" data-status={status} />
               {STATUS_NAMES[status]}
             </button>
           ))}
-          <button
-            type="button"
-            onClick={() => setIsOpen(false)}
-            disabled={isPending}
-            className={BTN_CANCEL}
-          >
-            Cancel
-          </button>
         </div>
       )}
     </div>

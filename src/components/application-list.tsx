@@ -1,7 +1,6 @@
 import type { ApplicationRecord } from "@/lib/types";
 import { FormattedDate } from "@/lib/date";
-import { STATUS_THEME } from "@/lib/statuses";
-import { TEXT_BODY, TEXT_META, TEXT_MUTED, ROW_STACK } from "@/lib/ui";
+import { ROW_STACK } from "@/lib/ui";
 import { ApplicationStatusCell } from "@/components/application-status-cell";
 import Link from "next/link";
 
@@ -10,12 +9,33 @@ type ApplicationListProps = {
   fromFilter?: "open" | "closed" | "all";
 };
 
+function Monogram({ company }: { company: string }) {
+  const initials = company
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase();
+  return (
+    <div className="h-[42px] w-[42px] flex-shrink-0 flex items-center justify-center rounded-[10px] border border-border-base bg-surface-2 text-[13px] font-bold text-ink-2 select-none">
+      {initials}
+    </div>
+  );
+}
+
 export function ApplicationList({ applications, fromFilter }: ApplicationListProps) {
   if (!applications.length) {
     return (
-      <div className="rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-8 py-16 text-center mobile:px-4 mobile:py-10">
-        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">No applications yet</p>
-        <p className={`mt-1 ${TEXT_MUTED}`}>Add your first application to get started.</p>
+      <div className="rounded-2xl border border-dashed border-border-base bg-surface px-8 py-16 text-center mobile:px-4 mobile:py-10">
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-surface-2 text-ink-3">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="16" rx="3" stroke="currentColor" strokeWidth="1.5" />
+            <path d="M7 9h10M7 13h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+        </div>
+        <p className="text-sm font-semibold text-ink">No applications yet</p>
+        <p className="mt-1 text-xs text-ink-3">Add your first application to get started.</p>
       </div>
     );
   }
@@ -25,44 +45,86 @@ export function ApplicationList({ applications, fromFilter }: ApplicationListPro
       {applications.map((app) => (
         <div
           key={app.id}
-          className="group relative flex overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm transition hover:bg-gray-50 hover:border-gray-400 hover:shadow-lg hover:shadow-gray-200/80 dark:hover:bg-gray-800 dark:hover:border-gray-500 dark:hover:shadow-lg dark:hover:shadow-black/40"
+          className="group relative flex overflow-hidden rounded-[13px] border border-border-base bg-surface shadow-sm transition hover:-translate-y-px hover:shadow-md hover:border-border-strong"
         >
-          {/* Stretched link — makes entire card clickable except status section */}
+          {/* Stretched link */}
           <Link
             href={`/applications/${app.id}${fromFilter && fromFilter !== "open" ? `?from=${fromFilter}` : ""}`}
             className="absolute inset-0"
             aria-label={`${app.company} – ${app.role}`}
           />
 
-          {/* Status color strip */}
-          <div className={`w-1 flex-shrink-0 ${STATUS_THEME[app.status].border}`} />
+          {/* 3px status strip */}
+          <div className="row-strip w-[3px] flex-shrink-0" data-status={app.status} />
 
-          {/* Content: single flex row on desktop, wraps to two rows on mobile */}
-          <div className="flex flex-1 min-w-0 items-start gap-3 px-4 py-2.5 mobile:flex-wrap mobile:px-3 mobile:py-2">
-            <div className="min-w-0 order-1 mobile:flex-1">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{app.company}</h3>
-              <p className={`mt-0.5 ${TEXT_BODY} truncate`}>{app.role}</p>
-              <div className={`mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 ${TEXT_META}`}>
-                {app.location && <span>{app.location}</span>}
-                {app.applied_on && <span>Applied <FormattedDate dateString={app.applied_on} /></span>}
-              </div>
+          <div className="flex flex-1 min-w-0 items-center gap-3 px-4 py-3 mobile:flex-wrap mobile:px-3 mobile:py-2.5">
+            {/* Monogram */}
+            <Monogram company={app.company} />
+
+            {/* Main block */}
+            <div className="min-w-0 w-[230px] flex-shrink-0 mobile:flex-1">
+              <h3 className="text-[14.5px] font-[650] text-ink truncate leading-tight">{app.company}</h3>
+              <p className="mt-0.5 text-[13px] text-ink-2 truncate">{app.role}</p>
             </div>
 
-            {/* Notes — center column on desktop, full-width row below on mobile */}
-            {app.notes && (
-              <div className="min-w-0 flex-1 order-2 mobile:order-3 mobile:basis-full">
-                <div className="rounded-lg bg-gray-100 dark:bg-gray-700/70 px-3 py-2 mobile:py-1.5">
-                  <p className={`${TEXT_META} leading-relaxed whitespace-pre-wrap break-words`}>{app.notes}</p>
-                </div>
-              </div>
-            )}
+            {/* Meta row — hidden under 920px */}
+            <div className="flex flex-1 min-w-0 items-center gap-x-4 text-xs text-ink-3 mobile:hidden" style={{ display: "none" }}>
+              <span className="hidden [display:none] [@media(min-width:920px)]:flex items-center gap-1 min-w-0 flex-1">
+                {app.location && (
+                  <span className="flex items-center gap-1 truncate">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                      <path d="M6 1a3.5 3.5 0 0 1 3.5 3.5C9.5 7.5 6 11 6 11S2.5 7.5 2.5 4.5A3.5 3.5 0 0 1 6 1z" stroke="currentColor" strokeWidth="1.2" />
+                      <circle cx="6" cy="4.5" r="1" fill="currentColor" />
+                    </svg>
+                    {app.location}
+                  </span>
+                )}
+                {app.applied_on && (
+                  <span className="flex items-center gap-1 whitespace-nowrap">
+                    Applied{" "}
+                    <span className="font-mono">
+                      <FormattedDate dateString={app.applied_on} />
+                    </span>
+                  </span>
+                )}
+              </span>
+            </div>
 
-            {/* Badge + actions — above the stretched link so buttons remain clickable */}
-            <div className="relative z-10 flex flex-shrink-0 ml-auto order-3 mobile:order-2">
-              <ApplicationStatusCell
-                applicationId={app.id}
-                currentStatus={app.status}
-              />
+            {/* Meta (CSS approach for 920px breakpoint) */}
+            <div className="hidden [@media(min-width:920px)]:flex flex-1 min-w-0 items-center gap-x-4 text-xs text-ink-3">
+              {app.location && (
+                <span className="flex items-center gap-1 truncate">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                    <path d="M6 1a3.5 3.5 0 0 1 3.5 3.5C9.5 7.5 6 11 6 11S2.5 7.5 2.5 4.5A3.5 3.5 0 0 1 6 1z" stroke="currentColor" strokeWidth="1.2" />
+                    <circle cx="6" cy="4.5" r="1" fill="currentColor" />
+                  </svg>
+                  {app.location}
+                </span>
+              )}
+              {app.applied_on && (
+                <span className="flex items-center gap-1 whitespace-nowrap">
+                  Applied{" "}
+                  <span className="font-mono">
+                    <FormattedDate dateString={app.applied_on} />
+                  </span>
+                </span>
+              )}
+              {app.source && (
+                <span className="flex items-center gap-1 truncate">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                    <path d="M5 2H2.5A1.5 1.5 0 0 0 1 3.5v6A1.5 1.5 0 0 0 2.5 11h6A1.5 1.5 0 0 0 10 9.5V7M7 1h4v4M11 1 6 6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  {app.source}
+                </span>
+              )}
+            </div>
+
+            {/* End cluster: badge + move + chevron */}
+            <div className="relative z-10 flex flex-shrink-0 items-center gap-2 ml-auto">
+              <ApplicationStatusCell applicationId={app.id} currentStatus={app.status} />
+              <svg className="text-ink-3 mobile:hidden" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M5 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </div>
           </div>
         </div>

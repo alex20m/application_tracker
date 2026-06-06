@@ -1,17 +1,12 @@
-import clsx from "clsx";
-
-import { STATUS_NAMES, STATUS_THEME, type ApplicationStatus } from "@/lib/statuses";
+import { STATUS_NAMES, type ApplicationStatus } from "@/lib/statuses";
 
 export function StatusBadge({ status }: { status: ApplicationStatus }) {
-  const theme = STATUS_THEME[status];
   return (
     <span
-      className={clsx(
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium",
-        theme.badge
-      )}
+      className="badge inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
+      data-status={status}
     >
-      <span className={clsx("h-1.5 w-1.5 rounded-full", theme.dot)} />
+      <span className="status-dot h-1.5 w-1.5 rounded-full" data-status={status} />
       {STATUS_NAMES[status]}
     </span>
   );

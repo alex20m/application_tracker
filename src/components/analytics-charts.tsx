@@ -78,7 +78,7 @@ function BrushTraveller({
         width={pillW}
         height={pillH}
         rx={2}
-        fill="#9ca3af"
+        fill="var(--border-2, #9ca3af)"
       />
     </g>
   );
@@ -97,15 +97,15 @@ function ChartTooltip({
   const visible = payload.filter((p) => p.value !== null);
   if (!visible.length) return null;
   return (
-    <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-xs shadow-md">
+    <div className="rounded-xl border border-border-base bg-surface px-3 py-2 text-xs shadow-md">
       {label && (
-        <p className="font-semibold text-gray-800 dark:text-gray-200 mb-1">{label}</p>
+        <p className="font-semibold text-ink mb-1">{label}</p>
       )}
       {visible.map((p) => {
         const realKey = p.dataKey?.endsWith("_jitter") ? p.dataKey.slice(0, -7) : undefined;
         const value = realKey && p.payload ? (p.payload[realKey] ?? p.value) : p.value;
         return (
-          <p key={p.name} className="text-gray-700 dark:text-gray-300">
+          <p key={p.name} className="text-ink-2">
             <span className="inline-block w-2 h-2 rounded-full mr-1.5" style={{ background: p.color }} />
             {p.name}: <span className="font-medium">{value}</span>
           </p>
@@ -120,7 +120,7 @@ type TrendProps = {
 };
 
 export function ApplicationsTrendChart({ dailyTrend }: TrendProps) {
-  const TICK = { fontSize: 11, fill: "currentColor", opacity: 0.5 };
+  const TICK = { fontSize: 11, fill: "var(--text-3)", opacity: 1 };
   const isMobile = useIsMobile();
 
   const { visibleSeries, jitterData } = useMemo(() => {
@@ -153,7 +153,7 @@ export function ApplicationsTrendChart({ dailyTrend }: TrendProps) {
       {visibleSeries.length > 0 && (
         <div className="flex flex-wrap gap-x-4 gap-y-1.5 mb-3">
           {visibleSeries.map((s) => (
-            <span key={s.key} className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400">
+            <span key={s.key} className="flex items-center gap-1.5 text-xs text-ink-2">
               <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: s.color }} />
               {s.name}
             </span>
@@ -174,8 +174,8 @@ export function ApplicationsTrendChart({ dailyTrend }: TrendProps) {
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
             <XAxis dataKey="label" tick={TICK} axisLine={false} tickLine={false} interval={tickInterval} />
-            <YAxis allowDecimals={false} tick={TICK} axisLine={false} tickLine={false} domain={[0, 'auto']} />
-            <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'rgba(100,100,100,0.55)', strokeWidth: 2 }} />
+            <YAxis allowDecimals={false} tick={TICK} axisLine={false} tickLine={false} domain={[0, "auto"]} />
+            <Tooltip content={<ChartTooltip />} cursor={{ stroke: "var(--border-2)", strokeWidth: 1.5 }} />
             {visibleSeries.map((s) => (
               <Area
                 key={s.key}
@@ -186,7 +186,7 @@ export function ApplicationsTrendChart({ dailyTrend }: TrendProps) {
                 fill={`url(#grad-${s.key})`}
                 strokeWidth={2}
                 dot={false}
-                activeDot={{ r: 5, fill: s.color, stroke: 'var(--background, white)', strokeWidth: 2 }}
+                activeDot={{ r: 5, fill: s.color, stroke: "var(--surface)", strokeWidth: 2 }}
                 connectNulls={false}
               />
             ))}
@@ -197,8 +197,8 @@ export function ApplicationsTrendChart({ dailyTrend }: TrendProps) {
               height={24}
               travellerWidth={isMobile ? 20 : 6}
               traveller={<BrushTraveller x={0} y={0} width={0} height={0} />}
-              stroke="#9ca3af"
-              fill="rgba(156,163,175,0.08)"
+              stroke="var(--border-2)"
+              fill="var(--surface-2)"
               onChange={({ startIndex, endIndex }) => {
                 if (startIndex !== undefined && endIndex !== undefined) {
                   setBrushStart(startIndex);
@@ -327,17 +327,17 @@ export function StatusSourceCharts({ statusCounts, sourceStats }: StatusSourcePr
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               {activeSlice ? (
                 <div className="text-center px-2">
-                  <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 leading-tight">
+                  <p className="text-sm font-semibold text-ink leading-tight">
                     {activeSlice.name}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  <p className="text-xs text-ink-3 mt-0.5">
                     {activeSlice.count} · {activePct}%
                   </p>
                 </div>
               ) : (
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{pieTotal}</p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500">total</p>
+                  <p className="text-2xl font-bold text-ink">{pieTotal}</p>
+                  <p className="text-xs text-ink-3">total</p>
                 </div>
               )}
             </div>
@@ -351,7 +351,7 @@ export function StatusSourceCharts({ statusCounts, sourceStats }: StatusSourcePr
                 onClick={() => handleLegendClick(index)}
                 className={`flex items-center gap-1.5 text-xs transition-opacity ${
                   isLocked && activeIndex !== index ? "opacity-40" : "opacity-100"
-                } text-gray-700 dark:text-gray-300 hover:opacity-100`}
+                } text-ink-2 hover:opacity-100`}
               >
                 <span
                   className="w-2 h-2 rounded-full flex-shrink-0"
@@ -372,22 +372,22 @@ export function StatusSourceCharts({ statusCounts, sourceStats }: StatusSourcePr
           <div className="overflow-x-auto -mx-1">
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-gray-100 dark:border-gray-800">
-                  <th className="text-left py-1.5 px-2 font-semibold text-gray-500 dark:text-gray-400">Source</th>
-                  <th className="text-right py-1.5 px-2 font-semibold text-gray-500 dark:text-gray-400">Applied</th>
-                  <th className="text-right py-1.5 px-2 font-semibold text-gray-500 dark:text-gray-400">Interview%</th>
-                  <th className="text-right py-1.5 px-2 font-semibold text-gray-500 dark:text-gray-400">Offer%</th>
+                <tr className="border-b border-border-base">
+                  <th className="text-left py-1.5 px-2 font-semibold text-ink-3">Source</th>
+                  <th className="text-right py-1.5 px-2 font-semibold text-ink-3">Applied</th>
+                  <th className="text-right py-1.5 px-2 font-semibold text-ink-3">Interview%</th>
+                  <th className="text-right py-1.5 px-2 font-semibold text-ink-3">Offer%</th>
                 </tr>
               </thead>
               <tbody>
                 {sourceStats.map((s) => (
-                  <tr key={s.source} className="border-b border-gray-50 dark:border-gray-800/50 last:border-0">
+                  <tr key={s.source} className="border-b border-border-base/50 last:border-0">
                     <td className={`py-1.5 px-2 ${TEXT_BODY} max-w-[120px] truncate`}>{s.source}</td>
                     <td className={`py-1.5 px-2 text-right ${TEXT_BODY}`}>{s.total}</td>
-                    <td className={`py-1.5 px-2 text-right font-medium ${s.interviewRate >= 20 ? "text-indigo-600 dark:text-indigo-400" : "text-gray-700 dark:text-gray-300"}`}>
+                    <td className={`py-1.5 px-2 text-right font-medium ${s.interviewRate >= 20 ? "text-accent-strong" : "text-ink-2"}`}>
                       {s.interviewRate}%
                     </td>
-                    <td className={`py-1.5 px-2 text-right font-medium ${s.offerRate >= 10 ? "text-green-600 dark:text-green-400" : "text-gray-700 dark:text-gray-300"}`}>
+                    <td className={`py-1.5 px-2 text-right font-medium ${s.offerRate >= 10 ? "[color:var(--st-offer)]" : "text-ink-2"}`}>
                       {s.offerRate}%
                     </td>
                   </tr>

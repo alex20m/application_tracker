@@ -1,6 +1,7 @@
 import { requireUser } from "@/lib/auth";
 import { ACTIVE_STATUSES, CLOSED_STATUSES } from "@/lib/statuses";
 import { ApplicationsSearch } from "@/components/applications-search";
+import { ApplicationsFilterView } from "@/components/applications-filter-view";
 
 type Props = {
   filter: "open" | "closed" | "all";
@@ -9,21 +10,29 @@ type Props = {
 export async function ApplicationsResults({ filter }: Props) {
   const { supabase, user } = await requireUser();
 
-  let query = supabase
+  // Fetch all to compute counts
+  const { data: allApps } = await supabase
     .from("applications")
     .select("*")
     .eq("user_id", user.id)
     .order("updated_at", { ascending: false });
 
-  if (filter === "open") {
-    query = query.in("status", [...ACTIVE_STATUSES]);
-  } else if (filter === "closed") {
-    query = query.in("status", [...CLOSED_STATUSES]);
-  }
+  const all = allApps ?? [];
+  const openApps = all.filter((a) => ACTIVE_STATUSES.includes(a.status));
+  const closedApps = all.filter((a) => CLOSED_STATUSES.includes(a.status));
 
-  const { data: applications } = await query;
+  const counts = {
+    open: openApps.length,
+    closed: closedApps.length,
+    all: all.length,
+  };
+
+  const filtered =
+    filter === "open" ? openApps : filter === "closed" ? closedApps : all;
 
   return (
-    <ApplicationsSearch applications={applications ?? []} fromFilter={filter} />
+    <ApplicationsFilterView active={filter} counts={counts}>
+      <ApplicationsSearch applications={filtered} fromFilter={filter} />
+    </ApplicationsFilterView>
   );
 }

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
 import { ROUTES } from "@/lib/env";
-import { BTN_GHOST, PAGE_CONTAINER, PAGE_VERTICAL } from "@/lib/ui";
-import { InstallAppButton } from "@/components/install-app-button";
+import { PAGE_CONTAINER, PAGE_VERTICAL } from "@/lib/ui";
 
 type AppShellProps = {
   email: string;
@@ -12,14 +13,90 @@ type AppShellProps = {
 };
 
 const navItems = [
-  { href: ROUTES.applications, label: "Applications" },
-  { href: ROUTES.wishlist, label: "Wishlist" },
-  { href: ROUTES.analytics, label: "Analytics" },
-  { href: ROUTES.settings, label: "Settings" },
+  {
+    href: ROUTES.dashboard,
+    label: "Dashboard",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor" />
+        <rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".6" />
+        <rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".6" />
+        <rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".6" />
+      </svg>
+    ),
+  },
+  {
+    href: ROUTES.applications,
+    label: "Applications",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M5 6h6M5 9h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+  {
+    href: ROUTES.wishlist,
+    label: "Wishlist",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M8 13.5S2 9.5 2 5.5a3 3 0 0 1 6-1 3 3 0 0 1 6 1c0 4-6 8-6 8z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
+  {
+    href: ROUTES.analytics,
+    label: "Analytics",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M2 12l3.5-4L9 10l4.5-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
 ];
+
+function getInitials(email: string): string {
+  const name = email.split("@")[0];
+  const parts = name.split(/[._-]/);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return name.slice(0, 2).toUpperCase();
+}
+
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme();
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+
+  const toggle = () => setTheme(theme === "dark" ? "light" : "dark");
+  const isDark = mounted && theme === "dark";
+
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      aria-label="Toggle theme"
+      className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-3 transition hover:bg-surface-2 hover:text-ink"
+    >
+      {isDark ? (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <circle cx="8" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.5" />
+          <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+      ) : (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M13.5 8.5A6 6 0 0 1 7 2a6.5 6.5 0 1 0 6.5 6.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+        </svg>
+      )}
+    </button>
+  );
+}
 
 export function AppShell({ email, children }: AppShellProps) {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -36,36 +113,81 @@ export function AppShell({ email, children }: AppShellProps) {
     };
   }, [open]);
 
+  const initials = getInitials(email);
+
   return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-20 border-b border-gray-200/80 dark:border-slate-700/80 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md">
-        <div className={`${PAGE_CONTAINER} flex h-13 items-center gap-4 mobile:h-12`}>
+    <div className="min-h-screen bg-bg">
+      <header className="sticky top-0 z-20 border-b border-border-base/80 bg-surface/82 backdrop-blur-md">
+        <div className={`${PAGE_CONTAINER} flex h-[60px] items-center gap-4 mobile:h-[52px]`}>
+          {/* Brand mark */}
           <Link
-            href={ROUTES.applications}
-            className="text-sm font-bold tracking-tight text-gray-900 dark:text-gray-100 mobile:text-base"
+            href={ROUTES.dashboard}
+            className="flex items-center gap-2 flex-shrink-0"
+            aria-label="AppTrack home"
           >
-            AppTrack
+            <span
+              className="flex h-[26px] w-[26px] items-center justify-center rounded-[8px] text-white"
+              style={{ background: "linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%)" }}
+            >
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+                <path d="M2.5 6.5L5 9L10.5 4" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
+            <span className="text-[14px] font-bold tracking-tight text-ink mobile:hidden">AppTrack</span>
           </Link>
 
           {/* Desktop nav */}
-          <nav className="flex flex-1 items-center gap-0.5 mobile:hidden">
-            {navItems.map((item) => (
-              <Link key={item.href} href={item.href} className={BTN_GHOST}>
-                {item.label}
-              </Link>
-            ))}
+          <nav className="flex flex-1 items-center gap-0.5 ml-1 mobile:hidden">
+            {navItems.map((item) => {
+              const isActive = pathname === item.href || (item.href !== ROUTES.dashboard && pathname.startsWith(item.href));
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={[
+                    "inline-flex items-center gap-1.5 rounded-[8px] px-3 py-1.5 text-[13.5px] font-medium transition",
+                    isActive
+                      ? "bg-accent-soft text-accent-strong font-semibold"
+                      : "text-ink-2 hover:bg-surface-2 hover:text-ink",
+                  ].join(" ")}
+                >
+                  {item.icon}
+                  {item.label}
+                </Link>
+              );
+            })}
           </nav>
-          <div className="flex items-center gap-3 mobile:hidden">
-            <InstallAppButton variant="chip" />
-            <span className="text-xs text-gray-500 dark:text-gray-500">{email}</span>
-            <form action={ROUTES.signOut} method="post">
-              <button
-                type="submit"
-                className="cursor-pointer text-xs font-medium text-gray-500 dark:text-gray-400 transition-colors hover:text-gray-900 dark:hover:text-gray-100 flex items-center"
-              >
-                Sign out
-              </button>
-            </form>
+
+          {/* Right cluster */}
+          <div className="flex items-center gap-1.5 ml-auto mobile:hidden">
+            <Link
+              href={ROUTES.newApplication}
+              className="inline-flex items-center gap-1 rounded-[10px] border border-border-strong bg-surface px-3 py-1.5 text-[13px] font-semibold text-ink shadow-sm transition hover:bg-surface-2 mr-1"
+            >
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <path d="M6 1v10M1 6h10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
+              Add
+            </Link>
+            <ThemeToggle />
+            <Link
+              href={ROUTES.settings}
+              aria-label="Settings"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-3 transition hover:bg-surface-2 hover:text-ink"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <circle cx="8" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.5" />
+                <path d="M8 1.5v1.25M8 13.25V14.5M1.5 8h1.25M13.25 8H14.5M3.23 3.23l.88.88M11.89 11.89l.88.88M3.23 12.77l.88-.88M11.89 4.11l.88-.88" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+            </Link>
+            <div className="mx-1.5 h-5 w-px bg-border-base" />
+            <span className="text-xs text-ink-3 truncate max-w-[140px]">{email}</span>
+            <span
+              className="ml-1 flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-bold text-accent-ink"
+              style={{ background: "linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%)" }}
+            >
+              {initials}
+            </span>
           </div>
 
           {/* Mobile hamburger trigger */}
@@ -74,7 +196,7 @@ export function AppShell({ email, children }: AppShellProps) {
             onClick={() => setOpen(true)}
             aria-label="Open menu"
             aria-expanded={open}
-            className="hidden mobile:inline-flex ml-auto items-center justify-center rounded-lg p-2 min-h-11 min-w-11 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="hidden mobile:inline-flex ml-auto items-center justify-center rounded-lg p-2 min-h-11 min-w-11 text-ink-3 hover:bg-surface-2 transition-colors"
           >
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
               <rect y="3" width="20" height="2" rx="1" fill="currentColor" />
@@ -88,26 +210,24 @@ export function AppShell({ email, children }: AppShellProps) {
       {/* Mobile drawer */}
       {open && (
         <div className="fixed inset-0 z-30 hidden mobile:block">
-          {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/40"
             onClick={() => setOpen(false)}
             aria-hidden="true"
           />
-          {/* Panel */}
           <aside
             role="dialog"
             aria-modal="true"
             aria-label="Navigation menu"
-            className="absolute right-0 top-0 flex h-full w-72 max-w-[85vw] flex-col bg-white dark:bg-slate-900 shadow-xl"
+            className="absolute right-0 top-0 flex h-full w-72 max-w-[85vw] flex-col bg-surface shadow-xl"
           >
-            <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-4 py-3">
-              <span className="text-sm font-bold text-gray-900 dark:text-gray-100">Menu</span>
+            <div className="flex items-center justify-between border-b border-border-base px-4 py-3">
+              <span className="text-sm font-bold text-ink">Menu</span>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label="Close menu"
-                className="flex items-center justify-center min-h-11 min-w-11 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                className="flex items-center justify-center min-h-11 min-w-11 rounded-lg text-ink-3 hover:bg-surface-2 transition-colors"
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                   <path d="M3 3L13 13M13 3L3 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -116,25 +236,55 @@ export function AppShell({ email, children }: AppShellProps) {
             </div>
 
             <nav className="flex flex-col p-2">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setOpen(false)}
-                  className="rounded-lg px-3 py-3 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                >
-                  {item.label}
-                </Link>
-              ))}
+              {navItems.map((item) => {
+                const isActive = pathname === item.href || (item.href !== ROUTES.dashboard && pathname.startsWith(item.href));
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    className={[
+                      "flex items-center gap-2.5 rounded-lg px-3 py-3 text-base font-medium transition-colors",
+                      isActive
+                        ? "bg-accent-soft text-accent-strong font-semibold"
+                        : "text-ink-2 hover:bg-surface-2 hover:text-ink",
+                    ].join(" ")}
+                  >
+                    {item.icon}
+                    {item.label}
+                  </Link>
+                );
+              })}
             </nav>
 
-            <div className="mt-auto border-t border-gray-200 dark:border-gray-700 p-4 space-y-3">
-              <InstallAppButton variant="chip" />
-              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{email}</p>
+            <div className="mt-auto border-t border-border-base p-4 space-y-3">
+              <div className="flex items-center gap-2.5">
+                <span
+                  className="flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-bold text-accent-ink flex-shrink-0"
+                  style={{ background: "linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%)" }}
+                >
+                  {initials}
+                </span>
+                <p className="text-xs text-ink-3 truncate">{email}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <ThemeToggle />
+                <Link
+                  href={ROUTES.settings}
+                  onClick={() => setOpen(false)}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-3 transition hover:bg-surface-2 hover:text-ink"
+                  aria-label="Settings"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <circle cx="8" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.5" />
+                    <path d="M8 1.5v1.25M8 13.25V14.5M1.5 8h1.25M13.25 8H14.5M3.23 3.23l.88.88M11.89 11.89l.88.88M3.23 12.77l.88-.88M11.89 4.11l.88-.88" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                </Link>
+              </div>
               <form action={ROUTES.signOut} method="post">
                 <button
                   type="submit"
-                  className="w-full cursor-pointer rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 transition hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="w-full cursor-pointer rounded-lg border border-border-base px-3 py-2.5 text-sm font-medium text-ink-2 transition hover:bg-surface-2"
                 >
                   Sign out
                 </button>
