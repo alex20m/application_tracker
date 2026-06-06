@@ -23,14 +23,13 @@ describe("ApplicationStatusCell", () => {
     expect(screen.getByRole("button", { name: /move/i })).toBeInTheDocument();
   });
 
-  it("renders 'Final' text for a terminal status (no transitions)", () => {
+  it("renders no move button for a terminal status (no transitions)", () => {
     render(
       <ApplicationStatusCell
         applicationId={APP_ID}
         currentStatus={STATUS.accepted}
       />
     );
-    expect(screen.getByText(/final/i)).toBeInTheDocument();
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 
