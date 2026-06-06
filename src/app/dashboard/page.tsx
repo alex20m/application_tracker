@@ -137,10 +137,8 @@ function KpiCard({
 
 function NeedsAttentionCard({
   items,
-  totalCount,
 }: {
   items: AttentionItem[];
-  totalCount: number;
 }) {
   if (items.length === 0) {
     return (
@@ -165,20 +163,7 @@ function NeedsAttentionCard({
   return (
     <div className="rounded-2xl border border-border-base bg-surface p-[22px] shadow-sm flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-[15px] font-semibold text-ink">Needs attention</span>
-          {totalCount > 0 && (
-            <span
-              className="inline-flex items-center rounded-full px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide"
-              style={{
-                background: "color-mix(in oklch, var(--st-rejected) 12%, var(--surface))",
-                color: "var(--st-rejected)",
-              }}
-            >
-              NEW
-            </span>
-          )}
-        </div>
+        <span className="text-[15px] font-semibold text-ink">Needs attention</span>
         <Link
           href={ROUTES.applications}
           className="text-[12.5px] font-medium text-accent hover:text-accent-strong transition"
@@ -375,7 +360,7 @@ export default async function DashboardPage() {
 
         {/* ── Two-column: Needs Attention + Pipeline ───────── */}
         <div className="grid grid-cols-[1fr_300px] gap-4 mobile:grid-cols-1">
-          <NeedsAttentionCard items={attentionItems} totalCount={attentionCount} />
+          <NeedsAttentionCard items={attentionItems} />
           <PipelineCard analytics={analytics} />
         </div>
 
