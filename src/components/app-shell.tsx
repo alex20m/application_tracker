@@ -63,15 +63,15 @@ function getInitials(email: string): string {
 }
 
 function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
     () => false,
   );
 
-  const toggle = () => setTheme(theme === "dark" ? "light" : "dark");
-  const isDark = mounted && theme === "dark";
+  const isDark = mounted && resolvedTheme === "dark";
+  const toggle = () => setTheme(isDark ? "light" : "dark");
 
   return (
     <button
