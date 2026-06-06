@@ -15,7 +15,7 @@ import {
   type ApplicationStatus,
 } from "@/lib/statuses";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import { TEXT_H2 } from "@/lib/ui";
+import { CARD, TEXT_H2 } from "@/lib/ui";
 
 type NodeDatum = { name: string };
 type LinkDatum = { value: number };
@@ -34,7 +34,7 @@ type LayoutLink = SankeyLink<NodeDatum, LinkDatum> & {
 type LayoutGraph = { nodes: LayoutNode[]; links: LayoutLink[] };
 
 const NODE_WIDTH = 16;
-const CHART_FRAME = "flex flex-col rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-sm mobile:p-4 mobile:min-w-[640px]";
+const CHART_FRAME = `flex flex-col ${CARD} mobile:min-w-[640px]`;
 
 // Module-level typed path generator — avoids an `any` cast in the render.
 type LinkForPath = SankeyLinkMinimal<SankeyNode<NodeDatum, LinkDatum>, LinkDatum>;
