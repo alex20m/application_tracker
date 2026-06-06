@@ -363,17 +363,6 @@ export function AnalyticsView({ applications }: Props) {
             }
           />
           <StatCard
-            title={`Interview rate is ${pct(a.interviewRate)}`}
-            sub={a.offerFromInterviewRate !== null ? `${pct(a.offerFromInterviewRate)} of interviews lead to an offer` : undefined}
-            variant="good"
-            icon={
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <path d="M3 13V9M7 13V5M11 13V7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-                <path d="M1 13h14" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-              </svg>
-            }
-          />
-          <StatCard
             title={`First reply in ${days(a.avgDaysToFirstResponse)}`}
             sub="Average across applications"
             variant="neutral"
