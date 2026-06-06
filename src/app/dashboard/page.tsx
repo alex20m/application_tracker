@@ -36,7 +36,6 @@ type AttentionItem = {
   role: string;
   reason: string;
   reasonColor: string;
-  actionLabel: string;
 };
 
 function buildAttentionItems(applications: ApplicationRecord[]): AttentionItem[] {
@@ -52,7 +51,6 @@ function buildAttentionItems(applications: ApplicationRecord[]): AttentionItem[]
         role: app.role,
         reason: "Offer pending — respond when ready",
         reasonColor: "var(--st-offer)",
-        actionLabel: "Respond",
       });
       continue;
     }
@@ -69,7 +67,6 @@ function buildAttentionItems(applications: ApplicationRecord[]): AttentionItem[]
             role: app.role,
             reason: `No activity for ${diffDays} days`,
             reasonColor: "var(--st-ghosted)",
-            actionLabel: "Follow up",
           });
           continue;
         }
@@ -84,7 +81,6 @@ function buildAttentionItems(applications: ApplicationRecord[]): AttentionItem[]
         role: app.role,
         reason: "Interview in progress",
         reasonColor: "var(--st-interviews)",
-        actionLabel: "Prep",
       });
     }
   }
@@ -172,7 +168,7 @@ function NeedsAttentionCard({ items }: { items: AttentionItem[] }) {
               background: `color-mix(in oklch, ${item.reasonColor} 8%, var(--surface))`,
             }}
           >
-            {item.actionLabel} →
+            Go to application →
           </span>
         </Link>
       ))}
