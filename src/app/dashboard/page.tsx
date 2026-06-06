@@ -210,29 +210,28 @@ function PipelineCard({ analytics }: { analytics: ReturnType<typeof computeAnaly
     },
   ];
 
-  const max = stages[0].count || 1;
+  const visibleStages = stages.filter((s) => s.count > 0);
+  const max = visibleStages[0]?.count || 1;
 
   return (
     <div className="rounded-2xl border border-border-base bg-surface p-[22px] shadow-sm flex flex-col gap-4">
       <p className="text-[15px] font-semibold text-ink">Pipeline</p>
       <div className="space-y-2.5">
-        {stages.map((stage) => (
+        {visibleStages.map((stage) => (
           <div key={stage.label} className="flex items-center gap-3">
             <span className="w-[78px] flex-shrink-0 text-[12.5px] text-ink-2 text-right">{stage.label}</span>
             <div className="flex-1 h-8 rounded-lg bg-surface-2 overflow-hidden">
               <div
                 className="h-full rounded-lg flex items-center justify-end pr-2.5 transition-all"
                 style={{
-                  width: `${Math.max((stage.count / max) * 100, stage.count > 0 ? 10 : 0)}%`,
+                  width: `${Math.max((stage.count / max) * 100, 10)}%`,
                   background: stage.color,
-                  minWidth: stage.count > 0 ? "2rem" : "0",
+                  minWidth: "2rem",
                 }}
               >
-                {stage.count > 0 && (
-                  <span className="text-[13px] font-bold leading-none text-ink">
-                    {stage.count}
-                  </span>
-                )}
+                <span className="text-[13px] font-bold leading-none text-ink">
+                  {stage.count}
+                </span>
               </div>
             </div>
           </div>
