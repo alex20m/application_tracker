@@ -1,20 +1,27 @@
 import { PAGE_CONTAINER, PAGE_VERTICAL } from "@/lib/ui";
 
-const NAV_LABELS = ["Applications", "Wishlist", "Analytics", "Settings"];
+const NAV_LABELS = ["Dashboard", "Applications", "Wishlist", "Analytics"];
 
 export function LoadingShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-20 border-b border-gray-200/80 dark:border-slate-700/80 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md">
-        <div className={`${PAGE_CONTAINER} flex h-13 items-center gap-4 mobile:h-12`}>
-          <span className="text-sm font-bold tracking-tight text-gray-900 dark:text-gray-100">
-            AppTrack
-          </span>
-          <nav className="flex flex-1 items-center gap-0.5 mobile:hidden">
+    <div className="min-h-screen bg-bg">
+      <header className="sticky top-0 z-20 border-b border-border-base bg-surface/82 backdrop-blur-md" style={{ height: "60px" }}>
+        <div className={`${PAGE_CONTAINER} flex h-full items-center gap-6 mobile:gap-4`}>
+          {/* Brand */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="w-[26px] h-[26px] rounded-[8px] flex items-center justify-center" style={{ background: "linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%)" }}>
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+                <path d="M2 6.5L5 9.5L11 3.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <span className="text-[15px] font-bold tracking-[-0.02em] text-ink">AppTrack</span>
+          </div>
+          {/* Nav placeholder */}
+          <nav className="flex flex-1 items-center gap-1 mobile:hidden">
             {NAV_LABELS.map((label) => (
               <span
                 key={label}
-                className="inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-gray-400 dark:text-gray-500"
+                className="inline-flex items-center justify-center px-3 py-1.5 text-[13.5px] font-medium text-ink-3 rounded-lg"
               >
                 {label}
               </span>
