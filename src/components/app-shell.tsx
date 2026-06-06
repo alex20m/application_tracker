@@ -176,8 +176,8 @@ export function AppShell({ email, children }: AppShellProps) {
               className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-3 transition hover:bg-surface-2 hover:text-ink"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <circle cx="8" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.5" />
-                <path d="M8 1.5v1.25M8 13.25V14.5M1.5 8h1.25M13.25 8H14.5M3.23 3.23l.88.88M11.89 11.89l.88.88M3.23 12.77l.88-.88M11.89 4.11l.88-.88" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <path d="M6.5 1.5h3l.4 1.8c.4.2.8.4 1.1.7l1.8-.6 1.5 2.6-1.4 1.2c0 .3.1.5.1.8s0 .5-.1.8l1.4 1.2-1.5 2.6-1.8-.6c-.3.3-.7.5-1.1.7l-.4 1.8h-3l-.4-1.8a4.5 4.5 0 0 1-1.1-.7l-1.8.6L1.7 10l1.4-1.2A4.5 4.5 0 0 1 3 8c0-.3 0-.5.1-.8L1.7 6 3.2 3.4l1.8.6c.3-.3.7-.5 1.1-.7l.4-1.8Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+                <circle cx="8" cy="8" r="2" stroke="currentColor" strokeWidth="1.4" />
               </svg>
             </Link>
             <div className="mx-1.5 h-5 w-px bg-border-base" />
@@ -276,8 +276,8 @@ export function AppShell({ email, children }: AppShellProps) {
                   aria-label="Settings"
                 >
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <circle cx="8" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.5" />
-                    <path d="M8 1.5v1.25M8 13.25V14.5M1.5 8h1.25M13.25 8H14.5M3.23 3.23l.88.88M11.89 11.89l.88.88M3.23 12.77l.88-.88M11.89 4.11l.88-.88" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                    <path d="M6.5 1.5h3l.4 1.8c.4.2.8.4 1.1.7l1.8-.6 1.5 2.6-1.4 1.2c0 .3.1.5.1.8s0 .5-.1.8l1.4 1.2-1.5 2.6-1.8-.6c-.3.3-.7.5-1.1.7l-.4 1.8h-3l-.4-1.8a4.5 4.5 0 0 1-1.1-.7l-1.8.6L1.7 10l1.4-1.2A4.5 4.5 0 0 1 3 8c0-.3 0-.5.1-.8L1.7 6 3.2 3.4l1.8.6c.3-.3.7-.5 1.1-.7l.4-1.8Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+                    <circle cx="8" cy="8" r="2" stroke="currentColor" strokeWidth="1.4" />
                   </svg>
                 </Link>
               </div>
