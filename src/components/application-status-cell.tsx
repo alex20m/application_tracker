@@ -56,9 +56,7 @@ export function ApplicationStatusCell({
     <div className="relative flex flex-row items-center gap-2" ref={popoverRef}>
       <StatusBadge status={optimisticStatus} />
 
-      {isFinal ? (
-        <span className="font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-ink-3">Final</span>
-      ) : (
+      {!isFinal && (
         <button
           type="button"
           onClick={(e) => { e.preventDefault(); setIsOpen(!isOpen); }}
