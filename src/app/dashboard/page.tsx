@@ -122,7 +122,10 @@ function KpiCard({
   sub?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-border-base bg-surface p-5 shadow-sm flex flex-col gap-1.5">
+    <div
+      className="rounded-xl border p-4 flex flex-col gap-1.5"
+      style={{ background: "var(--surface-2)", borderColor: "var(--border)" }}
+    >
       <p className="text-[12.5px] text-ink-2">{label}</p>
       <p
         className="text-[36px] font-bold leading-none tracking-[-0.03em]"
@@ -210,29 +213,32 @@ function PipelineCard({ analytics }: { analytics: ReturnType<typeof computeAnaly
     },
   ];
 
-  const visibleStages = stages.filter((s) => s.count > 0);
-  const max = visibleStages[0]?.count || 1;
+  const max = stages[0].count || 1;
 
   return (
     <div className="rounded-2xl border border-border-base bg-surface p-[22px] shadow-sm flex flex-col gap-4">
       <p className="text-[15px] font-semibold text-ink">Pipeline</p>
       <div className="space-y-2.5">
-        {visibleStages.map((stage) => (
+        {stages.map((stage) => (
           <div key={stage.label} className="flex items-center gap-3">
             <span className="w-[78px] flex-shrink-0 text-[12.5px] text-ink-2 text-right">{stage.label}</span>
-            <div className="flex-1 h-8 rounded-lg bg-surface-2 overflow-hidden">
-              <div
-                className="h-full rounded-lg flex items-center justify-end pr-2.5 transition-all"
-                style={{
-                  width: `${Math.max((stage.count / max) * 100, 10)}%`,
-                  background: stage.color,
-                  minWidth: "2rem",
-                }}
-              >
-                <span className="text-[13px] font-bold leading-none text-ink">
-                  {stage.count}
-                </span>
-              </div>
+            <div className="flex-1 h-8 rounded-lg bg-surface-2 overflow-hidden flex items-center">
+              {stage.count > 0 ? (
+                <div
+                  className="h-full rounded-lg flex items-center justify-end pr-2.5 transition-all"
+                  style={{
+                    width: `${Math.max((stage.count / max) * 100, 10)}%`,
+                    background: stage.color,
+                    minWidth: "2rem",
+                  }}
+                >
+                  <span className="text-[13px] font-bold leading-none text-ink">
+                    {stage.count}
+                  </span>
+                </div>
+              ) : (
+                <span className="pl-3 text-[13px] font-bold leading-none text-ink-3">0</span>
+              )}
             </div>
           </div>
         ))}
