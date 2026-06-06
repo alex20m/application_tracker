@@ -59,7 +59,7 @@ export function ApplicationStatusCell({
       {!isFinal && (
         <button
           type="button"
-          onClick={(e) => { e.preventDefault(); setIsOpen(!isOpen); }}
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsOpen(!isOpen); }}
           disabled={isPending}
           className="cursor-pointer rounded-lg border border-border-base bg-surface px-2.5 py-1 text-[11.5px] font-medium text-ink-2 transition hover:border-accent hover:text-accent disabled:opacity-40"
         >
@@ -71,18 +71,18 @@ export function ApplicationStatusCell({
       {isOpen && nextStatuses.length > 0 && (
         <div
           role="menu"
-          className="absolute right-0 top-full mt-1 z-20 min-w-[140px] rounded-xl border border-border-base bg-surface shadow-lg py-1"
+          onClick={(e) => e.stopPropagation()}
+          className="absolute right-0 top-full mt-2 z-20 min-w-[160px] rounded-2xl border border-border-base bg-surface shadow-xl py-2"
         >
           {nextStatuses.map((status) => (
             <button
               key={status}
               type="button"
               role="menuitem"
-              onClick={(e) => { e.preventDefault(); handleChangeStatus(status); }}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleChangeStatus(status); }}
               disabled={isPending}
-              className="flex w-full items-center gap-2 px-3 py-2 text-[13px] text-ink-2 transition hover:bg-surface-2 hover:text-ink disabled:opacity-50"
+              className="w-full px-5 py-3 text-left text-[15px] text-ink-2 transition hover:bg-surface-2 hover:text-ink disabled:opacity-50"
             >
-              <span className="status-dot h-2 w-2 rounded-full flex-shrink-0" data-status={status} />
               {STATUS_NAMES[status]}
             </button>
           ))}
