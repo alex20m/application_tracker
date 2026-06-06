@@ -132,7 +132,7 @@ function SankeyNodeShape({
         y={node.y0 + h / 2 + 9}
         textAnchor={anchor}
         fontSize={11}
-        fill="var(--text-2)"
+        fill="var(--text)"
       >
         {sub}
       </text>
