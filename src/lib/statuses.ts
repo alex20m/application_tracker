@@ -119,9 +119,10 @@ export function getStatusRank(status: ApplicationStatus): number {
 // Returns -1 for wishlist (not in pipeline)
 export function statusStageIndex(status: ApplicationStatus): number {
   if (status === STATUS.wishlist) return -1;
-  if ([STATUS.applied, STATUS.ghosted, STATUS.cancelled, STATUS.rejected].includes(status)) return 0;
-  if ([STATUS.interviews, STATUS.withdrew, STATUS.no_offer].includes(status)) return 1;
-  if (status === STATUS.offer) return 2;
-  if ([STATUS.accepted, STATUS.declined].includes(status)) return 3;
+  const s = status as string;
+  if (["applied", "ghosted", "cancelled", "rejected"].includes(s)) return 0;
+  if (["interviews", "withdrew", "no_offer"].includes(s)) return 1;
+  if (s === "offer") return 2;
+  if (["accepted", "declined"].includes(s)) return 3;
   return 0;
 }
