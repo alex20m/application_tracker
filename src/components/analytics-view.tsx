@@ -78,18 +78,6 @@ function buildInsights(analytics: ReturnType<typeof computeAnalytics>, applicati
     });
   }
 
-  // Info: interview rate
-  if (analytics.interviewRate !== null && analytics.totalApplications >= 3) {
-    insights.push({
-      variant: "info",
-      icon: "📊",
-      title: `Interview rate is ${pct(analytics.interviewRate)}`,
-      body: analytics.offerFromInterviewRate !== null
-        ? `${pct(analytics.offerFromInterviewRate)} of interviews result in an offer.`
-        : `Based on ${analytics.totalApplications} applications.`,
-    });
-  }
-
   return insights.slice(0, 3);
 }
 
@@ -359,6 +347,17 @@ export function AnalyticsView({ applications }: Props) {
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                 <path d="M2 7L8 3.5L14 7L8 10.5L2 7Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
                 <path d="M2 10.5L8 14L14 10.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            }
+          />
+          <StatCard
+            title={`Interview rate is ${pct(a.interviewRate)}`}
+            sub={a.offerFromInterviewRate !== null ? `${pct(a.offerFromInterviewRate)} of interviews lead to an offer` : undefined}
+            variant="good"
+            icon={
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3 13V9M7 13V5M11 13V7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                <path d="M1 13h14" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
               </svg>
             }
           />
