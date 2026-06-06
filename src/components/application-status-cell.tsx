@@ -63,7 +63,7 @@ export function ApplicationStatusCell({
           type="button"
           onClick={(e) => { e.preventDefault(); setIsOpen(!isOpen); }}
           disabled={isPending}
-          className="cursor-pointer rounded-md px-2 py-0.5 text-[11.5px] font-medium text-ink-3 transition hover:bg-surface-2 hover:text-accent disabled:opacity-40"
+          className="cursor-pointer rounded-full border border-border-base bg-surface px-3 py-0.5 text-[11.5px] font-medium text-ink-2 transition hover:border-accent hover:text-accent disabled:opacity-40"
         >
           Move →
         </button>
