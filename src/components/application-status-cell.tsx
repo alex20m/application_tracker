@@ -53,7 +53,7 @@ export function ApplicationStatusCell({
   }, [isOpen]);
 
   return (
-    <div className="relative flex flex-col items-end gap-1" ref={popoverRef}>
+    <div className="relative flex flex-row items-center gap-2" ref={popoverRef}>
       <StatusBadge status={optimisticStatus} />
 
       {isFinal ? (
@@ -63,7 +63,7 @@ export function ApplicationStatusCell({
           type="button"
           onClick={(e) => { e.preventDefault(); setIsOpen(!isOpen); }}
           disabled={isPending}
-          className="cursor-pointer rounded-full border border-border-base bg-surface px-3 py-0.5 text-[11.5px] font-medium text-ink-2 transition hover:border-accent hover:text-accent disabled:opacity-40"
+          className="cursor-pointer rounded-lg border border-border-base bg-surface px-2.5 py-1 text-[11.5px] font-medium text-ink-2 transition hover:border-accent hover:text-accent disabled:opacity-40"
         >
           Move →
         </button>
