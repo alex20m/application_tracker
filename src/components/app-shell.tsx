@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import Link from "next/link";
+import { useTheme } from "next-themes";
 import { ROUTES } from "@/lib/env";
 import { BTN_GHOST, PAGE_CONTAINER, PAGE_VERTICAL } from "@/lib/ui";
 import { InstallAppButton } from "@/components/install-app-button";
@@ -15,8 +16,58 @@ const navItems = [
   { href: ROUTES.applications, label: "Applications" },
   { href: ROUTES.wishlist, label: "Wishlist" },
   { href: ROUTES.analytics, label: "Analytics" },
-  { href: ROUTES.settings, label: "Settings" },
 ];
+
+function SunIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+    </svg>
+  );
+}
+
+function MoonIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    </svg>
+  );
+}
+
+function SettingsIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+    </svg>
+  );
+}
+
+function ThemeToggleButton({ className }: { className?: string }) {
+  const { resolvedTheme, setTheme } = useTheme();
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+
+  const isDark = mounted && resolvedTheme === "dark";
+
+  return (
+    <button
+      type="button"
+      onClick={() => setTheme(isDark ? "light" : "dark")}
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      className={className}
+    >
+      {isDark ? <SunIcon /> : <MoonIcon />}
+    </button>
+  );
+}
+
+const iconBtnClass =
+  "flex items-center justify-center rounded-lg p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors";
 
 export function AppShell({ email, children }: AppShellProps) {
   const [open, setOpen] = useState(false);
@@ -55,9 +106,11 @@ export function AppShell({ email, children }: AppShellProps) {
               </Link>
             ))}
           </nav>
-          <div className="flex items-center gap-3 mobile:hidden">
+
+          {/* Desktop right section */}
+          <div className="flex items-center gap-2 mobile:hidden">
             <InstallAppButton variant="chip" />
-            <span className="text-xs text-gray-500 dark:text-gray-500">{email}</span>
+            <span className="text-xs text-gray-500 dark:text-gray-500 px-1">{email}</span>
             <form action={ROUTES.signOut} method="post">
               <button
                 type="submit"
@@ -66,22 +119,34 @@ export function AppShell({ email, children }: AppShellProps) {
                 Sign out
               </button>
             </form>
+            <div className="flex items-center gap-1 border-l border-gray-200 dark:border-gray-700 pl-2 ml-1">
+              <ThemeToggleButton className={iconBtnClass} />
+              <Link href={ROUTES.settings} aria-label="Settings" className={iconBtnClass}>
+                <SettingsIcon />
+              </Link>
+            </div>
           </div>
 
-          {/* Mobile hamburger trigger */}
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            aria-label="Open menu"
-            aria-expanded={open}
-            className="hidden mobile:inline-flex ml-auto items-center justify-center rounded-lg p-2 min-h-11 min-w-11 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-              <rect y="3" width="20" height="2" rx="1" fill="currentColor" />
-              <rect y="9" width="20" height="2" rx="1" fill="currentColor" />
-              <rect y="15" width="20" height="2" rx="1" fill="currentColor" />
-            </svg>
-          </button>
+          {/* Mobile: theme + settings icons + hamburger */}
+          <div className="hidden mobile:flex ml-auto items-center gap-1">
+            <ThemeToggleButton className={`${iconBtnClass} min-h-11 min-w-11`} />
+            <Link href={ROUTES.settings} aria-label="Settings" className={`${iconBtnClass} min-h-11 min-w-11`}>
+              <SettingsIcon />
+            </Link>
+            <button
+              type="button"
+              onClick={() => setOpen(true)}
+              aria-label="Open menu"
+              aria-expanded={open}
+              className={`${iconBtnClass} min-h-11 min-w-11`}
+            >
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <rect y="3" width="20" height="2" rx="1" fill="currentColor" />
+                <rect y="9" width="20" height="2" rx="1" fill="currentColor" />
+                <rect y="15" width="20" height="2" rx="1" fill="currentColor" />
+              </svg>
+            </button>
+          </div>
         </div>
       </header>
 
