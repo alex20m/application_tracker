@@ -92,7 +92,7 @@ export function PipelineStepper({ applicationId, status }: Props) {
                 type="button"
                 onClick={() => handleMove(nextStatus)}
                 disabled={isPending}
-                className="rounded-xl border border-border-base bg-surface px-3.5 py-2 text-[13px] font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink disabled:opacity-50"
+                className="cursor-pointer rounded-xl border border-border-base bg-surface px-3.5 py-2 text-[13px] font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {STATUS_NAMES[nextStatus]}
               </button>

@@ -78,7 +78,7 @@ function ThemeToggle() {
       type="button"
       onClick={toggle}
       aria-label="Toggle theme"
-      className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-3 transition hover:bg-surface-2 hover:text-ink"
+      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-ink-3 transition hover:bg-surface-2 hover:text-ink"
     >
       {isDark ? (
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -196,7 +196,7 @@ export function AppShell({ email, children }: AppShellProps) {
             onClick={() => setOpen(true)}
             aria-label="Open menu"
             aria-expanded={open}
-            className="hidden mobile:inline-flex ml-auto items-center justify-center rounded-lg p-2 min-h-11 min-w-11 text-ink-3 hover:bg-surface-2 transition-colors"
+            className="hidden mobile:inline-flex ml-auto cursor-pointer items-center justify-center rounded-lg p-2 min-h-11 min-w-11 text-ink-3 hover:bg-surface-2 transition-colors"
           >
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
               <rect y="3" width="20" height="2" rx="1" fill="currentColor" />
@@ -227,7 +227,7 @@ export function AppShell({ email, children }: AppShellProps) {
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label="Close menu"
-                className="flex items-center justify-center min-h-11 min-w-11 rounded-lg text-ink-3 hover:bg-surface-2 transition-colors"
+                className="flex cursor-pointer items-center justify-center min-h-11 min-w-11 rounded-lg text-ink-3 hover:bg-surface-2 transition-colors"
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                   <path d="M3 3L13 13M13 3L3 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />

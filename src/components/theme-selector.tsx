@@ -54,7 +54,7 @@ export function ThemeSelector() {
             type="button"
             onClick={() => setTheme(option.value)}
             className={[
-              "flex-1 flex flex-col gap-2 rounded-[13px] border p-3 text-sm font-medium text-left transition-all mobile:min-h-11",
+              "flex-1 flex cursor-pointer flex-col gap-2 rounded-[13px] border p-3 text-sm font-medium text-left transition-all mobile:min-h-11",
               isActive
                 ? "border-accent bg-accent-soft text-accent-strong ring-2 ring-accent/20"
                 : "border-border-base bg-surface text-ink-2 hover:bg-surface-2 hover:text-ink hover:border-border-strong",

@@ -349,7 +349,7 @@ export function StatusSourceCharts({ statusCounts, sourceStats }: StatusSourcePr
                 key={item.status}
                 type="button"
                 onClick={() => handleLegendClick(index)}
-                className={`flex items-center gap-1.5 text-xs transition-opacity ${
+                className={`flex cursor-pointer items-center gap-1.5 text-xs transition-opacity ${
                   isLocked && activeIndex !== index ? "opacity-40" : "opacity-100"
                 } text-ink-2 hover:opacity-100`}
               >
