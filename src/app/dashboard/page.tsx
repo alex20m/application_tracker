@@ -188,7 +188,7 @@ function NeedsAttentionCard({
             <p className="text-[12px] text-ink-3 mt-px">{item.reason}</p>
           </div>
           <span className="flex-shrink-0 text-[12px] font-medium px-3 py-1.5 rounded-lg border border-border-base bg-surface text-ink-2 transition group-hover:border-border-strong">
-            {item.actionLabel}
+            Go to application
           </span>
         </Link>
       ))}
