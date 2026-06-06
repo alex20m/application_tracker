@@ -120,7 +120,8 @@ export function ApplicationList({ applications, fromFilter }: ApplicationListPro
               {app.source && (
                 <span className="flex items-center gap-1 truncate">
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                    <path d="M5 2H2.5A1.5 1.5 0 0 0 1 3.5v6A1.5 1.5 0 0 0 2.5 11h6A1.5 1.5 0 0 0 10 9.5V7M7 1h4v4M11 1 6 6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M5 6.5a2.5 2.5 0 0 0 3.54.46l1.5-1.5a2.5 2.5 0 0 0-3.54-3.54L5.79 2.63" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M7 5.5a2.5 2.5 0 0 0-3.54-.46l-1.5 1.5a2.5 2.5 0 0 0 3.54 3.54l.67-.68" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   {app.source}
                 </span>
