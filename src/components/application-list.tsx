@@ -129,8 +129,10 @@ export function ApplicationList({ applications, fromFilter }: ApplicationListPro
             </div>
 
             {/* End cluster: badge + move + chevron */}
-            <div className="relative z-10 flex flex-shrink-0 items-center gap-2 ml-auto">
-              <ApplicationStatusCell applicationId={app.id} currentStatus={app.status} />
+            <div className="flex flex-shrink-0 items-center gap-2 ml-auto">
+              <div className="relative z-10">
+                <ApplicationStatusCell applicationId={app.id} currentStatus={app.status} />
+              </div>
               <svg className="text-ink-3 mobile:hidden" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                 <path d="M5 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
