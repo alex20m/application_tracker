@@ -284,6 +284,7 @@ export function AppShell({ email, children }: AppShellProps) {
                     <circle cx="8" cy="8" r="2" stroke="currentColor" strokeWidth="1.4" />
                   </svg>
                 </Link>
+                <InstallAppButton variant="icon" />
               </div>
               <form action={ROUTES.signOut} method="post">
                 <button
