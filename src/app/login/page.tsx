@@ -20,14 +20,16 @@ export default async function LoginPage({ searchParams }: Props) {
       >
         {/* Brand mark */}
         <div className="flex items-center gap-2.5">
-          <div
-            className="w-9 h-9 rounded-[10px] flex items-center justify-center"
-            style={{ background: "oklch(1 0 0 / 0.15)" }}
-          >
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-              <path d="M3.5 9.5L7 13L14.5 5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
+          <svg width="36" height="36" viewBox="0 0 32 32" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+            <rect width="32" height="32" rx="8" fill="oklch(1 0 0 / 0.2)" />
+            <rect x="0" y="0" width="32" height="14" rx="8" fill="white" fillOpacity="0.07" />
+            <path d="M7 23 C12 23 12 15 16 15 C20 15 20 9 25 9" stroke="white" strokeWidth="3" strokeLinecap="round" fill="none" strokeOpacity="0.8" />
+            <circle cx="7" cy="23" r="2.5" fill="oklch(0.45 0.095 188)" stroke="white" strokeWidth="2" strokeOpacity="0.6" />
+            <circle cx="16" cy="15" r="2.5" fill="oklch(0.45 0.095 188)" stroke="white" strokeWidth="2" strokeOpacity="0.9" />
+            <circle cx="16" cy="15" r="1.1" fill="white" fillOpacity="0.65" />
+            <circle cx="25" cy="9" r="3.5" fill="white" />
+            <circle cx="25" cy="9" r="1.7" fill="oklch(0.45 0.095 188)" />
+          </svg>
           <span className="text-white font-bold text-[17px] tracking-[-0.02em]">AppTrack</span>
         </div>
 
@@ -65,14 +67,16 @@ export default async function LoginPage({ searchParams }: Props) {
         <div className="w-full max-w-[380px]">
           {/* Mobile brand (shown when aside is hidden) */}
           <div className="flex items-center gap-2.5 mb-8 lg:hidden">
-            <div
-              className="w-9 h-9 rounded-[10px] flex items-center justify-center"
-              style={{ background: "var(--accent-soft)" }}
-            >
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-                <path d="M3.5 9.5L7 13L14.5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent" />
-              </svg>
-            </div>
+            <svg width="36" height="36" viewBox="0 0 32 32" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+              <rect width="32" height="32" rx="8" fill="var(--accent)" />
+              <rect x="0" y="0" width="32" height="14" rx="8" fill="white" fillOpacity="0.07" />
+              <path d="M7 23 C12 23 12 15 16 15 C20 15 20 9 25 9" stroke="white" strokeWidth="3" strokeLinecap="round" fill="none" strokeOpacity="0.8" />
+              <circle cx="7" cy="23" r="2.5" fill="var(--accent)" stroke="white" strokeWidth="2" strokeOpacity="0.6" />
+              <circle cx="16" cy="15" r="2.5" fill="var(--accent)" stroke="white" strokeWidth="2" strokeOpacity="0.9" />
+              <circle cx="16" cy="15" r="1.1" fill="white" fillOpacity="0.65" />
+              <circle cx="25" cy="9" r="3.5" fill="white" />
+              <circle cx="25" cy="9" r="1.7" fill="var(--accent)" />
+            </svg>
             <span className="font-bold text-[17px] tracking-[-0.02em] text-ink">AppTrack</span>
           </div>
 

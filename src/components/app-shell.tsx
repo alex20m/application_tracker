@@ -125,14 +125,16 @@ export function AppShell({ email, children }: AppShellProps) {
             className="flex items-center gap-2 flex-shrink-0"
             aria-label="AppTrack home"
           >
-            <span
-              className="flex h-[26px] w-[26px] items-center justify-center rounded-[8px] text-white"
-              style={{ background: "linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%)" }}
-            >
-              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
-                <path d="M2.5 6.5L5 9L10.5 4" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </span>
+            <svg width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+              <rect width="32" height="32" rx="8" fill="var(--accent)" />
+              <rect x="0" y="0" width="32" height="14" rx="8" fill="white" fillOpacity="0.07" />
+              <path d="M7 23 C12 23 12 15 16 15 C20 15 20 9 25 9" stroke="white" strokeWidth="3" strokeLinecap="round" fill="none" strokeOpacity="0.8" />
+              <circle cx="7" cy="23" r="2.5" fill="var(--accent)" stroke="white" strokeWidth="2" strokeOpacity="0.6" />
+              <circle cx="16" cy="15" r="2.5" fill="var(--accent)" stroke="white" strokeWidth="2" strokeOpacity="0.9" />
+              <circle cx="16" cy="15" r="1.1" fill="white" fillOpacity="0.65" />
+              <circle cx="25" cy="9" r="3.5" fill="white" />
+              <circle cx="25" cy="9" r="1.7" fill="var(--accent)" />
+            </svg>
             <span className="text-[14px] font-bold tracking-tight text-ink mobile:hidden">AppTrack</span>
           </Link>
 
