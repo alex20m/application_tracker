@@ -19,20 +19,6 @@ type ApplicationDetailPageProps = {
   searchParams: Promise<{ from?: string }>;
 };
 
-function Monogram({ company }: { company: string }) {
-  const initials = company
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase();
-  return (
-    <div className="h-[50px] w-[50px] flex-shrink-0 flex items-center justify-center rounded-xl border border-border-base bg-surface-2 text-[15px] font-bold text-ink-2 select-none">
-      {initials}
-    </div>
-  );
-}
 
 export default async function ApplicationDetailPage({
   params,
@@ -111,9 +97,8 @@ export default async function ApplicationDetailPage({
           </Link>
         </div>
 
-        {/* Header: monogram + company/role + badge */}
+        {/* Header: company/role + badge */}
         <div className="flex items-center gap-4 mobile:gap-3">
-          <Monogram company={application.company} />
           <div className="min-w-0 flex-1">
             <h1 className="text-[23px] font-bold tracking-[-0.02em] text-ink truncate whitespace-nowrap leading-tight">
               {application.company}
