@@ -162,7 +162,8 @@ function StatCard({ title, sub, variant = "neutral", icon }: StatCardProps) {
 
   return (
     <div
-      className="rounded-2xl border border-border-base bg-surface p-5 shadow-sm flex gap-3"
+      className="rounded-xl border p-4 flex gap-3 mobile:p-3"
+      style={{ background: "var(--surface-2)", borderColor: "var(--border)" }}
     >
       <div
         className="flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center"

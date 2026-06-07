@@ -110,24 +110,45 @@ function buildAttentionItems(applications: ApplicationRecord[]): AttentionItem[]
 
 // ── Sub-components ───────────────────────────────────────────────────────────
 
+type KpiVariant = "good" | "warn" | "info" | "neutral";
+
 function KpiCard({
   label,
   value,
-  valueColor,
   sub,
+  variant = "neutral",
 }: {
   label: string;
   value: string;
-  valueColor?: string;
   sub?: string;
+  variant?: KpiVariant;
 }) {
+  const c: Record<KpiVariant, { bg: string; border: string }> = {
+    good: {
+      bg: "color-mix(in oklch, var(--st-offer) 8%, var(--surface))",
+      border: "color-mix(in oklch, var(--st-offer) 35%, transparent)",
+    },
+    warn: {
+      bg: "color-mix(in oklch, var(--st-ghosted) 10%, var(--surface))",
+      border: "color-mix(in oklch, var(--st-ghosted) 40%, transparent)",
+    },
+    info: {
+      bg: "color-mix(in oklch, var(--accent) 8%, var(--surface))",
+      border: "color-mix(in oklch, var(--accent) 30%, transparent)",
+    },
+    neutral: {
+      bg: "var(--surface-2)",
+      border: "var(--border)",
+    },
+  };
+  const colors = c[variant];
   return (
-    <div className="rounded-2xl border border-border-base bg-surface p-5 shadow-sm flex flex-col gap-1.5">
+    <div
+      className="rounded-xl border p-4 flex flex-col gap-1.5"
+      style={{ background: colors.bg, borderColor: colors.border }}
+    >
       <p className="text-[12.5px] text-ink-2">{label}</p>
-      <p
-        className="text-[36px] font-bold leading-none tracking-[-0.03em]"
-        style={valueColor ? { color: valueColor } : { color: "var(--text)" }}
-      >
+      <p className="text-[36px] font-bold leading-none tracking-[-0.03em] text-ink">
         {value}
       </p>
       {sub && <p className="text-[12.5px] text-ink-3">{sub}</p>}
@@ -333,21 +354,19 @@ export default async function DashboardPage() {
             label="Active"
             value={String(analytics.activeCount)}
             sub="Applications in progress"
+            variant="neutral"
           />
           <KpiCard
             label="In interviews"
             value={String(analytics.currentlyInterviewingCount)}
             sub={interviewSub}
+            variant="info"
           />
           <KpiCard
             label="Response rate"
             value={pct(analytics.responseRate)}
-            valueColor={
-              analytics.responseRate !== null && analytics.responseRate > 0
-                ? "var(--st-offer)"
-                : undefined
-            }
             sub="Of applications got a reply"
+            variant="good"
           />
           <KpiCard
             label="Avg. first reply"
@@ -357,6 +376,7 @@ export default async function DashboardPage() {
                 ? `across ${analytics.totalApplications} applications`
                 : undefined
             }
+            variant="neutral"
           />
         </div>
 
