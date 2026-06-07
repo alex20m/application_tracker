@@ -1,10 +1,9 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
-import { BTN_PRIMARY_LINK, CARD, SECTION_STACK, TEXT_H3, TEXT_META } from "@/lib/ui";
+import { CARD, SECTION_STACK, TEXT_H3, TEXT_META } from "@/lib/ui";
 import { AppShell } from "@/components/app-shell";
 import { ApplicationForm } from "@/components/application-form";
 import { DeleteApplicationButton } from "@/components/delete-application-button";
-import { PipelineStepper } from "@/components/pipeline-stepper";
 import { StatusBadge } from "@/components/status-badge";
 import { updateApplicationAction } from "./actions";
 
@@ -18,7 +17,20 @@ type ApplicationDetailPageProps = {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ from?: string }>;
 };
-
+function Monogram({ company }: { company: string }) {
+  const initials = company
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase();
+  return (
+    <div className="h-[50px] w-[50px] flex-shrink-0 flex items-center justify-center rounded-xl border border-border-base bg-surface-2 text-[15px] font-bold text-ink-2 select-none">
+      {initials}
+    </div>
+  );
+}
 
 export default async function ApplicationDetailPage({
   params,
@@ -81,24 +93,17 @@ export default async function ApplicationDetailPage({
     <AppShell email={user.email || ""}>
       <div className={SECTION_STACK}>
         {/* Breadcrumb */}
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2 text-sm text-ink-3 whitespace-nowrap min-w-0">
-            <Link href={returnPath} className="transition hover:text-ink-2 flex-shrink-0">
-              Applications
-            </Link>
-            <span className="text-border-strong">/</span>
-            <span className="truncate max-w-[200px] font-medium text-ink-2">{application.company}</span>
-          </div>
-          <Link
-            href={from ? `/applications/new?from=${from}` : "/applications/new"}
-            className={BTN_PRIMARY_LINK}
-          >
-            + Add Application
+        <div className="flex items-center gap-2 text-sm text-ink-3 whitespace-nowrap min-w-0">
+          <Link href={returnPath} className="transition hover:text-ink-2 flex-shrink-0">
+            Applications
           </Link>
+          <span className="text-border-strong">/</span>
+          <span className="truncate max-w-[200px] font-medium text-ink-2">{application.company}</span>
         </div>
 
-        {/* Header: company/role + badge */}
+        {/* Header: monogram + company/role + badge */}
         <div className="flex items-center gap-4 mobile:gap-3">
+          <Monogram company={application.company} />
           <div className="min-w-0 flex-1">
             <h1 className="text-[23px] font-bold tracking-[-0.02em] text-ink truncate whitespace-nowrap leading-tight">
               {application.company}
@@ -108,11 +113,6 @@ export default async function ApplicationDetailPage({
           <div className="flex-shrink-0">
             <StatusBadge status={application.status} />
           </div>
-        </div>
-
-        {/* Pipeline stepper */}
-        <div className="max-w-2xl">
-          <PipelineStepper applicationId={application.id} status={application.status} />
         </div>
 
         {/* Form */}
