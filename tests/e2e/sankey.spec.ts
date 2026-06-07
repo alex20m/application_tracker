@@ -16,7 +16,7 @@ test.describe("Sankey chart", () => {
     // Transition to interviews so there's a real flow to render
     await page.goto("/applications");
     await page.getByRole("button", { name: /^Move/i }).first().click();
-    await page.getByRole("button", { name: /interviews/i }).click();
+    await page.getByRole("menuitem", { name: /interviews/i }).click();
     await expect(page.getByText(/interviews/i).first()).toBeVisible({ timeout: 10000 });
 
     // Navigate to analytics page where the sankey chart now lives
