@@ -43,7 +43,7 @@ export function ApplicationStatusCell({
     if (!buttonRef.current) return;
     const rect = buttonRef.current.getBoundingClientRect();
     const GAP = 6;
-    const estimatedHeight = (STATUS_NEXT[optimisticStatus]?.length ?? 1) * 36 + 8;
+    const estimatedHeight = (STATUS_NEXT[optimisticStatus]?.length ?? 1) * 28 + 8;
     const right = window.innerWidth - rect.right;
     const spaceBelow = window.innerHeight - rect.bottom - GAP;
     const pos: { top?: number; bottom?: number; right: number } = { right };
@@ -108,7 +108,7 @@ export function ApplicationStatusCell({
               role="menuitem"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleChangeStatus(status); }}
               disabled={isPending}
-              className="w-full px-4 py-2 text-left text-[13px] text-ink-2 transition hover:bg-surface-2 hover:text-ink disabled:opacity-50"
+              className="w-full px-3 py-1.5 text-left text-[12px] text-ink-2 transition hover:bg-surface-2 hover:text-ink disabled:opacity-50"
             >
               {STATUS_NAMES[status]}
             </button>
