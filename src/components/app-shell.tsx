@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useRef, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { ROUTES } from "@/lib/env";
 import { PAGE_CONTAINER, PAGE_VERTICAL } from "@/lib/ui";
 import { InstallAppButton } from "@/components/install-app-button";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type AppShellProps = {
   email: string;
@@ -100,6 +101,14 @@ export function AppShell({ email, children }: AppShellProps) {
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const router = useRouter();
+
+  async function handleSignOut() {
+    const supabase = createSupabaseBrowserClient();
+    await supabase.auth.signOut({ scope: "local" });
+    router.push(ROUTES.login);
+    router.refresh();
+  }
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -222,17 +231,16 @@ export function AppShell({ email, children }: AppShellProps) {
                       </svg>
                       Settings
                     </Link>
-                    <form action={ROUTES.signOut} method="post">
-                      <button
-                        type="submit"
-                        className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium text-ink-2 transition hover:bg-surface-2 hover:text-ink cursor-pointer"
-                      >
-                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                          <path d="M6 2H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3M11 11l3-3-3-3M14 8H6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                        Sign out
-                      </button>
-                    </form>
+                    <button
+                      type="button"
+                      onClick={handleSignOut}
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium text-ink-2 transition hover:bg-surface-2 hover:text-ink cursor-pointer"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                        <path d="M6 2H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3M11 11l3-3-3-3M14 8H6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                      Sign out
+                    </button>
                   </div>
                 </div>
               )}
@@ -331,14 +339,13 @@ export function AppShell({ email, children }: AppShellProps) {
                 </Link>
                 <InstallAppButton variant="icon" />
               </div>
-              <form action={ROUTES.signOut} method="post">
-                <button
-                  type="submit"
-                  className="w-full cursor-pointer rounded-lg border border-border-base px-3 py-2.5 text-sm font-medium text-ink-2 transition hover:bg-surface-2"
-                >
-                  Sign out
-                </button>
-              </form>
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="w-full cursor-pointer rounded-lg border border-border-base px-3 py-2.5 text-sm font-medium text-ink-2 transition hover:bg-surface-2"
+              >
+                Sign out
+              </button>
             </div>
           </aside>
         </div>
