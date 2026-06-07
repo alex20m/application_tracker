@@ -13,8 +13,8 @@ setup("authenticate", async ({ page }) => {
   await page.getByLabel(/password/i).fill(E2E_PASSWORD);
   await page.getByRole("button", { name: /sign in/i }).click();
 
-  // Wait for redirect to applications list after successful sign-in
-  await expect(page).toHaveURL(/\/applications/, { timeout: 15000 });
+  // Wait for redirect to dashboard after successful sign-in
+  await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
 
   await page.context().storageState({ path: authFile });
 });
