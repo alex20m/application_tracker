@@ -93,6 +93,10 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Logo brand fill — dark mode swaps to the lighter teal per the dark theme */
+.logo-fill { fill: oklch(0.55 0.085 188); }
+.dark .logo-fill { fill: oklch(0.74 0.105 184); }
+
 html {
   scrollbar-gutter: stable;
 }
