@@ -260,7 +260,7 @@ export function InstallInstructionsModal({ platform, onClose }: Props) {
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="flex items-center justify-center min-h-9 min-w-9 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="flex cursor-pointer items-center justify-center min-h-9 min-w-9 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             <svg
               width="16"
@@ -288,7 +288,7 @@ export function InstallInstructionsModal({ platform, onClose }: Props) {
         <button
           type="button"
           onClick={onClose}
-          className="w-full rounded-lg border border-gray-200 dark:border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          className="w-full cursor-pointer rounded-lg border border-gray-200 dark:border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
         >
           Got it
         </button>

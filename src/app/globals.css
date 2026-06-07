@@ -12,41 +12,99 @@
 }
 
 :root {
-  --background: #f4f6f9;
-  --foreground: #111827;
-  --card: #ffffff;
-  --muted: #f3f4f6;
-  --border: #e2e8f0;
-  --accent: #6366f1;
+  /* surfaces */
+  --bg:        oklch(0.985 0.004 95);
+  --surface:   oklch(1 0 0);
+  --surface-2: oklch(0.974 0.005 95);
+  --surface-3: oklch(0.962 0.006 95);
+  --border:    oklch(0.912 0.006 90);
+  --border-2:  oklch(0.86 0.008 90);
+  /* text */
+  --text:   oklch(0.245 0.012 70);
+  --text-2: oklch(0.46 0.01 75);
+  --text-3: oklch(0.52 0.008 75);
+  /* accent (teal) */
+  --accent:        oklch(0.55 0.085 188);
+  --accent-strong: oklch(0.47 0.095 188);
+  --accent-ink:    oklch(0.99 0.01 188);
+  --accent-soft:   oklch(0.955 0.028 188);
+  --accent-line:   oklch(0.86 0.05 188);
+  /* status hues */
+  --st-wishlist:   oklch(0.60 0.035 255);
+  --st-applied:    oklch(0.58 0.13 240);
+  --st-ghosted:    oklch(0.70 0.13 70);
+  --st-cancelled:  oklch(0.58 0.012 260);
+  --st-withdrew:   oklch(0.57 0.02 80);
+  --st-rejected:   oklch(0.585 0.18 25);
+  --st-interviews: oklch(0.56 0.16 295);
+  --st-no_offer:   oklch(0.60 0.17 12);
+  --st-offer:      oklch(0.62 0.14 150);
+  --st-accepted:   oklch(0.63 0.13 165);
+  --st-declined:   oklch(0.70 0.12 85);
+  --badge-mix: 13%;
+  --badge-text-mix: 0%;
 }
 
 .dark {
-  --background: #0f172a;
-  --foreground: #e2e8f0;
-  --card: #1e293b;
-  --muted: #1e293b;
-  --border: #334155;
-  --accent: #818cf8;
+  --bg:        oklch(0.175 0.012 255);
+  --surface:   oklch(0.212 0.014 255);
+  --surface-2: oklch(0.246 0.015 255);
+  --surface-3: oklch(0.275 0.016 255);
+  --border:    oklch(0.305 0.014 255);
+  --border-2:  oklch(0.375 0.016 255);
+  --text:   oklch(0.955 0.005 255);
+  --text-2: oklch(0.74 0.012 255);
+  --text-3: oklch(0.595 0.012 255);
+  --accent:        oklch(0.74 0.105 184);
+  --accent-strong: oklch(0.80 0.10 184);
+  --accent-ink:    oklch(0.17 0.02 255);
+  --accent-soft:   oklch(0.30 0.045 188);
+  --accent-line:   oklch(0.42 0.06 188);
+  --st-wishlist:   oklch(0.70 0.04 255);
+  --st-applied:    oklch(0.70 0.13 240);
+  --st-ghosted:    oklch(0.78 0.13 72);
+  --st-cancelled:  oklch(0.70 0.012 260);
+  --st-withdrew:   oklch(0.70 0.02 80);
+  --st-rejected:   oklch(0.70 0.16 25);
+  --st-interviews: oklch(0.72 0.14 295);
+  --st-no_offer:   oklch(0.72 0.15 12);
+  --st-offer:      oklch(0.75 0.14 152);
+  --st-accepted:   oklch(0.78 0.13 165);
+  --st-declined:   oklch(0.80 0.12 88);
+  --badge-mix: 22%;
+  --badge-text-mix: 55%;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-muted: var(--muted);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-border-base: var(--border);
+  --color-border-strong: var(--border-2);
+  --color-ink: var(--text);
+  --color-ink-2: var(--text-2);
+  --color-ink-3: var(--text-3);
   --color-accent: var(--accent);
-  --font-sans: var(--font-geist-sans);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --font-sans: var(--font-hanken);
   --font-mono: var(--font-geist-mono);
 }
+
+/* Logo brand fill — dark mode swaps to the lighter teal per the dark theme */
+.logo-fill { fill: oklch(0.55 0.085 188); }
+.dark .logo-fill { fill: oklch(0.74 0.105 184); }
 
 html {
   scrollbar-gutter: stable;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-hanken), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -63,22 +121,16 @@ body {
   outline: none;
 }
 
-/* react-day-picker: indigo palette + compact cells + dark mode */
+/* react-day-picker: teal palette + compact cells */
 .rdp-root {
-  --rdp-accent-color: #6366f1;
-  --rdp-accent-background-color: #eef2ff;
-  --rdp-today-color: #6366f1;
+  --rdp-accent-color: var(--accent);
+  --rdp-accent-background-color: var(--accent-soft);
+  --rdp-today-color: var(--accent);
   --rdp-day-height: 36px;
   --rdp-day-width: 36px;
   --rdp-day_button-height: 34px;
   --rdp-day_button-width: 34px;
   --rdp-day_button-border-radius: 8px;
-}
-
-.dark .rdp-root {
-  --rdp-accent-color: #818cf8;
-  --rdp-accent-background-color: rgba(99, 102, 241, 0.15);
-  --rdp-today-color: #818cf8;
 }
 
 /* Fill the picker card width */
@@ -91,7 +143,7 @@ body {
   width: 100%;
 }
 
-/* Selected: solid indigo background instead of border-only default */
+/* Selected: solid accent background */
 .rdp-root .rdp-selected .rdp-day_button {
   background: var(--rdp-accent-color);
   color: white;
@@ -106,11 +158,45 @@ body {
 /* Nav button hover */
 .rdp-root .rdp-button_next:hover:not(:disabled),
 .rdp-root .rdp-button_previous:hover:not(:disabled) {
-  background: #f3f4f6;
+  background: var(--surface-2);
   border-radius: 8px;
 }
 
-.dark .rdp-root .rdp-button_next:hover:not(:disabled),
-.dark .rdp-root .rdp-button_previous:hover:not(:disabled) {
-  background: #1f2937;
-}
+/* ── Status badge data-attribute styling ────────────────────────────────── */
+.badge[data-status="wishlist"]   { color: var(--st-wishlist);   background: color-mix(in oklch, var(--st-wishlist)   var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--st-wishlist)   28%, transparent); }
+.badge[data-status="applied"]    { color: var(--st-applied);    background: color-mix(in oklch, var(--st-applied)    var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--st-applied)    28%, transparent); }
+.badge[data-status="ghosted"]    { color: var(--st-ghosted);    background: color-mix(in oklch, var(--st-ghosted)    var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--st-ghosted)    28%, transparent); }
+.badge[data-status="cancelled"]  { color: var(--st-cancelled);  background: color-mix(in oklch, var(--st-cancelled)  var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--st-cancelled)  28%, transparent); }
+.badge[data-status="withdrew"]   { color: var(--st-withdrew);   background: color-mix(in oklch, var(--st-withdrew)   var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--st-withdrew)   28%, transparent); }
+.badge[data-status="rejected"]   { color: var(--st-rejected);   background: color-mix(in oklch, var(--st-rejected)   var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--st-rejected)   28%, transparent); }
+.badge[data-status="interviews"] { color: var(--st-interviews); background: color-mix(in oklch, var(--st-interviews) var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--st-interviews) 28%, transparent); }
+.badge[data-status="no_offer"]   { color: var(--st-no_offer);   background: color-mix(in oklch, var(--st-no_offer)   var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--st-no_offer)   28%, transparent); }
+.badge[data-status="offer"]      { color: var(--st-offer);      background: color-mix(in oklch, var(--st-offer)      var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--st-offer)      28%, transparent); }
+.badge[data-status="accepted"]   { color: var(--st-accepted);   background: color-mix(in oklch, var(--st-accepted)   var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--st-accepted)   28%, transparent); }
+.badge[data-status="declined"]   { color: var(--st-declined);   background: color-mix(in oklch, var(--st-declined)   var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--st-declined)   28%, transparent); }
+
+/* ── Row left strip ─────────────────────────────────────────────────────── */
+.row-strip[data-status="wishlist"]   { background: var(--st-wishlist);   }
+.row-strip[data-status="applied"]    { background: var(--st-applied);    }
+.row-strip[data-status="ghosted"]    { background: var(--st-ghosted);    }
+.row-strip[data-status="cancelled"]  { background: var(--st-cancelled);  }
+.row-strip[data-status="withdrew"]   { background: var(--st-withdrew);   }
+.row-strip[data-status="rejected"]   { background: var(--st-rejected);   }
+.row-strip[data-status="interviews"] { background: var(--st-interviews); }
+.row-strip[data-status="no_offer"]   { background: var(--st-no_offer);   }
+.row-strip[data-status="offer"]      { background: var(--st-offer);      }
+.row-strip[data-status="accepted"]   { background: var(--st-accepted);   }
+.row-strip[data-status="declined"]   { background: var(--st-declined);   }
+
+/* ── Move popover / pipeline step dots ─────────────────────────────────── */
+.status-dot[data-status="wishlist"]   { background: var(--st-wishlist);   }
+.status-dot[data-status="applied"]    { background: var(--st-applied);    }
+.status-dot[data-status="ghosted"]    { background: var(--st-ghosted);    }
+.status-dot[data-status="cancelled"]  { background: var(--st-cancelled);  }
+.status-dot[data-status="withdrew"]   { background: var(--st-withdrew);   }
+.status-dot[data-status="rejected"]   { background: var(--st-rejected);   }
+.status-dot[data-status="interviews"] { background: var(--st-interviews); }
+.status-dot[data-status="no_offer"]   { background: var(--st-no_offer);   }
+.status-dot[data-status="offer"]      { background: var(--st-offer);      }
+.status-dot[data-status="accepted"]   { background: var(--st-accepted);   }
+.status-dot[data-status="declined"]   { background: var(--st-declined);   }

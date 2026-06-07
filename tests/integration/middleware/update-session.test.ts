@@ -12,6 +12,7 @@ vi.mock("@/lib/env", () => ({
   APP_URL: "http://localhost:3000",
   ROUTES: {
     login: "/login",
+    dashboard: "/dashboard",
     applications: "/applications",
     authCallback: "/api/auth/callback",
     signOut: "/auth/signout",
@@ -58,7 +59,7 @@ describe("updateSession", () => {
     expect(decodeURIComponent(location)).toContain("next=/applications");
   });
 
-  it("redirects authenticated user away from /login to /applications", async () => {
+  it("redirects authenticated user away from /login to /dashboard", async () => {
     createServerClientMock.mockReturnValue(
       makeSupabaseMockClient({ id: "user-123", email: "user@example.com" }) as never
     );
@@ -67,7 +68,7 @@ describe("updateSession", () => {
 
     expect(response.status).toBe(307);
     const location = response.headers.get("location") ?? "";
-    expect(location).toContain("/applications");
+    expect(location).toContain("/dashboard");
   });
 
   it("passes through unauthenticated request to /login (public path)", async () => {

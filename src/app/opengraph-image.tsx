@@ -1,31 +1,35 @@
 import { ImageResponse } from "next/og";
-import { readFile } from "fs/promises";
-import path from "path";
 
 export const alt = "AppTrack";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default async function OgImage() {
-  const iconData = await readFile(path.join(process.cwd(), "public/icon-512.png"));
-  const iconSrc = `data:image/png;base64,${iconData.toString("base64")}`;
-
   return new ImageResponse(
     (
       <div
         style={{
-          background: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
+          background: "linear-gradient(160deg, oklch(0.47 0.095 188) 0%, oklch(0.30 0.07 210) 100%)",
           width: "100%",
           height: "100%",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          gap: 32,
+          gap: 40,
         }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={iconSrc} width={160} height={160} style={{ borderRadius: 32 }} alt="" />
+        {/* Brand mark */}
+        <svg width="160" height="160" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="32" height="32" rx="8" fill="oklch(0.55 0.085 188)" />
+          <rect x="0" y="0" width="32" height="14" rx="8" fill="white" fillOpacity="0.07" />
+          <path d="M7 23 C12 23 12 15 16 15 C20 15 20 9 25 9" stroke="white" strokeWidth="3" strokeLinecap="round" fill="none" strokeOpacity="0.8" />
+          <circle cx="7" cy="23" r="2.5" fill="oklch(0.55 0.085 188)" stroke="white" strokeWidth="2" strokeOpacity="0.6" />
+          <circle cx="16" cy="15" r="2.5" fill="oklch(0.55 0.085 188)" stroke="white" strokeWidth="2" strokeOpacity="0.9" />
+          <circle cx="16" cy="15" r="1.1" fill="white" fillOpacity="0.65" />
+          <circle cx="25" cy="9" r="3.5" fill="white" />
+          <circle cx="25" cy="9" r="1.7" fill="oklch(0.55 0.085 188)" />
+        </svg>
         <div
           style={{
             display: "flex",
@@ -37,7 +41,7 @@ export default async function OgImage() {
           <span style={{ fontSize: 72, fontWeight: 700, color: "#ffffff", letterSpacing: -2 }}>
             AppTrack
           </span>
-          <span style={{ fontSize: 32, color: "#c7d2fe" }}>
+          <span style={{ fontSize: 32, color: "rgba(255,255,255,0.65)" }}>
             Track your job applications in one place
           </span>
         </div>

@@ -43,7 +43,7 @@ export async function updateSession(request: NextRequest, extraHeaders?: Headers
 
   if (user && request.nextUrl.pathname === ROUTES.login) {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = ROUTES.applications;
+    redirectUrl.pathname = ROUTES.dashboard;
     return NextResponse.redirect(redirectUrl);
   }
 

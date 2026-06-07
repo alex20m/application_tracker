@@ -30,13 +30,13 @@ export default async function WishlistDetailPage({ params }: WishlistDetailPageP
 
   return (
     <AppShell email={user.email || ""}>
-      <div className={SECTION_STACK}>
-        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-          <Link href={ROUTES.wishlist} className="transition hover:text-gray-700 dark:hover:text-gray-300">
+      <div className={`max-w-3xl mx-auto ${SECTION_STACK}`}>
+        <div className="flex items-center gap-2 text-sm text-ink-3 whitespace-nowrap min-w-0">
+          <Link href={ROUTES.wishlist} className="transition hover:text-ink-2 flex-shrink-0">
             Wishlist
           </Link>
-          <span className="text-gray-300 dark:text-gray-600">/</span>
-          <span className="truncate max-w-[160px] font-medium text-gray-700 dark:text-gray-300">{application.company}</span>
+          <span className="text-border-strong">/</span>
+          <span className="truncate max-w-[160px] font-medium text-ink-2">{application.company}</span>
         </div>
 
         <div>
@@ -44,11 +44,17 @@ export default async function WishlistDetailPage({ params }: WishlistDetailPageP
           <p className={`mt-0.5 ${TEXT_MUTED}`}>{application.role}</p>
         </div>
 
-        <div className={`max-w-2xl ${CARD}`}>
+        <div className={CARD}>
           <WishlistForm action={updateWishlistAction} application={application} />
         </div>
 
-        <div className="max-w-2xl rounded-2xl border border-red-100 dark:border-red-500/20 bg-red-50 dark:bg-red-500/10 p-5 mobile:p-4">
+        <div
+          className="rounded-2xl border p-5 mobile:p-4"
+          style={{
+            borderColor: "color-mix(in oklch, var(--st-rejected) 28%, transparent)",
+            background: "color-mix(in oklch, var(--st-rejected) 6%, var(--surface))",
+          }}
+        >
           <div className="flex items-center justify-between gap-4 mobile:flex-col mobile:items-stretch mobile:gap-3">
             <div>
               <p className={TEXT_H3}>Danger zone</p>

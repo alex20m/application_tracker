@@ -45,9 +45,9 @@ test.describe("Application CRUD", () => {
 
     await expect(page).toHaveURL("/applications");
 
-    // Reload the application list and check the note appears in the card
-    await page.reload();
-    await expect(page.getByText("This is a test note.").first()).toBeVisible();
+    // Navigate back to the detail page to verify the note was saved
+    await page.goto(url);
+    await expect(page.getByLabel(/notes/i)).toHaveValue("This is a test note.");
   });
 
   test("delete application from the list (inline delete button)", async ({ page }) => {

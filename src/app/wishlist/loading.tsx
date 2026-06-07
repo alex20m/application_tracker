@@ -6,21 +6,19 @@ export default function WishlistLoading() {
     <LoadingShell>
       <div className={SECTION_STACK}>
         {/* Page header skeleton */}
-        <div className="h-8 w-24 rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse" />
+        <div className="h-8 w-24 rounded-lg bg-surface-2 animate-pulse" />
         {/* Row skeletons */}
         <div className="space-y-2 animate-pulse">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="flex overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm"
-            >
-              <div className="w-1 flex-shrink-0 bg-gray-200 dark:bg-gray-700" />
+            <div key={i} className="flex overflow-hidden rounded-[13px] border border-border-base bg-surface shadow-sm">
+              <div className="w-[3px] flex-shrink-0 bg-surface-3" />
               <div className="flex flex-1 items-center gap-3 px-4 py-3">
+                <div className="h-[42px] w-[42px] flex-shrink-0 rounded-[10px] bg-surface-2" />
                 <div className="flex-1 space-y-2">
-                  <div className="h-3.5 w-32 rounded bg-gray-200 dark:bg-gray-700" />
-                  <div className="h-3 w-48 rounded bg-gray-100 dark:bg-gray-800" />
+                  <div className="h-3.5 w-32 rounded bg-surface-2" />
+                  <div className="h-3 w-48 rounded bg-surface-2" />
                 </div>
-                <div className="h-8 w-16 rounded-lg bg-gray-200 dark:bg-gray-700" />
+                <div className="h-8 w-20 rounded-lg bg-surface-2" />
               </div>
             </div>
           ))}

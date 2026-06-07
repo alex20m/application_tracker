@@ -81,5 +81,5 @@ export async function loginAction(
     return genericAuthError();
   }
 
-  redirect(ROUTES.applications);
+  redirect(ROUTES.dashboard);
 }

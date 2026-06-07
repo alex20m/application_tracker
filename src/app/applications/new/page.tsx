@@ -45,13 +45,13 @@ export default async function NewApplicationPage({ searchParams }: NewApplicatio
 
   return (
     <AppShell email={user.email || ""}>
-      <div className={SECTION_STACK}>
-        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-          <Link href={returnPath} className="transition hover:text-gray-700 dark:hover:text-gray-300">
+      <div className={`max-w-3xl mx-auto ${SECTION_STACK}`}>
+        <div className="flex items-center gap-2 text-sm text-ink-3 whitespace-nowrap min-w-0">
+          <Link href={returnPath} className="transition hover:text-ink-2 flex-shrink-0">
             Applications
           </Link>
-          <span className="text-gray-300 dark:text-gray-600">/</span>
-          <span className="font-medium text-gray-700 dark:text-gray-300">New</span>
+          <span className="text-border-strong">/</span>
+          <span className="font-medium text-ink-2">New</span>
         </div>
 
         <div>
@@ -61,7 +61,7 @@ export default async function NewApplicationPage({ searchParams }: NewApplicatio
           </p>
         </div>
 
-        <div className={`max-w-2xl ${CARD}`}>
+        <div className={CARD}>
           <ApplicationForm action={createApplicationAction} returnPath={returnPath} existingSources={existingSources} existingLocations={existingLocations} />
         </div>
       </div>

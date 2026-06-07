@@ -6,7 +6,7 @@ import { InstallInstructionsModal } from "@/components/install-instructions-moda
 import { BTN_GHOST, BTN_PRIMARY, CARD, TEXT_H3 } from "@/lib/ui";
 
 type Props = {
-  variant: "chip" | "card";
+  variant: "chip" | "card" | "icon";
 };
 
 function DownloadIcon() {
@@ -60,6 +60,27 @@ export function InstallAppButton({ variant }: Props) {
     }
     setShowModal(true);
   };
+
+  if (variant === "icon") {
+    return (
+      <>
+        <button
+          type="button"
+          onClick={handleClick}
+          aria-label="Install AppTrack"
+          className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-ink-3 transition hover:bg-surface-2 hover:text-ink"
+        >
+          <DownloadIcon />
+        </button>
+        {showModal && (
+          <InstallInstructionsModal
+            platform={platform}
+            onClose={() => setShowModal(false)}
+          />
+        )}
+      </>
+    );
+  }
 
   if (variant === "chip") {
     return (

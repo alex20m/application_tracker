@@ -18,25 +18,25 @@ test.describe("Authentication flows", () => {
     await expect(page).toHaveURL(/\/login/);
   });
 
-  test("sign in with email/password lands on /applications", async ({ page }) => {
+  test("sign in with email/password lands on /dashboard", async ({ page }) => {
     await page.goto("/login");
     await page.getByLabel(/email/i).fill(E2E_USER);
     await page.getByLabel(/password/i).fill(E2E_PASSWORD);
     await page.getByRole("button", { name: /sign in/i }).click();
-    await expect(page).toHaveURL(/\/applications/, { timeout: 15000 });
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
   });
 
-  test("visiting /login while signed in redirects to /applications", async ({ page }) => {
+  test("visiting /login while signed in redirects to /dashboard", async ({ page }) => {
     // Sign in first
     await page.goto("/login");
     await page.getByLabel(/email/i).fill(E2E_USER);
     await page.getByLabel(/password/i).fill(E2E_PASSWORD);
     await page.getByRole("button", { name: /sign in/i }).click();
-    await expect(page).toHaveURL(/\/applications/, { timeout: 15000 });
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
 
     // Now try visiting /login again
     await page.goto("/login");
-    await expect(page).toHaveURL(/\/applications/);
+    await expect(page).toHaveURL(/\/dashboard/);
   });
 
   test("sign out via /auth/signout redirects to /login", async ({ page }) => {
@@ -45,7 +45,7 @@ test.describe("Authentication flows", () => {
     await page.getByLabel(/email/i).fill(E2E_USER);
     await page.getByLabel(/password/i).fill(E2E_PASSWORD);
     await page.getByRole("button", { name: /sign in/i }).click();
-    await expect(page).toHaveURL(/\/applications/, { timeout: 15000 });
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
 
     // Sign out
     await page.request.post("/auth/signout");

@@ -9,7 +9,7 @@ type WishlistApplyActionProps = {
   applicationId: string;
 };
 
-const BTN_APPLY = `${BTN_SMALL} border-indigo-200 dark:border-indigo-500/40 bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-500/25`;
+const BTN_APPLY = `${BTN_SMALL} border-accent/30 bg-accent-soft text-accent-strong hover:bg-accent-soft/80`;
 
 export function WishlistApplyAction({ applicationId }: WishlistApplyActionProps) {
   const [isPending, startTransition] = useTransition();
@@ -41,12 +41,12 @@ export function WishlistApplyAction({ applicationId }: WishlistApplyActionProps)
   return (
     <>
       <button type="button" onClick={handleOpen} className={BTN_APPLY}>
-        Apply
+        Apply now →
       </button>
 
       <dialog
         ref={dialogRef}
-        className="m-auto rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-xl backdrop:bg-black/40 w-full max-w-sm"
+        className="m-auto rounded-2xl border border-border-base bg-surface p-6 shadow-xl backdrop:bg-black/40 w-full max-w-sm"
       >
         <h2 className={`${TEXT_H3} mb-4`}>
           Mark as Applied

@@ -10,9 +10,7 @@ import {
   CARD,
   LABEL,
   SECTION_STACK,
-  TEXT_H2,
   TEXT_H3,
-  TEXT_META,
   TEXT_MUTED,
 } from "@/lib/ui";
 import { DatePicker } from "@/components/date-picker";
@@ -29,28 +27,98 @@ function days(value: number | null): string {
   return `${value}d`;
 }
 
-type StatCardProps = {
-  label: string;
-  value: string;
-  accent?: boolean;
-};
+// ── KPI stat card ────────────────────────────────────────────────────────────
 
-function StatCard({ label, value, accent }: StatCardProps) {
+type StatCardProps = { label: string; value: string; sub?: string };
+
+function StatCard({ label, value, sub }: StatCardProps) {
   return (
-    <div className="rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700/60 p-4 mobile:p-3">
-      <p className={`${TEXT_META} mb-1`}>{label}</p>
-      <p
-        className={`text-3xl font-bold mobile:text-2xl ${
-          accent
-            ? "text-indigo-600 dark:text-indigo-400"
-            : "text-gray-900 dark:text-gray-100"
-        }`}
-      >
+    <div
+      className="rounded-xl border p-4 flex flex-col gap-1.5"
+      style={{ background: "var(--surface-2)", borderColor: "var(--border)" }}
+    >
+      <p className="text-[12.5px] text-ink-2">{label}</p>
+      <p className="text-[36px] font-bold leading-none tracking-[-0.03em] text-ink">
         {value}
       </p>
+      {sub && <p className="text-[12.5px] text-ink-3">{sub}</p>}
     </div>
   );
 }
+
+// ── Date filter (segmented control) ─────────────────────────────────────────
+
+type DateFilterProps = {
+  allTime: boolean;
+  onAllTime: (v: boolean) => void;
+  startDate: string;
+  endDate: string;
+  onStart: (v: string) => void;
+  onEnd: (v: string) => void;
+};
+
+function DateFilter({ allTime, onAllTime, startDate, endDate, onStart, onEnd }: DateFilterProps) {
+  return (
+    <div className="flex flex-wrap items-center gap-3 mobile:gap-2">
+      <div className="flex items-center gap-[3px] rounded-[11px] border border-border-base bg-surface-2 p-[3px]">
+        <button
+          type="button"
+          onClick={() => onAllTime(true)}
+          className={[
+            "cursor-pointer rounded-[8px] px-3 py-1.5 text-[13px] font-medium transition-all",
+            allTime
+              ? "bg-surface shadow-sm font-semibold text-ink"
+              : "text-ink-3 hover:text-ink-2",
+          ].join(" ")}
+        >
+          All time
+        </button>
+        <button
+          type="button"
+          onClick={() => onAllTime(false)}
+          className={[
+            "cursor-pointer rounded-[8px] px-3 py-1.5 text-[13px] font-medium transition-all",
+            !allTime
+              ? "bg-surface shadow-sm font-semibold text-ink"
+              : "text-ink-3 hover:text-ink-2",
+          ].join(" ")}
+        >
+          Date range
+        </button>
+      </div>
+
+      {!allTime && (
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2">
+            <label className={`${LABEL} whitespace-nowrap`}>From</label>
+            <div className="w-36">
+              <DatePicker
+                value={startDate}
+                onChange={onStart}
+                max={endDate || undefined}
+                className="mobile:py-2"
+              />
+            </div>
+          </div>
+          <span className="text-ink-3 text-sm mobile:hidden">—</span>
+          <div className="flex items-center gap-2">
+            <label className={`${LABEL} whitespace-nowrap`}>To</label>
+            <div className="w-36">
+              <DatePicker
+                value={endDate}
+                onChange={onEnd}
+                min={startDate || undefined}
+                className="mobile:py-2"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
 
 type Props = {
   applications: ApplicationRecord[];
@@ -61,23 +129,20 @@ export function AnalyticsView({ applications }: Props) {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  const isAllTime = allTime;
-
   const filtered = useMemo(() => {
-    if (isAllTime) return applications;
+    if (allTime) return applications;
     return applications.filter((a) => {
       if (!a.applied_on) return false;
       if (startDate && a.applied_on < startDate) return false;
       if (endDate && a.applied_on > endDate) return false;
       return true;
     });
-  }, [applications, startDate, endDate, isAllTime]);
+  }, [applications, startDate, endDate, allTime]);
 
   const analytics = useMemo(() => computeAnalytics(filtered), [filtered]);
   const sankeyData = useMemo(() => buildSankeyData(filtered), [filtered]);
-
   if (analytics.totalApplications === 0) {
-    const hasFilter = !isAllTime;
+    const hasFilter = !allTime;
     return (
       <>
         <DateFilter
@@ -116,29 +181,29 @@ export function AnalyticsView({ applications }: Props) {
         onEnd={setEndDate}
       />
 
-      {/* ── Overview ─────────────────────────────────────── */}
+      {/* ── KPI tiles ─────────────────────────────────────── */}
       <section>
-        <div className={CARD}>
-          <h2 className={`${TEXT_H2} mb-4`}>Overview</h2>
-          <div className="grid grid-cols-4 gap-3 mobile:grid-cols-2">
-            <StatCard
-              label="Total Roles Applied"
-              value={String(a.totalApplications)}
-            />
-            <StatCard
-              label="Open Applications"
-              value={String(a.activeCount)}
-            />
-            <StatCard
-              label="Interview Rate"
-              value={pct(a.interviewRate)}
-              accent
-            />
-            <StatCard
-              label="Avg. to First Response"
-              value={days(a.avgDaysToFirstResponse)}
-            />
-          </div>
+        <div className="grid grid-cols-4 gap-3 mobile:grid-cols-2">
+          <StatCard
+            label="Total applications"
+            value={String(a.totalApplications)}
+            sub="Total submitted"
+          />
+          <StatCard
+            label="Open"
+            value={String(a.activeCount)}
+            sub="Active in pipeline"
+          />
+          <StatCard
+            label="Interview rate"
+            value={pct(a.interviewRate)}
+            sub={a.offerFromInterviewRate !== null ? `${pct(a.offerFromInterviewRate)} of interviews lead to an offer` : undefined}
+          />
+          <StatCard
+            label="Avg. first reply"
+            value={days(a.avgDaysToFirstResponse)}
+            sub="Average across applications"
+          />
         </div>
       </section>
 
@@ -164,73 +229,6 @@ export function AnalyticsView({ applications }: Props) {
       <section>
         <AvgStageTime applications={filtered} />
       </section>
-    </div>
-  );
-}
-
-type DateFilterProps = {
-  allTime: boolean;
-  onAllTime: (v: boolean) => void;
-  startDate: string;
-  endDate: string;
-  onStart: (v: string) => void;
-  onEnd: (v: string) => void;
-};
-
-const PILL_ACTIVE =
-  "cursor-pointer px-3 py-1.5 text-sm font-semibold rounded-lg bg-indigo-600 text-white";
-const PILL_INACTIVE =
-  "cursor-pointer px-3 py-1.5 text-sm font-medium rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 transition-colors";
-
-function DateFilter({ allTime, onAllTime, startDate, endDate, onStart, onEnd }: DateFilterProps) {
-  return (
-    <div className="flex flex-wrap items-center gap-3 mobile:gap-2">
-      {/* Toggle pills — always visible */}
-      <div className="flex items-center gap-1 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 p-1">
-        <button
-          type="button"
-          onClick={() => onAllTime(true)}
-          className={allTime ? PILL_ACTIVE : PILL_INACTIVE}
-        >
-          All time
-        </button>
-        <button
-          type="button"
-          onClick={() => onAllTime(false)}
-          className={!allTime ? PILL_ACTIVE : PILL_INACTIVE}
-        >
-          Date range
-        </button>
-      </div>
-
-      {/* Date pickers — only shown when date range is selected */}
-      {!allTime && (
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="flex items-center gap-2">
-            <label htmlFor="filter-start" className={`${LABEL} whitespace-nowrap`}>From</label>
-            <div className="w-36">
-              <DatePicker
-                value={startDate}
-                onChange={onStart}
-                max={endDate || undefined}
-                className="mobile:py-2"
-              />
-            </div>
-          </div>
-          <span className="text-gray-400 dark:text-gray-500 text-sm mobile:hidden">—</span>
-          <div className="flex items-center gap-2">
-            <label htmlFor="filter-end" className={`${LABEL} whitespace-nowrap`}>To</label>
-            <div className="w-36">
-              <DatePicker
-                value={endDate}
-                onChange={onEnd}
-                min={startDate || undefined}
-                className="mobile:py-2"
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

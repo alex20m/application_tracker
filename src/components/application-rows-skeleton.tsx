@@ -4,15 +4,16 @@ export function ApplicationRowsSkeleton({ rows = 5 }: { rows?: number }) {
       {Array.from({ length: rows }).map((_, i) => (
         <div
           key={i}
-          className="flex overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm"
+          className="flex overflow-hidden rounded-[13px] border border-border-base bg-surface shadow-sm"
         >
-          <div className="w-1 flex-shrink-0 bg-gray-200 dark:bg-gray-700" />
+          <div className="w-[3px] flex-shrink-0 bg-border-base" />
           <div className="flex flex-1 items-center gap-3 px-4 py-3">
+            <div className="h-[42px] w-[42px] flex-shrink-0 rounded-[10px] bg-surface-2" />
             <div className="flex-1 space-y-2">
-              <div className="h-3.5 w-32 rounded bg-gray-200 dark:bg-gray-700" />
-              <div className="h-3 w-48 rounded bg-gray-100 dark:bg-gray-800" />
+              <div className="h-3.5 w-32 rounded bg-surface-2" />
+              <div className="h-3 w-48 rounded bg-surface-3" />
             </div>
-            <div className="h-6 w-20 rounded-full bg-gray-200 dark:bg-gray-700" />
+            <div className="h-6 w-20 rounded-full bg-surface-2" />
           </div>
         </div>
       ))}

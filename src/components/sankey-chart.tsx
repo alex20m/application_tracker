@@ -15,7 +15,7 @@ import {
   type ApplicationStatus,
 } from "@/lib/statuses";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import { TEXT_H2 } from "@/lib/ui";
+import { CARD, TEXT_H2 } from "@/lib/ui";
 
 type NodeDatum = { name: string };
 type LinkDatum = { value: number };
@@ -34,7 +34,7 @@ type LayoutLink = SankeyLink<NodeDatum, LinkDatum> & {
 type LayoutGraph = { nodes: LayoutNode[]; links: LayoutLink[] };
 
 const NODE_WIDTH = 16;
-const CHART_FRAME = "flex flex-col rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-sm mobile:p-4 mobile:min-w-[640px]";
+const CHART_FRAME = `flex flex-col ${CARD} mobile:min-w-[640px]`;
 
 // Module-level typed path generator — avoids an `any` cast in the render.
 type LinkForPath = SankeyLinkMinimal<SankeyNode<NodeDatum, LinkDatum>, LinkDatum>;
@@ -102,9 +102,9 @@ function SankeyNodeShape({
   }
 
   const sub = node.name === SANKEY_ROOT ? `${total}` : `${total} · ${pct}%`;
-  const rightSide = node.x0 > width / 2;
-  const lx = rightSide ? node.x0 - 8 : node.x1 + 8;
-  const anchor = rightSide ? "end" : "start";
+  const isRoot = node.name === SANKEY_ROOT;
+  const lx = isRoot ? node.x1 + 8 : node.x0 - 8;
+  const anchor = isRoot ? "start" : "end";
 
   return (
     <g>
@@ -122,7 +122,7 @@ function SankeyNodeShape({
         y={node.y0 + h / 2 - 6}
         textAnchor={anchor}
         fontSize={12}
-        fill="var(--foreground)"
+        fill="var(--text)"
         fontWeight={600}
       >
         {label}
@@ -132,8 +132,7 @@ function SankeyNodeShape({
         y={node.y0 + h / 2 + 9}
         textAnchor={anchor}
         fontSize={11}
-        fill="var(--foreground)"
-        fillOpacity={0.85}
+        fill="var(--text)"
       >
         {sub}
       </text>
@@ -153,7 +152,7 @@ function DiagramContent({
   dark: boolean;
 }) {
   const { w: width, h: height } = dims;
-  const margin = isMobile ? 60 : 120;
+  const margin = 20;
   const nodePadding = isMobile ? 16 : 20;
 
   const sankeyGen = sankey<NodeDatum, LinkDatum>()
@@ -202,7 +201,7 @@ function DiagramContent({
             key={i}
             d={sankeyPath(link as unknown as LinkForPath) || ""}
             fill="none"
-            stroke={nodeColor(link.source.name)}
+            stroke={nodeColor(link.target.name)}
             strokeOpacity={dark ? 0.7 : 0.4}
             strokeWidth={Math.max(2, link.width)}
           />

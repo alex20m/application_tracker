@@ -1,29 +1,29 @@
 "use client";
 
-import { useState, useOptimistic, useTransition } from "react";
+import { useState, useOptimistic, useTransition, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { transitionApplicationStatusAction } from "@/app/applications/actions";
 import { StatusBadge } from "@/components/status-badge";
-import { BTN_SMALL, TEXT_MUTED } from "@/lib/ui";
-import { STATUS_NEXT, STATUS_NAMES, type ApplicationStatus } from "@/lib/statuses";
+import { FINAL_STATUSES, STATUS_NEXT, STATUS_NAMES, type ApplicationStatus } from "@/lib/statuses";
 
 type ApplicationStatusCellProps = {
   applicationId: string;
   currentStatus: ApplicationStatus;
 };
 
-const BTN_MOVE = `${BTN_SMALL} border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400 hover:border-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-500/15 hover:text-indigo-600 dark:hover:text-indigo-300`;
-const BTN_STATUS = `${BTN_SMALL} border-indigo-200 dark:border-indigo-500/40 bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-500/25`;
-const BTN_CANCEL = `${BTN_SMALL} border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300`;
-
 export function ApplicationStatusCell({
   applicationId,
   currentStatus,
 }: ApplicationStatusCellProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [dropdownPos, setDropdownPos] = useState<{ top?: number; bottom?: number; left: number }>({ left: 0 });
   const [isPending, startTransition] = useTransition();
   const [optimisticStatus, setOptimisticStatus] = useOptimistic(currentStatus);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const nextStatuses = STATUS_NEXT[optimisticStatus] ?? [];
+  const isFinal = FINAL_STATUSES.includes(optimisticStatus);
 
   const handleChangeStatus = (nextStatus: ApplicationStatus) => {
     setIsOpen(false);
@@ -37,43 +37,84 @@ export function ApplicationStatusCell({
     });
   };
 
+  const openDropdown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!buttonRef.current) return;
+    const rect = buttonRef.current.getBoundingClientRect();
+    const GAP = 6;
+    const EDGE = 8;
+    const estimatedHeight = (STATUS_NEXT[optimisticStatus]?.length ?? 1) * 28 + 8;
+    const spaceBelow = window.innerHeight - rect.bottom - GAP - EDGE;
+    const pos: { top?: number; bottom?: number; left: number } = { left: rect.right };
+    if (spaceBelow >= estimatedHeight) {
+      pos.top = rect.bottom + GAP;
+    } else {
+      pos.bottom = Math.max(EDGE, window.innerHeight - rect.top + GAP);
+    }
+    setDropdownPos(pos);
+    setIsOpen((prev) => !prev);
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsOpen(false);
+    };
+    const onClickOutside = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (
+        buttonRef.current?.contains(target) ||
+        dropdownRef.current?.contains(target)
+      ) return;
+      setIsOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("mousedown", onClickOutside);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("mousedown", onClickOutside);
+    };
+  }, [isOpen]);
+
   return (
-    <div className="flex flex-col items-end gap-1.5">
+    <div className="flex flex-row items-center gap-2">
       <StatusBadge status={optimisticStatus} />
 
-      {nextStatuses.length === 0 ? (
-        <span className={TEXT_MUTED}>Final status</span>
-      ) : !isOpen ? (
+      {!isFinal && (
         <button
+          ref={buttonRef}
           type="button"
-          onClick={() => setIsOpen(true)}
+          onClick={openDropdown}
           disabled={isPending}
-          className={BTN_MOVE}
+          className="cursor-pointer rounded-lg border border-border-base bg-surface px-2.5 py-1 text-[11.5px] font-medium text-ink-2 transition hover:border-accent hover:text-accent disabled:opacity-40"
         >
-          Move to →
+          Move →
         </button>
-      ) : (
-        <div className="flex flex-wrap justify-end gap-1">
+      )}
+
+      {isOpen && nextStatuses.length > 0 && typeof document !== "undefined" && createPortal(
+        <div
+          ref={dropdownRef}
+          role="menu"
+          onClick={(e) => e.stopPropagation()}
+          style={{ ...dropdownPos, transform: "translateX(-100%)" }}
+          className="fixed z-[9999] rounded-lg border border-border-base bg-surface shadow-lg py-1"
+        >
           {nextStatuses.map((status) => (
             <button
               key={status}
               type="button"
-              onClick={() => handleChangeStatus(status)}
+              role="menuitem"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleChangeStatus(status); }}
               disabled={isPending}
-              className={BTN_STATUS}
+              className="block cursor-pointer whitespace-nowrap px-3 py-1.5 text-left text-[12px] text-ink-2 transition hover:bg-surface-2 hover:text-ink disabled:opacity-50"
             >
               {STATUS_NAMES[status]}
             </button>
           ))}
-          <button
-            type="button"
-            onClick={() => setIsOpen(false)}
-            disabled={isPending}
-            className={BTN_CANCEL}
-          >
-            Cancel
-          </button>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
