@@ -99,7 +99,7 @@ export function ApplicationStatusCell({
           role="menu"
           onClick={(e) => e.stopPropagation()}
           style={dropdownPos}
-          className="fixed z-[9999] min-w-[130px] rounded-xl border border-border-base bg-surface shadow-lg py-1"
+          className="fixed z-[9999] w-max rounded-xl border border-border-base bg-surface shadow-lg py-1"
         >
           {nextStatuses.map((status) => (
             <button
