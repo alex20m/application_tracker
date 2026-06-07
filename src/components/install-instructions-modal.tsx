@@ -238,7 +238,7 @@ export function InstallInstructionsModal({ platform, onClose }: Props) {
           : "Install AppTrack";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center mobile:items-end justify-center p-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/50"
