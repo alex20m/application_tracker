@@ -149,7 +149,7 @@ function KpiCard({
   const colors = c[variant];
   return (
     <div
-      className="rounded-xl border p-4 flex gap-3"
+      className="rounded-xl border p-4 flex items-center gap-3"
       style={{ background: colors.bg, borderColor: colors.border }}
     >
       <div
