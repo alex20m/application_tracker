@@ -183,7 +183,7 @@ export function AppShell({ email, children }: AppShellProps) {
               </svg>
             </Link>
             <div className="mx-1.5 h-5 w-px bg-border-base" />
-            <span className="text-xs text-ink-3 truncate max-w-[140px]">{email}</span>
+            <span className="text-xs text-ink-3">{email}</span>
             <span
               className="ml-1 flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-bold text-accent-ink"
               style={{ background: "linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%)" }}
