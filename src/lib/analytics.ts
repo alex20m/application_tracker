@@ -406,7 +406,10 @@ export function computeAnalytics(
     currentlyOfferCount,
     acceptedCount,
     interviewRate: total > 0 ? interviewedCount / total : null,
-    offerFromInterviewRate: interviewedCount > 0 ? offeredCount / interviewedCount : null,
+    offerFromInterviewRate: (() => {
+      const resolved = withdrewCount + noOfferCount + offeredCount;
+      return resolved > 0 ? offeredCount / resolved : null;
+    })(),
     overallOfferRate: total > 0 ? offeredCount / total : null,
     rejectionBeforeInterviewRate: total > 0 ? rejectedBeforeInterviewCount / total : null,
     noResponseRate: total > 0 ? stillWaitingCount / total : null,

@@ -152,14 +152,15 @@ describe("computeAnalytics", () => {
     expect(r.interviewRate).toBe(1);
   });
 
-  it("calculates offer rate from interviews", () => {
+  it("calculates offer rate from resolved interviews (excludes still-interviewing)", () => {
     const r = computeAnalytics([
       makeApplication({ status: STATUS.offer }),
       makeApplication({ status: STATUS.interviews }),
       makeApplication({ status: STATUS.no_offer }),
       makeApplication({ status: STATUS.interviews }),
     ]);
-    expect(r.offerFromInterviewRate).toBeCloseTo(0.25);
+    // denominator = resolved only: no_offer(1) + offered(1) = 2, not 4
+    expect(r.offerFromInterviewRate).toBeCloseTo(0.5);
   });
 
   it("counts accepted and declined as offered", () => {
