@@ -108,7 +108,7 @@ export function ApplicationStatusCell({
               role="menuitem"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleChangeStatus(status); }}
               disabled={isPending}
-              className="block whitespace-nowrap px-3 py-1.5 text-left text-[12px] text-ink-2 transition hover:bg-surface-2 hover:text-ink disabled:opacity-50"
+              className="block cursor-pointer whitespace-nowrap px-3 py-1.5 text-left text-[12px] text-ink-2 transition hover:bg-surface-2 hover:text-ink disabled:opacity-50"
             >
               {STATUS_NAMES[status]}
             </button>
