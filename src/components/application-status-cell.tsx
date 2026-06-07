@@ -16,7 +16,7 @@ export function ApplicationStatusCell({
   currentStatus,
 }: ApplicationStatusCellProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [dropdownPos, setDropdownPos] = useState<{ top?: number; bottom?: number; right: number }>({ right: 0 });
+  const [dropdownPos, setDropdownPos] = useState<{ top?: number; bottom?: number; left: number }>({ left: 0 });
   const [isPending, startTransition] = useTransition();
   const [optimisticStatus, setOptimisticStatus] = useOptimistic(currentStatus);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -45,9 +45,8 @@ export function ApplicationStatusCell({
     const GAP = 6;
     const EDGE = 8;
     const estimatedHeight = (STATUS_NEXT[optimisticStatus]?.length ?? 1) * 28 + 8;
-    const right = window.innerWidth - rect.right;
     const spaceBelow = window.innerHeight - rect.bottom - GAP - EDGE;
-    const pos: { top?: number; bottom?: number; right: number } = { right };
+    const pos: { top?: number; bottom?: number; left: number } = { left: rect.right };
     if (spaceBelow >= estimatedHeight) {
       pos.top = rect.bottom + GAP;
     } else {
@@ -99,7 +98,7 @@ export function ApplicationStatusCell({
           ref={dropdownRef}
           role="menu"
           onClick={(e) => e.stopPropagation()}
-          style={dropdownPos}
+          style={{ ...dropdownPos, transform: "translateX(-100%)" }}
           className="fixed z-[9999] rounded-xl border border-border-base bg-surface shadow-lg py-1"
         >
           {nextStatuses.map((status) => (
