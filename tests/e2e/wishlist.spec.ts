@@ -30,7 +30,7 @@ test.describe("Wishlist", () => {
     await expect(page).toHaveURL("/wishlist", { timeout: 10000 });
   });
 
-  test("clicking Apply opens a modal with today's date", async ({ page }) => {
+  test("clicking 'Apply now →' opens a modal with today's date", async ({ page }) => {
     // Create a wishlist entry first
     await page.goto("/wishlist/new");
     const company = `ApplyModal Corp ${Date.now()}`;
@@ -41,7 +41,7 @@ test.describe("Wishlist", () => {
     await expect(page).toHaveURL("/wishlist");
 
     // Click Apply
-    await page.getByRole("button", { name: /^apply$/i }).first().click();
+    await page.getByRole("button", { name: /^apply now/i }).first().click();
 
     // Modal should be visible with a date input
     await expect(page.getByRole("heading", { name: /mark as applied/i })).toBeVisible();
@@ -70,7 +70,7 @@ test.describe("Wishlist", () => {
     await expect(page).toHaveURL("/wishlist");
 
     // Apply — today's date is pre-filled in the custom picker, just confirm
-    await page.getByRole("button", { name: /^apply$/i }).first().click();
+    await page.getByRole("button", { name: /^apply now/i }).first().click();
     await page.getByRole("button", { name: /confirm/i }).click();
 
     // Row should no longer be on /wishlist

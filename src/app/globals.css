@@ -22,7 +22,7 @@
   /* text */
   --text:   oklch(0.245 0.012 70);
   --text-2: oklch(0.46 0.01 75);
-  --text-3: oklch(0.605 0.008 75);
+  --text-3: oklch(0.52 0.008 75);
   /* accent (teal) */
   --accent:        oklch(0.55 0.085 188);
   --accent-strong: oklch(0.47 0.095 188);
