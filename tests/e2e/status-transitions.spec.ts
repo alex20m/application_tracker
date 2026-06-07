@@ -72,8 +72,8 @@ test.describe("Status transitions", () => {
     await withApplication({ company: "TabTest Co" });
     await page.goto("/applications");
 
-    await expect(page.getByRole("button", { name: "Open", exact: true })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Closed", exact: true })).toBeVisible();
+    await expect(page.locator("button").filter({ hasText: /^Open/ })).toBeVisible();
+    await expect(page.locator("button").filter({ hasText: /^Closed/ })).toBeVisible();
   });
 
   test("newly created app appears on Open page, not on Closed page", async ({
