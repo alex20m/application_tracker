@@ -30,9 +30,9 @@ test.describe("Status transitions", () => {
     await moveBtn.click();
 
     // applied → cancelled, rejected, interviews
-    await expect(page.getByRole("button", { name: STATUS_NAMES.cancelled })).toBeVisible();
-    await expect(page.getByRole("button", { name: STATUS_NAMES.rejected })).toBeVisible();
-    await expect(page.getByRole("button", { name: STATUS_NAMES.interviews })).toBeVisible();
+    await expect(page.getByRole("menuitem", { name: STATUS_NAMES.cancelled })).toBeVisible();
+    await expect(page.getByRole("menuitem", { name: STATUS_NAMES.rejected })).toBeVisible();
+    await expect(page.getByRole("menuitem", { name: STATUS_NAMES.interviews })).toBeVisible();
   });
 
   test("transitioning to Interviews changes the status badge", async ({
@@ -43,7 +43,7 @@ test.describe("Status transitions", () => {
     await page.goto("/applications");
 
     await page.getByRole("button", { name: /^Move/i }).first().click();
-    await page.getByRole("button", { name: STATUS_NAMES.interviews }).click();
+    await page.getByRole("menuitem", { name: STATUS_NAMES.interviews }).click();
 
     // Wait for revalidation and re-render
     await expect(page.getByText(STATUS_NAMES.interviews).first()).toBeVisible({ timeout: 10000 });
@@ -58,7 +58,7 @@ test.describe("Status transitions", () => {
 
     // Transition to Rejected
     await page.getByRole("button", { name: /^Move/i }).first().click();
-    await page.getByRole("button", { name: STATUS_NAMES.rejected }).click();
+    await page.getByRole("menuitem", { name: STATUS_NAMES.rejected }).click();
 
     // After rejection the app moves to the Closed page — navigate there to find it
     await page.goto("/applications?filter=closed");
@@ -72,8 +72,8 @@ test.describe("Status transitions", () => {
     await withApplication({ company: "TabTest Co" });
     await page.goto("/applications");
 
-    await expect(page.getByRole("button", { name: "Open" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Closed" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Open", exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Closed", exact: true })).toBeVisible();
   });
 
   test("newly created app appears on Open page, not on Closed page", async ({
@@ -102,7 +102,7 @@ test.describe("Status transitions", () => {
 
     // Reject the application via quick actions
     await page.getByRole("button", { name: /^Move/i }).first().click();
-    await page.getByRole("button", { name: STATUS_NAMES.rejected }).click();
+    await page.getByRole("menuitem", { name: STATUS_NAMES.rejected }).click();
     await expect(page.getByText(STATUS_NAMES.rejected).first()).toBeVisible({ timeout: 10000 });
 
     // Should now be gone from Open
