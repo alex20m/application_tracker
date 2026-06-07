@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
-import { CARD, SECTION_STACK, TEXT_H3, TEXT_META } from "@/lib/ui";
+import { BTN_PRIMARY_LINK, CARD, SECTION_STACK, TEXT_H3, TEXT_META } from "@/lib/ui";
 import { AppShell } from "@/components/app-shell";
 import { ApplicationForm } from "@/components/application-form";
 import { DeleteApplicationButton } from "@/components/delete-application-button";
@@ -95,12 +95,20 @@ export default async function ApplicationDetailPage({
     <AppShell email={user.email || ""}>
       <div className={SECTION_STACK}>
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-ink-3 whitespace-nowrap">
-          <Link href={returnPath} className="transition hover:text-ink-2">
-            Applications
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-sm text-ink-3 whitespace-nowrap min-w-0">
+            <Link href={returnPath} className="transition hover:text-ink-2 flex-shrink-0">
+              Applications
+            </Link>
+            <span className="text-border-strong">/</span>
+            <span className="truncate max-w-[200px] font-medium text-ink-2">{application.company}</span>
+          </div>
+          <Link
+            href={from ? `/applications/new?from=${from}` : "/applications/new"}
+            className={BTN_PRIMARY_LINK}
+          >
+            + Add Application
           </Link>
-          <span className="text-border-strong">/</span>
-          <span className="truncate max-w-[200px] font-medium text-ink-2">{application.company}</span>
         </div>
 
         {/* Header: monogram + company/role + badge */}

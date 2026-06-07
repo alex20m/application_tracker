@@ -1,6 +1,7 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { requireUser } from "@/lib/auth";
-import { PAGE_HEADER, SECTION_STACK, TEXT_H1 } from "@/lib/ui";
+import { BTN_PRIMARY_LINK, PAGE_HEADER, SECTION_STACK, TEXT_H1 } from "@/lib/ui";
 import { AppShell } from "@/components/app-shell";
 import { ApplicationsResults } from "@/app/applications/applications-results";
 import { ApplicationRowsSkeleton } from "@/components/application-rows-skeleton";
@@ -31,6 +32,12 @@ export default async function ApplicationsPage({ searchParams }: ApplicationsPag
           <div className="flex items-center gap-2">
             <CsvExportButton filter={filter} />
             <DeleteAllApplicationsButton hasApplications scope={filter} />
+            <Link
+              href={filter === "open" ? "/applications/new" : `/applications/new?from=${filter}`}
+              className={BTN_PRIMARY_LINK}
+            >
+              + Add Application
+            </Link>
           </div>
         </div>
 
