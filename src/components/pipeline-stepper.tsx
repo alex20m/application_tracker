@@ -2,7 +2,7 @@
 
 import { useOptimistic, useTransition } from "react";
 import { transitionApplicationStatusAction } from "@/app/applications/actions";
-import { STATUS_NEXT, STATUS_NAMES, statusStageIndex, FINAL_STATUSES, type ApplicationStatus } from "@/lib/statuses";
+import { STATUS, STATUS_NEXT, STATUS_NAMES, statusStageIndex, FINAL_STATUSES, type ApplicationStatus } from "@/lib/statuses";
 
 const STAGES = [
   { label: "Applied", stageIdx: 0 },
@@ -10,6 +10,17 @@ const STAGES = [
   { label: "Offer", stageIdx: 2 },
   { label: "Decision", stageIdx: 3 },
 ];
+
+// Maps negative-exit statuses to the last pipeline stage the application was in.
+// The stage at lastStage + 1 will render red (the step that was never reached).
+const EXIT_LAST_STAGE: Partial<Record<ApplicationStatus, number>> = {
+  [STATUS.ghosted]:   0,
+  [STATUS.cancelled]: 0,
+  [STATUS.rejected]:  0,
+  [STATUS.withdrew]:  1,
+  [STATUS.no_offer]:  1,
+  [STATUS.declined]:  2,
+};
 
 type Props = {
   applicationId: string;
@@ -23,6 +34,8 @@ export function PipelineStepper({ applicationId, status }: Props) {
   const currentIdx = statusStageIndex(optimisticStatus);
   const nextStatuses = STATUS_NEXT[optimisticStatus] ?? [];
   const isFinal = FINAL_STATUSES.includes(optimisticStatus);
+  const exitLastStage = EXIT_LAST_STAGE[optimisticStatus] ?? -1;
+  const isNegativeExit = exitLastStage >= 0;
 
   const handleMove = (nextStatus: ApplicationStatus) => {
     const formData = new FormData();
@@ -41,8 +54,13 @@ export function PipelineStepper({ applicationId, status }: Props) {
       {/* Stepper — horizontal on desktop, vertical timeline on mobile */}
       <div className="flex items-center mobile:flex-col mobile:items-start">
         {STAGES.map((stage, i) => {
-          const isDone = currentIdx > stage.stageIdx;
-          const isCurrent = currentIdx === stage.stageIdx;
+          const isDone = isNegativeExit
+            ? stage.stageIdx < exitLastStage
+            : currentIdx > stage.stageIdx;
+          const isCurrent = isNegativeExit
+            ? stage.stageIdx === exitLastStage
+            : currentIdx === stage.stageIdx;
+          const isRed = isNegativeExit && stage.stageIdx === exitLastStage + 1;
           const isLast = i === STAGES.length - 1;
           const connectorDone = isDone;
 
@@ -52,18 +70,22 @@ export function PipelineStepper({ applicationId, status }: Props) {
               <div
                 className={[
                   "flex-shrink-0 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-all whitespace-nowrap",
-                  isDone
+                  isDone || (isNegativeExit && isCurrent)
                     ? "text-[var(--st-offer)]"
-                    : isCurrent
-                      ? "text-white"
-                      : "border border-border-base text-ink-3",
+                    : isRed
+                      ? "text-[var(--st-rejected)]"
+                      : isCurrent
+                        ? "text-white"
+                        : "border border-border-base text-ink-3",
                 ].join(" ")}
                 style={
-                  isDone
+                  isDone || (isNegativeExit && isCurrent)
                     ? { background: "color-mix(in oklch, var(--st-offer) 14%, var(--surface))", boxShadow: "inset 0 0 0 1px color-mix(in oklch, var(--st-offer) 28%, transparent)" }
-                    : isCurrent
-                      ? { background: "var(--accent)" }
-                      : { background: "var(--surface-2)" }
+                    : isRed
+                      ? { background: "color-mix(in oklch, var(--st-rejected) 14%, var(--surface))", boxShadow: "inset 0 0 0 1px color-mix(in oklch, var(--st-rejected) 28%, transparent)" }
+                      : isCurrent
+                        ? { background: "var(--accent)" }
+                        : { background: "var(--surface-2)" }
                 }
               >
                 {stage.label}
