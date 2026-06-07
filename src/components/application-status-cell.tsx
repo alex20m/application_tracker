@@ -43,14 +43,15 @@ export function ApplicationStatusCell({
     if (!buttonRef.current) return;
     const rect = buttonRef.current.getBoundingClientRect();
     const GAP = 6;
+    const EDGE = 8;
     const estimatedHeight = (STATUS_NEXT[optimisticStatus]?.length ?? 1) * 28 + 8;
-    const right = window.innerWidth - rect.right;
-    const spaceBelow = window.innerHeight - rect.bottom - GAP;
+    const right = Math.max(EDGE, window.innerWidth - rect.right);
+    const spaceBelow = window.innerHeight - rect.bottom - GAP - EDGE;
     const pos: { top?: number; bottom?: number; right: number } = { right };
     if (spaceBelow >= estimatedHeight) {
       pos.top = rect.bottom + GAP;
     } else {
-      pos.bottom = window.innerHeight - rect.top + GAP;
+      pos.bottom = Math.max(EDGE, window.innerHeight - rect.top + GAP);
     }
     setDropdownPos(pos);
     setIsOpen((prev) => !prev);
