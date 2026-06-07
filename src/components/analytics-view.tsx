@@ -15,7 +15,6 @@ import {
 } from "@/lib/ui";
 import { DatePicker } from "@/components/date-picker";
 import type { ApplicationRecord } from "@/lib/types";
-import { STATUS } from "@/lib/statuses";
 
 function pct(value: number | null): string {
   if (value === null) return "—";
@@ -26,98 +25,6 @@ function days(value: number | null): string {
   if (value === null) return "—";
   if (value === 0) return "same day";
   return `${value}d`;
-}
-
-// ── Insight cards ────────────────────────────────────────────────────────────
-
-type InsightVariant = "good" | "warn" | "info";
-
-type Insight = {
-  variant: InsightVariant;
-  icon: string;
-  title: string;
-  body: string;
-};
-
-function buildInsights(analytics: ReturnType<typeof computeAnalytics>, applications: ApplicationRecord[]): Insight[] {
-  const insights: Insight[] = [];
-
-  // Good: best-performing source by interview conversion
-  const sources = analytics.sourceStats.filter((s) => s.total >= 2);
-  if (sources.length >= 2) {
-    const sorted = [...sources].sort((a, b) => b.interviewRate - a.interviewRate);
-    const best = sorted[0];
-    const rest = sorted.slice(1);
-    const avgOthers = rest.reduce((s, r) => s + r.interviewRate, 0) / rest.length;
-    if (best.interviewRate > 0 && avgOthers > 0) {
-      const multiplier = (best.interviewRate / avgOthers).toFixed(1);
-      insights.push({
-        variant: "good",
-        icon: "★",
-        title: `${best.source} converts best`,
-        body: `${pct(best.interviewRate)} interview rate — ${multiplier}× higher than other sources.`,
-      });
-    }
-  }
-
-  // Warn: stalled applications (applied/ghosted for 21+ days)
-  const today = new Date();
-  const stalledApps = applications.filter((a) => {
-    if (a.status !== STATUS.applied && a.status !== STATUS.ghosted) return false;
-    if (!a.applied_on) return false;
-    const appliedDate = new Date(a.applied_on);
-    const diffDays = (today.getTime() - appliedDate.getTime()) / (1000 * 60 * 60 * 24);
-    return diffDays >= 21;
-  });
-  if (stalledApps.length > 0) {
-    insights.push({
-      variant: "warn",
-      icon: "⏱",
-      title: `${stalledApps.length} application${stalledApps.length > 1 ? "s" : ""} going cold`,
-      body: `${stalledApps.length > 1 ? "These applications have" : "This application has"} had no activity for 21+ days.`,
-    });
-  }
-
-  return insights.slice(0, 3);
-}
-
-function InsightCard({ insight }: { insight: Insight }) {
-  const colors: Record<InsightVariant, { bg: string; border: string; icon: string }> = {
-    good: {
-      bg: "color-mix(in oklch, var(--st-offer) 8%, var(--surface))",
-      border: "color-mix(in oklch, var(--st-offer) 35%, transparent)",
-      icon: "color-mix(in oklch, var(--st-offer) 90%, white 10%)",
-    },
-    warn: {
-      bg: "color-mix(in oklch, var(--st-ghosted) 10%, var(--surface))",
-      border: "color-mix(in oklch, var(--st-ghosted) 40%, transparent)",
-      icon: "color-mix(in oklch, var(--st-ghosted) 90%, black 5%)",
-    },
-    info: {
-      bg: "color-mix(in oklch, var(--accent) 8%, var(--surface))",
-      border: "color-mix(in oklch, var(--accent) 30%, transparent)",
-      icon: "var(--accent)",
-    },
-  };
-  const c = colors[insight.variant];
-
-  return (
-    <div
-      className="rounded-xl border p-4 flex gap-3"
-      style={{ background: c.bg, borderColor: c.border }}
-    >
-      <div
-        className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-sm"
-        style={{ background: c.border, color: c.icon }}
-      >
-        {insight.icon}
-      </div>
-      <div className="min-w-0">
-        <p className="text-[13.5px] font-semibold text-ink leading-snug">{insight.title}</p>
-        <p className="text-[12.5px] text-ink-2 mt-0.5">{insight.body}</p>
-      </div>
-    </div>
-  );
 }
 
 // ── KPI stat card ────────────────────────────────────────────────────────────
@@ -234,8 +141,6 @@ export function AnalyticsView({ applications }: Props) {
 
   const analytics = useMemo(() => computeAnalytics(filtered), [filtered]);
   const sankeyData = useMemo(() => buildSankeyData(filtered), [filtered]);
-  const insights = useMemo(() => buildInsights(analytics, filtered), [analytics, filtered]);
-
   if (analytics.totalApplications === 0) {
     const hasFilter = !allTime;
     return (
@@ -275,15 +180,6 @@ export function AnalyticsView({ applications }: Props) {
         onStart={setStartDate}
         onEnd={setEndDate}
       />
-
-      {/* ── Insight cards ─────────────────────────────────── */}
-      {insights.length > 0 && (
-        <div className="grid grid-cols-3 gap-3 mobile:grid-cols-1">
-          {insights.map((insight, i) => (
-            <InsightCard key={i} insight={insight} />
-          ))}
-        </div>
-      )}
 
       {/* ── KPI tiles ─────────────────────────────────────── */}
       <section>
