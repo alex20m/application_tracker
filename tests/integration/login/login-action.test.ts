@@ -14,6 +14,7 @@ vi.mock("@/lib/env", () => ({
   APP_URL: "http://localhost:3000",
   ROUTES: {
     login: "/login",
+    dashboard: "/dashboard",
     applications: "/applications",
     authCallback: "/api/auth/callback",
     signOut: "/auth/signout",
@@ -67,7 +68,7 @@ describe("loginAction", () => {
   });
 
   describe("password sign-in", () => {
-    it("redirects to /applications on successful sign-in", async () => {
+    it("redirects to /dashboard on successful sign-in", async () => {
       const fd = makeFormData({
         email: "user@example.com",
         password: "secret",
@@ -76,7 +77,7 @@ describe("loginAction", () => {
       });
       await expect(loginAction(null, fd)).rejects.toMatchObject({
         type: "redirect",
-        url: "/applications",
+        url: "/dashboard",
       });
       expect(mockSupabase.auth.signInWithPassword).toHaveBeenCalledOnce();
     });
