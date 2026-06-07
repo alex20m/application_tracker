@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { ROUTES } from "@/lib/env";
 import { PAGE_CONTAINER, PAGE_VERTICAL } from "@/lib/ui";
+import { InstallAppButton } from "@/components/install-app-button";
 
 type AppShellProps = {
   email: string;
@@ -182,6 +183,7 @@ export function AppShell({ email, children }: AppShellProps) {
                 <circle cx="8" cy="8" r="2" stroke="currentColor" strokeWidth="1.4" />
               </svg>
             </Link>
+            <InstallAppButton variant="icon" />
             <div className="mx-1.5 h-5 w-px bg-border-base" />
             <span className="text-xs text-ink-3">{email}</span>
             <span
