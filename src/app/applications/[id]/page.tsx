@@ -1,12 +1,18 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
-import { BTN_PRIMARY_LINK, CARD, SECTION_STACK, TEXT_H3, TEXT_META } from "@/lib/ui";
+import { CARD, SECTION_STACK, TEXT_H3, TEXT_META } from "@/lib/ui";
 import { AppShell } from "@/components/app-shell";
 import { ApplicationForm } from "@/components/application-form";
 import { DeleteApplicationButton } from "@/components/delete-application-button";
 import { PipelineStepper } from "@/components/pipeline-stepper";
 import { StatusBadge } from "@/components/status-badge";
 import { updateApplicationAction } from "./actions";
+
+function getCompanyInitials(company: string): string {
+  const words = company.trim().split(/\s+/);
+  if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
+  return company.slice(0, 2).toUpperCase();
+}
 
 function returnPathFromParam(from: string | undefined): string {
   if (from === "closed") return "/applications?filter=closed";
@@ -79,26 +85,21 @@ export default async function ApplicationDetailPage({
 
   return (
     <AppShell email={user.email || ""}>
-      <div className={SECTION_STACK}>
+      <div className={`max-w-[580px] mx-auto ${SECTION_STACK}`}>
         {/* Breadcrumb */}
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2 text-sm text-ink-3 whitespace-nowrap min-w-0">
-            <Link href={returnPath} className="transition hover:text-ink-2 flex-shrink-0">
-              Applications
-            </Link>
-            <span className="text-border-strong">/</span>
-            <span className="truncate max-w-[200px] font-medium text-ink-2">{application.company}</span>
-          </div>
-          <Link
-            href={from ? `/applications/new?from=${from}` : "/applications/new"}
-            className={BTN_PRIMARY_LINK}
-          >
-            + Add Application
+        <div className="flex items-center gap-2 text-sm text-ink-3 whitespace-nowrap min-w-0">
+          <Link href={returnPath} className="transition hover:text-ink-2 flex-shrink-0">
+            Applications
           </Link>
+          <span className="text-border-strong">/</span>
+          <span className="truncate max-w-[200px] font-medium text-ink-2">{application.company}</span>
         </div>
 
-        {/* Header: company/role + badge */}
+        {/* Header: monogram + company/role + badge */}
         <div className="flex items-center gap-4 mobile:gap-3">
+          <div className="flex h-[60px] w-[60px] flex-shrink-0 items-center justify-center rounded-2xl border border-border-base bg-surface-2 text-[17px] font-bold tracking-tight text-ink-2 shadow-sm mobile:h-12 mobile:w-12 mobile:text-[14px]">
+            {getCompanyInitials(application.company)}
+          </div>
           <div className="min-w-0 flex-1">
             <h1 className="text-[23px] font-bold tracking-[-0.02em] text-ink truncate whitespace-nowrap leading-tight">
               {application.company}
@@ -111,12 +112,10 @@ export default async function ApplicationDetailPage({
         </div>
 
         {/* Pipeline stepper */}
-        <div className="max-w-2xl">
-          <PipelineStepper applicationId={application.id} status={application.status} />
-        </div>
+        <PipelineStepper applicationId={application.id} status={application.status} />
 
         {/* Form */}
-        <div className={`max-w-2xl ${CARD}`}>
+        <div className={CARD}>
           <ApplicationForm
             action={boundAction}
             application={application}
@@ -128,7 +127,7 @@ export default async function ApplicationDetailPage({
 
         {/* Danger zone */}
         <div
-          className="max-w-2xl rounded-2xl border p-5 mobile:p-4"
+          className="rounded-2xl border p-5 mobile:p-4"
           style={{
             borderColor: "color-mix(in oklch, var(--st-rejected) 28%, transparent)",
             background: "color-mix(in oklch, var(--st-rejected) 6%, var(--surface))",
