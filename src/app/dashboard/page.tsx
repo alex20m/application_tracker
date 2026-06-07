@@ -158,7 +158,7 @@ function KpiCard({
       >
         {icon}
       </div>
-      <div className="min-w-0">
+      <div className="min-w-0 flex flex-col justify-center">
         <p className="text-[13.5px] font-semibold text-ink leading-snug">{title}</p>
         <p className="text-[12.5px] text-ink-2 mt-0.5">{body}</p>
       </div>
