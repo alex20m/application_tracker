@@ -68,7 +68,7 @@ export function InstallAppButton({ variant }: Props) {
           type="button"
           onClick={handleClick}
           aria-label="Install AppTrack"
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-3 transition hover:bg-surface-2 hover:text-ink"
+          className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-ink-3 transition hover:bg-surface-2 hover:text-ink"
         >
           <DownloadIcon />
         </button>
