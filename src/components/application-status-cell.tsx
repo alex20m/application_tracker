@@ -99,7 +99,7 @@ export function ApplicationStatusCell({
           role="menu"
           onClick={(e) => e.stopPropagation()}
           style={dropdownPos}
-          className="fixed z-[9999] w-max rounded-xl border border-border-base bg-surface shadow-lg py-1"
+          className="fixed z-[9999] rounded-xl border border-border-base bg-surface shadow-lg py-1"
         >
           {nextStatuses.map((status) => (
             <button
@@ -108,7 +108,7 @@ export function ApplicationStatusCell({
               role="menuitem"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleChangeStatus(status); }}
               disabled={isPending}
-              className="w-full px-3 py-1.5 text-left text-[12px] text-ink-2 transition hover:bg-surface-2 hover:text-ink disabled:opacity-50"
+              className="block whitespace-nowrap px-3 py-1.5 text-left text-[12px] text-ink-2 transition hover:bg-surface-2 hover:text-ink disabled:opacity-50"
             >
               {STATUS_NAMES[status]}
             </button>
