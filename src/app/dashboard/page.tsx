@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { type ReactNode } from "react";
 import { requireUser } from "@/lib/auth";
 import { AppShell } from "@/components/app-shell";
 import { computeAnalytics } from "@/lib/analytics";
@@ -113,45 +114,54 @@ function buildAttentionItems(applications: ApplicationRecord[]): AttentionItem[]
 type KpiVariant = "good" | "warn" | "info" | "neutral";
 
 function KpiCard({
-  label,
-  value,
-  sub,
+  icon,
+  title,
+  body,
   variant = "neutral",
 }: {
-  label: string;
-  value: string;
-  sub?: string;
+  icon: ReactNode;
+  title: string;
+  body: ReactNode;
   variant?: KpiVariant;
 }) {
-  const c: Record<KpiVariant, { bg: string; border: string }> = {
+  const c: Record<KpiVariant, { bg: string; border: string; iconColor: string }> = {
     good: {
       bg: "color-mix(in oklch, var(--st-offer) 8%, var(--surface))",
       border: "color-mix(in oklch, var(--st-offer) 35%, transparent)",
+      iconColor: "color-mix(in oklch, var(--st-offer) 90%, white 10%)",
     },
     warn: {
       bg: "color-mix(in oklch, var(--st-ghosted) 10%, var(--surface))",
       border: "color-mix(in oklch, var(--st-ghosted) 40%, transparent)",
+      iconColor: "color-mix(in oklch, var(--st-ghosted) 90%, black 5%)",
     },
     info: {
       bg: "color-mix(in oklch, var(--accent) 8%, var(--surface))",
       border: "color-mix(in oklch, var(--accent) 30%, transparent)",
+      iconColor: "var(--accent)",
     },
     neutral: {
       bg: "var(--surface-2)",
       border: "var(--border)",
+      iconColor: "var(--ink-2)",
     },
   };
   const colors = c[variant];
   return (
     <div
-      className="rounded-xl border p-4 flex flex-col gap-1.5"
+      className="rounded-xl border p-4 flex gap-3"
       style={{ background: colors.bg, borderColor: colors.border }}
     >
-      <p className="text-[12.5px] text-ink-2">{label}</p>
-      <p className="text-[36px] font-bold leading-none tracking-[-0.03em] text-ink">
-        {value}
-      </p>
-      {sub && <p className="text-[12.5px] text-ink-3">{sub}</p>}
+      <div
+        className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center"
+        style={{ background: colors.border, color: colors.iconColor }}
+      >
+        {icon}
+      </div>
+      <div className="min-w-0">
+        <p className="text-[13.5px] font-semibold text-ink leading-snug">{title}</p>
+        <p className="text-[12.5px] text-ink-2 mt-0.5">{body}</p>
+      </div>
     </div>
   );
 }
@@ -351,32 +361,57 @@ export default async function DashboardPage() {
         {/* ── KPI tiles ───────────────────────────────────── */}
         <div className="grid grid-cols-4 gap-3 mobile:grid-cols-2">
           <KpiCard
-            label="Active"
-            value={String(analytics.activeCount)}
-            sub="Applications in progress"
             variant="neutral"
-          />
-          <KpiCard
-            label="In interviews"
-            value={String(analytics.currentlyInterviewingCount)}
-            sub={interviewSub}
-            variant="info"
-          />
-          <KpiCard
-            label="Response rate"
-            value={pct(analytics.responseRate)}
-            sub="Of applications got a reply"
-            variant="good"
-          />
-          <KpiCard
-            label="Avg. first reply"
-            value={days(analytics.avgDaysToFirstResponse)}
-            sub={
-              analytics.totalApplications > 0
-                ? `across ${analytics.totalApplications} applications`
-                : undefined
+            icon={
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <rect x="2" y="6" width="12" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
+                <path d="M5 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              </svg>
             }
+            title="Active applications"
+            body={<><strong className="font-semibold text-ink">{analytics.activeCount}</strong> in progress</>}
+          />
+          <KpiCard
+            variant="info"
+            icon={
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M2 7L8 3.5L14 7L8 10.5L2 7Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+                <path d="M2 10.5L8 14L14 10.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            }
+            title="In interviews"
+            body={
+              <>
+                <strong className="font-semibold text-ink">{analytics.currentlyInterviewingCount}</strong>
+                {interviewSub ? ` — ${interviewSub}` : " currently interviewing"}
+              </>
+            }
+          />
+          <KpiCard
+            variant="good"
+            icon={
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3 13V9M7 13V5M11 13V7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                <path d="M1 13h14" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              </svg>
+            }
+            title="Response rate"
+            body={<><strong className="font-semibold text-ink">{pct(analytics.responseRate)}</strong> of applications got a reply</>}
+          />
+          <KpiCard
             variant="neutral"
+            icon={
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.2" />
+                <path d="M8 5v3l2 2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            }
+            title="Average first reply"
+            body={
+              analytics.totalApplications > 0
+                ? <><strong className="font-semibold text-ink">{days(analytics.avgDaysToFirstResponse)}</strong> across {analytics.totalApplications} applications</>
+                : <strong className="font-semibold text-ink">{days(analytics.avgDaysToFirstResponse)}</strong>
+            }
           />
         </div>
 
