@@ -231,14 +231,10 @@ type FunnelStage = { label: string; count: number; color: string };
 
 function PipelineCard({ analytics }: { analytics: ReturnType<typeof computeAnalytics> }) {
   const stages: FunnelStage[] = [
-    { label: "Applied", count: analytics.activeCount, color: "color-mix(in oklch, var(--st-applied) 30%, var(--surface-2))" },
+    { label: "Active", count: analytics.activeCount, color: "color-mix(in oklch, var(--st-applied) 30%, var(--surface-2))" },
     { label: "Interviews", count: analytics.interviewedCount, color: "color-mix(in oklch, var(--st-interviews) 30%, var(--surface-2))" },
     { label: "Offers", count: analytics.offeredCount, color: "color-mix(in oklch, var(--st-offer) 35%, var(--surface-2))" },
-    {
-      label: "Accepted",
-      count: analytics.totalApplications > 0 ? analytics.offeredCount - analytics.currentlyOfferCount : 0,
-      color: "color-mix(in oklch, var(--st-accepted) 35%, var(--surface-2))",
-    },
+    { label: "Accepted", count: analytics.acceptedCount, color: "color-mix(in oklch, var(--st-accepted) 35%, var(--surface-2))" },
   ];
 
   const max = stages[0].count || 1;
