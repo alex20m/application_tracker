@@ -122,10 +122,7 @@ function KpiCard({
   sub?: string;
 }) {
   return (
-    <div
-      className="rounded-xl border p-4 flex flex-col gap-1.5"
-      style={{ background: "var(--surface-2)", borderColor: "var(--border)" }}
-    >
+    <div className="rounded-2xl border border-border-base bg-surface p-5 shadow-sm flex flex-col gap-1.5">
       <p className="text-[12.5px] text-ink-2">{label}</p>
       <p
         className="text-[36px] font-bold leading-none tracking-[-0.03em]"
