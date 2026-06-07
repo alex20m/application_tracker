@@ -123,16 +123,21 @@ export function ApplicationsTrendChart({ dailyTrend }: TrendProps) {
   const TICK = { fontSize: 11, fill: "var(--text-3)", opacity: 1 };
   const isMobile = useIsMobile();
 
-  const { visibleSeries, jitterData } = useMemo(() => {
+  const { visibleSeries, jitterData, yMax } = useMemo(() => {
     const lastEntry = dailyTrend.at(-1);
     const visible = TREND_SERIES.filter(s => (lastEntry?.[s.key] ?? 0) > 0);
     const maxValue = dailyTrend.reduce((m, e) => {
       for (const s of visible) m = Math.max(m, e[s.key] ?? 0);
       return m;
     }, 1);
-    const jitterStep = Math.max(0.3, maxValue * 0.015);
-    return { visibleSeries: visible, jitterData: applyJitter(dailyTrend, visible, jitterStep) };
-  }, [dailyTrend]);
+    // Fixed Y domain so Y scale doesn't change when brushing
+    const yMax = Math.max(2, Math.ceil(maxValue * 1.2));
+    // Approximate drawing area height (chart height minus top margin, brush, x-axis labels)
+    const drawH = (isMobile ? 240 : 270) - 53;
+    // Compute step that maps to ~4px gap regardless of scale
+    const jitterStep = 4 * yMax / drawH;
+    return { visibleSeries: visible, jitterData: applyJitter(dailyTrend, visible, jitterStep), yMax };
+  }, [dailyTrend, isMobile]);
 
   const [brushStart, setBrushStart] = useState(0);
   const [brushEnd, setBrushEnd] = useState(() => Math.max(0, dailyTrend.length - 1));
@@ -174,7 +179,7 @@ export function ApplicationsTrendChart({ dailyTrend }: TrendProps) {
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
             <XAxis dataKey="label" tick={TICK} axisLine={false} tickLine={false} interval={tickInterval} />
-            <YAxis allowDecimals={false} tick={TICK} axisLine={false} tickLine={false} domain={[0, "auto"]} />
+            <YAxis allowDecimals={false} tick={TICK} axisLine={false} tickLine={false} domain={[0, yMax]} />
             <Tooltip content={<ChartTooltip />} cursor={{ stroke: "var(--border-2)", strokeWidth: 1.5 }} />
             {visibleSeries.map((s) => (
               <Area
