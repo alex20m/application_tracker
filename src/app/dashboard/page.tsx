@@ -237,7 +237,7 @@ function PipelineCard({ analytics }: { analytics: ReturnType<typeof computeAnaly
     { label: "Accepted", count: analytics.acceptedCount, color: "color-mix(in oklch, var(--st-accepted) 35%, var(--surface-2))" },
   ];
 
-  const max = stages[0].count || 1;
+  const max = analytics.totalApplications || 1;
 
   return (
     <div className="rounded-2xl border border-border-base bg-surface p-[22px] shadow-sm flex flex-col gap-4">
