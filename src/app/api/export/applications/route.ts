@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
   const { data: apps } = await query;
   if (!apps) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const headers = ["id", "company", "role", "location", "status", "source", "applied_on", "notes", "created_at", "updated_at"];
+  const headers = ["company", "role", "location", "status", "source", "applied_on", "notes", "created_at", "updated_at"];
   const rows = apps.map((a) =>
     headers.map((h) => {
       const val = (a as Record<string, unknown>)[h];
