@@ -38,8 +38,8 @@ export function PipelineStepper({ applicationId, status }: Props) {
     <div className="rounded-2xl border border-border-base bg-surface p-[22px] shadow-sm mobile:p-4">
       <p className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-3 mb-4">Pipeline Stage</p>
 
-      {/* Stepper */}
-      <div className="flex items-center">
+      {/* Stepper — horizontal on desktop, vertical timeline on mobile */}
+      <div className="flex items-center mobile:flex-col mobile:items-start">
         {STAGES.map((stage, i) => {
           const isDone = currentIdx > stage.stageIdx;
           const isCurrent = currentIdx === stage.stageIdx;
@@ -47,7 +47,7 @@ export function PipelineStepper({ applicationId, status }: Props) {
           const connectorDone = isDone;
 
           return (
-            <div key={stage.stageIdx} className="flex flex-1 items-center min-w-0">
+            <div key={stage.stageIdx} className="flex flex-1 items-center min-w-0 mobile:flex-none mobile:flex-col mobile:items-start">
               {/* Pill */}
               <div
                 className={[
@@ -69,10 +69,10 @@ export function PipelineStepper({ applicationId, status }: Props) {
                 {stage.label}
               </div>
 
-              {/* Connector */}
+              {/* Connector — horizontal bar on desktop, vertical bar on mobile */}
               {!isLast && (
                 <div
-                  className="flex-1 h-[2px] mx-1.5 rounded-full transition-all"
+                  className="flex-1 h-[2px] mx-1.5 rounded-full transition-all mobile:flex-none mobile:w-[2px] mobile:h-3 mobile:mx-0 mobile:ml-4 mobile:my-1"
                   style={{ background: connectorDone ? "var(--st-offer)" : "var(--border)" }}
                 />
               )}
