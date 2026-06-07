@@ -102,9 +102,9 @@ function SankeyNodeShape({
   }
 
   const sub = node.name === SANKEY_ROOT ? `${total}` : `${total} · ${pct}%`;
-  const rightSide = node.x0 > width / 2;
-  const lx = rightSide ? node.x0 - 8 : node.x1 + 8;
-  const anchor = rightSide ? "end" : "start";
+  const isRoot = node.name === SANKEY_ROOT;
+  const lx = isRoot ? node.x1 + 8 : node.x0 - 8;
+  const anchor = isRoot ? "start" : "end";
 
   return (
     <g>
@@ -152,7 +152,7 @@ function DiagramContent({
   dark: boolean;
 }) {
   const { w: width, h: height } = dims;
-  const margin = isMobile ? 60 : 120;
+  const margin = 20;
   const nodePadding = isMobile ? 16 : 20;
 
   const sankeyGen = sankey<NodeDatum, LinkDatum>()
