@@ -85,7 +85,7 @@ export default async function ApplicationDetailPage({
 
   return (
     <AppShell email={user.email || ""}>
-      <div className={`max-w-[580px] mx-auto ${SECTION_STACK}`}>
+      <div className={`max-w-3xl mx-auto ${SECTION_STACK}`}>
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-ink-3 whitespace-nowrap min-w-0">
           <Link href={returnPath} className="transition hover:text-ink-2 flex-shrink-0">

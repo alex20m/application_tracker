@@ -30,7 +30,7 @@ export default async function WishlistDetailPage({ params }: WishlistDetailPageP
 
   return (
     <AppShell email={user.email || ""}>
-      <div className={`max-w-[580px] mx-auto ${SECTION_STACK}`}>
+      <div className={`max-w-3xl mx-auto ${SECTION_STACK}`}>
         <div className="flex items-center gap-2 text-sm text-ink-3 whitespace-nowrap min-w-0">
           <Link href={ROUTES.wishlist} className="transition hover:text-ink-2 flex-shrink-0">
             Wishlist
