@@ -121,10 +121,10 @@ export function AvgStageTime({ applications }: Props) {
             <>
               {/* Main number */}
               <div className="flex items-baseline gap-1.5">
-                <span className="text-5xl font-bold text-gray-900 dark:text-gray-100 tabular-nums mobile:text-4xl">
+                <span className="text-4xl font-bold text-gray-900 dark:text-gray-100 tabular-nums mobile:text-3xl">
                   {result.avg}
                 </span>
-                <span className="text-xl text-gray-500 dark:text-gray-400 font-normal">
+                <span className="text-base text-gray-500 dark:text-gray-400 font-normal">
                   {result.avg === 1 ? "day" : "days"}
                 </span>
               </div>
