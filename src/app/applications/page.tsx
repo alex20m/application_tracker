@@ -31,13 +31,13 @@ export default async function ApplicationsPage({ searchParams }: ApplicationsPag
           <h1 className={TEXT_H1}>Applications</h1>
           <div className="flex items-center gap-2">
             <CsvExportButton filter={filter} />
-            <DeleteAllApplicationsButton hasApplications scope={filter} />
             <Link
               href={filter === "open" ? "/applications/new" : `/applications/new?from=${filter}`}
               className={BTN_PRIMARY_LINK}
             >
               + Add Application
             </Link>
+            <DeleteAllApplicationsButton hasApplications scope={filter} />
           </div>
         </div>
 
