@@ -116,13 +116,15 @@ export function getStatusRank(status: ApplicationStatus): number {
 
 // Pipeline stage index for the detail-page stepper.
 // Stages: 0=Applied, 1=Interviews, 2=Offer, 3=Decision
-// Returns -1 for wishlist (not in pipeline)
+// Returns -1 for statuses that are not actively in a stage (wishlist,
+// negative exits like rejected/withdrew, etc.) so no stage is highlighted.
 export function statusStageIndex(status: ApplicationStatus): number {
-  if (status === STATUS.wishlist) return -1;
-  const s = status as string;
-  if (["applied", "ghosted", "cancelled", "rejected"].includes(s)) return 0;
-  if (["interviews", "withdrew", "no_offer"].includes(s)) return 1;
-  if (s === "offer") return 2;
-  if (["accepted", "declined"].includes(s)) return 3;
-  return 0;
+  switch (status) {
+    case STATUS.applied:    return 0;
+    case STATUS.interviews: return 1;
+    case STATUS.offer:      return 2;
+    case STATUS.accepted:
+    case STATUS.declined:   return 3;
+    default:                return -1;
+  }
 }
