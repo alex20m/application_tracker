@@ -10,7 +10,7 @@ test.describe("Application CRUD", () => {
     await page.getByLabel(/company/i).fill(COMPANY);
     await page.getByLabel(/role/i).fill(ROLE);
     await page.getByLabel(/location/i).fill(LOCATION);
-    await page.getByRole("button", { name: /save application/i }).click();
+    await page.getByRole("button", { name: /^add$/i }).click();
 
     await expect(page).toHaveURL("/applications");
     await expect(page.getByText(COMPANY)).toBeVisible();
@@ -29,7 +29,7 @@ test.describe("Application CRUD", () => {
     await page.goto(url);
     await page.getByLabel(/company/i).fill("Edited Corp");
     await page.getByLabel(/role/i).fill("Senior Dev");
-    await page.getByRole("button", { name: /save application/i }).click();
+    await page.getByRole("button", { name: /^save$/i }).click();
 
     await expect(page).toHaveURL("/applications");
     await expect(page.getByText("Edited Corp").first()).toBeVisible();
@@ -41,7 +41,7 @@ test.describe("Application CRUD", () => {
 
     await page.goto(url);
     await page.getByLabel(/notes/i).fill("This is a test note.");
-    await page.getByRole("button", { name: /save application/i }).click();
+    await page.getByRole("button", { name: /^save$/i }).click();
 
     await expect(page).toHaveURL("/applications");
 
@@ -57,7 +57,7 @@ test.describe("Application CRUD", () => {
     await page.getByLabel(/company/i).fill(company);
     await page.getByLabel(/role/i).fill("Test Role");
     await page.getByLabel(/location/i).fill("Remote");
-    await page.getByRole("button", { name: /save application/i }).click();
+    await page.getByRole("button", { name: /^add$/i }).click();
     await expect(page).toHaveURL("/applications");
     await expect(page.getByText(company)).toBeVisible();
 
