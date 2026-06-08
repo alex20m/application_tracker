@@ -153,8 +153,8 @@ export function ApplicationForm({ application, action, returnPath = ROUTES.appli
 
       <div className="flex items-center justify-end gap-3 pt-1">
         <Link href={returnPath} className={BTN_GHOST}>Cancel</Link>
-        <button type="submit" disabled={isPending} className={BTN_PRIMARY}>
-          {isPending ? "Saving…" : "Save Application"}
+        <button type="submit" disabled={isPending} className={`${BTN_PRIMARY} whitespace-nowrap`}>
+          {isPending ? (application ? "Saving…" : "Adding…") : (application ? "Save" : "Add")}
         </button>
       </div>
     </form>
