@@ -24,6 +24,7 @@ export function WishlistForm({ application, action, returnPath = ROUTES.wishlist
       {application && (
         <input type="hidden" name="application_id" value={application.id} />
       )}
+      <input type="hidden" name="return_path" value={returnPath} />
 
       {state.error && <div className={ERROR_BANNER}>{state.error}</div>}
 

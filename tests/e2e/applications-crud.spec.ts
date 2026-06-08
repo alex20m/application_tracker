@@ -15,9 +15,10 @@ test.describe("Application CRUD", () => {
     await expect(page).toHaveURL("/applications");
     await expect(page.getByText(COMPANY)).toBeVisible();
 
-    // Cleanup — find and delete
+    // Cleanup — find and delete (detail page opens in view mode; click Edit first)
     await page.getByRole("link", { name: new RegExp(COMPANY) }).click();
     await expect(page).toHaveURL(/\/applications\//);
+    await page.getByRole("link", { name: /^Edit$/i }).click();
     page.once("dialog", (d) => d.accept());
     await page.getByRole("button", { name: /delete/i }).click();
     await expect(page).toHaveURL("/applications", { timeout: 10000 });
@@ -27,11 +28,13 @@ test.describe("Application CRUD", () => {
     const { url } = await withApplication({ company: "EditMe Co", role: "Junior Dev" });
 
     await page.goto(url);
+    // Detail page opens in view mode; click Edit to enter edit mode
+    await page.getByRole("link", { name: /^Edit$/i }).click();
     await page.getByLabel(/company/i).fill("Edited Corp");
     await page.getByLabel(/role/i).fill("Senior Dev");
     await page.getByRole("button", { name: /save application/i }).click();
 
-    await expect(page).toHaveURL("/applications");
+    await expect(page).toHaveURL(/\/applications\//);
     await expect(page.getByText("Edited Corp").first()).toBeVisible();
     await expect(page.getByText("Senior Dev").first()).toBeVisible();
   });
@@ -40,13 +43,16 @@ test.describe("Application CRUD", () => {
     const { url } = await withApplication({ company: "NoteTest Co" });
 
     await page.goto(url);
+    // Enter edit mode to access the form
+    await page.getByRole("link", { name: /^Edit$/i }).click();
     await page.getByLabel(/notes/i).fill("This is a test note.");
     await page.getByRole("button", { name: /save application/i }).click();
 
-    await expect(page).toHaveURL("/applications");
+    await expect(page).toHaveURL(/\/applications\//);
 
-    // Navigate back to the detail page to verify the note was saved
+    // Navigate back to the detail page and enter edit mode to verify the note was saved
     await page.goto(url);
+    await page.getByRole("link", { name: /^Edit$/i }).click();
     await expect(page.getByLabel(/notes/i)).toHaveValue("This is a test note.");
   });
 
@@ -61,9 +67,10 @@ test.describe("Application CRUD", () => {
     await expect(page).toHaveURL("/applications");
     await expect(page.getByText(company)).toBeVisible();
 
-    // Navigate to detail and delete
+    // Navigate to detail (view mode), click Edit, then delete
     await page.getByRole("link", { name: new RegExp(company) }).click();
     await expect(page).toHaveURL(/\/applications\//);
+    await page.getByRole("link", { name: /^Edit$/i }).click();
     page.once("dialog", (d) => d.accept());
     await page.getByRole("button", { name: /^delete$/i }).click();
 

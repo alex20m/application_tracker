@@ -57,6 +57,12 @@ export async function createWishlistAction(
   redirect("/wishlist");
 }
 
+function isAllowedWishlistReturnPath(path: string): boolean {
+  if (path === "/wishlist") return true;
+  if (/^\/wishlist\/[0-9a-f-]{36}$/.test(path)) return true;
+  return false;
+}
+
 export async function updateWishlistAction(
   prevState: unknown,
   formData: FormData
@@ -101,7 +107,8 @@ export async function updateWishlistAction(
   }
 
   revalidateApplicationViews("wishlist");
-  redirect("/wishlist");
+  const returnPath = formData.get("return_path") as string | null;
+  redirect(isAllowedWishlistReturnPath(returnPath ?? "") ? returnPath! : "/wishlist");
 }
 
 export async function applyWishlistAction(
