@@ -13,9 +13,10 @@ type WishlistFormProps = {
     prevState: unknown,
     formData: FormData
   ) => Promise<{ success: boolean; error?: string }>;
+  returnPath?: string;
 };
 
-export function WishlistForm({ application, action }: WishlistFormProps) {
+export function WishlistForm({ application, action, returnPath = ROUTES.wishlist }: WishlistFormProps) {
   const [state, formAction, isPending] = useActionState(action, { success: false });
 
   return (
@@ -92,7 +93,7 @@ export function WishlistForm({ application, action }: WishlistFormProps) {
       </div>
 
       <div className="flex justify-end gap-3 pt-1">
-        <Link href={ROUTES.wishlist} className={BTN_GHOST}>Cancel</Link>
+        <Link href={returnPath} className={BTN_GHOST}>Cancel</Link>
         <button type="submit" disabled={isPending} className={BTN_PRIMARY}>
           {isPending ? "Saving…" : application ? "Save" : "Add to Wishlist"}
         </button>
