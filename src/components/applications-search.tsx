@@ -156,8 +156,8 @@ export function ApplicationsSearch({ applications, fromFilter }: ApplicationsSea
     <div className="space-y-3">
       {/* Search + filter row */}
       <div className="flex flex-wrap items-center gap-2">
-        {/* Search */}
-        <div className="relative flex-1 min-w-[180px]">
+        {/* Search — full-width on mobile so filters wrap to a second row */}
+        <div className="relative flex-1 min-w-[180px] mobile:flex-none mobile:w-full">
           <svg
             className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-3"
             width="15"
