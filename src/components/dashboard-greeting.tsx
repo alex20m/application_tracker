@@ -26,7 +26,8 @@ export function DashboardGreeting({
   const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
-    setNow(new Date());
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setNow(new Date()); // read browser-local time once after hydration
   }, []);
 
   const dateStamp = now ? getDateStamp(now) : "";
