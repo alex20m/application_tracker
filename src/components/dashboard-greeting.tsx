@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 function getGreeting(h: number): string {
   if (h < 12) return "Good morning";
@@ -16,6 +16,17 @@ function getDateStamp(now: Date): string {
   return `${day} · ${month} ${date}, ${year}`;
 }
 
+// Module-level cache: same Date reference on every getSnapshot call → React's
+// Object.is check is stable → no infinite re-render loop.
+// null during SSR/hydration (getServerSnapshot) → no hydration mismatch.
+const subscribe = () => () => {};
+const getServerSnapshot = (): Date | null => null;
+let cachedNow: Date | null = null;
+const getClientSnapshot = (): Date | null => {
+  if (cachedNow === null) cachedNow = new Date();
+  return cachedNow;
+};
+
 export function DashboardGreeting({
   activeCount,
   attentionCount,
@@ -23,12 +34,7 @@ export function DashboardGreeting({
   activeCount: number;
   attentionCount: number;
 }) {
-  const [now, setNow] = useState<Date | null>(null);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setNow(new Date()); // read browser-local time once after hydration
-  }, []);
+  const now = useSyncExternalStore(subscribe, getClientSnapshot, getServerSnapshot);
 
   const dateStamp = now ? getDateStamp(now) : "";
   const greeting = now ? getGreeting(now.getHours()) : "";
