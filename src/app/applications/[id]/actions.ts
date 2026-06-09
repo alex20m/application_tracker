@@ -16,9 +16,10 @@ function isAllowedReturnPath(path: string): boolean {
   return false;
 }
 import { GENERIC_ACTION_ERROR, sanitizeActionError } from "@/lib/ui";
-import { ApplicationUpdateSchema } from "@/lib/schemas";
+import { ApplicationUpdateSchema, InterviewRoundCreateSchema, InterviewRoundUpdateSchema } from "@/lib/schemas";
 import { z } from "zod";
-import type { StatusEvent } from "@/lib/types";
+import type { InterviewRound, StatusEvent } from "@/lib/types";
+import { addInterviewRound, removeInterviewRound, revalidateApplicationViews, updateInterviewRound } from "@/lib/applications";
 
 export async function updateApplicationAction(
   applicationId: string,
@@ -94,6 +95,165 @@ export async function updateApplicationAction(
   revalidatePath("/analytics");
   const returnPath = formData.get("return_path") as string | null;
   redirect(isAllowedReturnPath(returnPath ?? "") ? returnPath! : DEFAULT_PATH);
+}
+
+export async function addInterviewRoundAction(
+  applicationId: string,
+  _prevState: unknown,
+  formData: FormData
+): Promise<{ success: boolean; error?: string }> {
+  const { supabase, user } = await requireUser();
+
+  if (!z.string().uuid().safeParse(applicationId).success) {
+    return { success: false, error: GENERIC_ACTION_ERROR };
+  }
+
+  const parsed = InterviewRoundCreateSchema.safeParse({
+    type: formData.get("type") ?? "",
+    scheduled_at: (formData.get("scheduled_at") as string) || null,
+    outcome: (formData.get("outcome") as string) || "pending",
+    notes: (formData.get("notes") as string) || null,
+  });
+
+  if (!parsed.success) {
+    return { success: false, error: "Please check your input and try again." };
+  }
+
+  const { data: currentApp } = await supabase
+    .from("applications")
+    .select("interview_rounds")
+    .eq("id", applicationId)
+    .eq("user_id", user.id)
+    .single();
+
+  if (!currentApp) {
+    return { success: false, error: "Application not found" };
+  }
+
+  const newRounds = addInterviewRound(
+    (currentApp.interview_rounds as InterviewRound[]) ?? [],
+    {
+      type: parsed.data.type,
+      scheduled_at: parsed.data.scheduled_at ?? null,
+      outcome: parsed.data.outcome,
+      notes: parsed.data.notes ?? null,
+    }
+  );
+
+  const { error } = await supabase
+    .from("applications")
+    .update({ interview_rounds: newRounds, updated_at: new Date().toISOString() })
+    .eq("id", applicationId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { success: false, error: sanitizeActionError(error, "interview_round:add") };
+  }
+
+  revalidateApplicationViews();
+  return { success: true };
+}
+
+export async function updateInterviewRoundAction(
+  applicationId: string,
+  _prevState: unknown,
+  formData: FormData
+): Promise<{ success: boolean; error?: string }> {
+  const { supabase, user } = await requireUser();
+
+  if (!z.string().uuid().safeParse(applicationId).success) {
+    return { success: false, error: GENERIC_ACTION_ERROR };
+  }
+
+  const parsed = InterviewRoundUpdateSchema.safeParse({
+    id: formData.get("id") ?? "",
+    type: formData.get("type") ?? "",
+    scheduled_at: (formData.get("scheduled_at") as string) || null,
+    outcome: (formData.get("outcome") as string) || "pending",
+    notes: (formData.get("notes") as string) || null,
+  });
+
+  if (!parsed.success) {
+    return { success: false, error: "Please check your input and try again." };
+  }
+
+  const { data: currentApp } = await supabase
+    .from("applications")
+    .select("interview_rounds")
+    .eq("id", applicationId)
+    .eq("user_id", user.id)
+    .single();
+
+  if (!currentApp) {
+    return { success: false, error: "Application not found" };
+  }
+
+  const newRounds = updateInterviewRound(
+    (currentApp.interview_rounds as InterviewRound[]) ?? [],
+    parsed.data.id,
+    {
+      type: parsed.data.type,
+      scheduled_at: parsed.data.scheduled_at ?? null,
+      outcome: parsed.data.outcome,
+      notes: parsed.data.notes ?? null,
+    }
+  );
+
+  const { error } = await supabase
+    .from("applications")
+    .update({ interview_rounds: newRounds, updated_at: new Date().toISOString() })
+    .eq("id", applicationId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { success: false, error: sanitizeActionError(error, "interview_round:update") };
+  }
+
+  revalidateApplicationViews();
+  return { success: true };
+}
+
+export async function deleteInterviewRoundAction(
+  applicationId: string,
+  roundId: string
+): Promise<{ success: boolean; error?: string }> {
+  const { supabase, user } = await requireUser();
+
+  if (
+    !z.string().uuid().safeParse(applicationId).success ||
+    !z.string().uuid().safeParse(roundId).success
+  ) {
+    return { success: false, error: GENERIC_ACTION_ERROR };
+  }
+
+  const { data: currentApp } = await supabase
+    .from("applications")
+    .select("interview_rounds")
+    .eq("id", applicationId)
+    .eq("user_id", user.id)
+    .single();
+
+  if (!currentApp) {
+    return { success: false, error: "Application not found" };
+  }
+
+  const newRounds = removeInterviewRound(
+    (currentApp.interview_rounds as InterviewRound[]) ?? [],
+    roundId
+  );
+
+  const { error } = await supabase
+    .from("applications")
+    .update({ interview_rounds: newRounds, updated_at: new Date().toISOString() })
+    .eq("id", applicationId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { success: false, error: sanitizeActionError(error, "interview_round:delete") };
+  }
+
+  revalidateApplicationViews();
+  return { success: true };
 }
 
 export async function deleteApplicationAction(
