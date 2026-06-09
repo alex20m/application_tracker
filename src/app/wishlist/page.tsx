@@ -28,7 +28,7 @@ export default async function WishlistPage() {
           </div>
           <div className="flex items-center gap-2">
             <Link href={ROUTES.newWishlist} className={BTN_PRIMARY_LINK}>
-              Add<span className="mobile:hidden"> to wishlist</span>
+              + Add<span className="mobile:hidden"> to wishlist</span>
             </Link>
             <DeleteAllWishlistButton hasWishlist={Boolean(applications?.length)} />
           </div>

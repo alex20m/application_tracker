@@ -35,7 +35,7 @@ export default async function ApplicationsPage({ searchParams }: ApplicationsPag
               href={filter === "open" ? "/applications/new" : `/applications/new?from=${filter}`}
               className={BTN_PRIMARY_LINK}
             >
-              Add<span className="mobile:hidden"> Application</span>
+              + Add<span className="mobile:hidden"> Application</span>
             </Link>
             <DeleteAllApplicationsButton hasApplications scope={filter} />
           </div>
