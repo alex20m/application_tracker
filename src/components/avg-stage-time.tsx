@@ -139,7 +139,7 @@ export function AvgStageTime({ applications }: Props) {
                 result.max !== null &&
                 result.min !== result.max && (
                   <p className={`${TEXT_MUTED} mt-1`}>
-                    fastest&nbsp;{result.min}d &nbsp;·&nbsp; slowest&nbsp;{result.max}d
+                    fastest&nbsp;{result.min}d&nbsp;·&nbsp;slowest&nbsp;{result.max}d
                   </p>
                 )}
             </>
