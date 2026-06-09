@@ -6,6 +6,16 @@ export type StatusEvent = {
   changed_at: string;
 };
 
+export type InterviewRoundOutcome = "pending" | "passed" | "failed" | "cancelled";
+
+export type InterviewRound = {
+  id: string;
+  type: string;
+  scheduled_at: string | null;
+  outcome: InterviewRoundOutcome;
+  notes: string | null;
+};
+
 export type ApplicationRecord = {
   id: string;
   user_id: string;
@@ -17,6 +27,7 @@ export type ApplicationRecord = {
   applied_on: string | null;
   notes: string | null;
   events: StatusEvent[];
+  interview_rounds: InterviewRound[];
   created_at: string;
   updated_at: string;
 };

@@ -6,6 +6,8 @@ import { ApplicationForm } from "@/components/application-form";
 import { DeleteApplicationButton } from "@/components/delete-application-button";
 import { PipelineStepper } from "@/components/pipeline-stepper";
 import { StatusBadge } from "@/components/status-badge";
+import { InterviewRoundsCard } from "@/components/interview-rounds-card";
+import type { InterviewRound } from "@/lib/types";
 import { updateApplicationAction } from "./actions";
 
 function getCompanyInitials(company: string): string {
@@ -39,7 +41,7 @@ export default async function ApplicationDetailPage({
   const { from, mode } = await searchParams;
   const { supabase, user } = await requireUser();
 
-  const [{ data: application }, { data: sourcesData }, { data: locationsData }] = await Promise.all([
+  const [{ data: application }, { data: sourcesData }, { data: locationsData }, { data: roundsData }] = await Promise.all([
     supabase
       .from("applications")
       .select("*")
@@ -58,6 +60,10 @@ export default async function ApplicationDetailPage({
       .eq("user_id", user.id)
       .not("location", "is", null)
       .neq("location", ""),
+    supabase
+      .from("applications")
+      .select("interview_rounds")
+      .eq("user_id", user.id),
   ]);
 
   const existingSources = [...new Set(
@@ -67,6 +73,13 @@ export default async function ApplicationDetailPage({
   const existingLocations = [...new Set(
     (locationsData ?? []).map((r: { location: string | null }) => r.location as string)
   )].sort();
+
+  const existingRoundTypes = [...new Set(
+    (roundsData ?? []).flatMap(
+      (r: { interview_rounds: unknown }) =>
+        ((r.interview_rounds as InterviewRound[]) ?? []).map((round) => round.type)
+    )
+  )].filter(Boolean).sort();
 
   const returnPath = returnPathFromParam(from);
   const viewPath = `/applications/${id}${from ? `?from=${from}` : ""}`;
@@ -165,6 +178,11 @@ export default async function ApplicationDetailPage({
           /* ── View mode ── */
           <>
             <PipelineStepper applicationId={application.id} status={application.status} />
+
+            <InterviewRoundsCard
+              application={application}
+              existingRoundTypes={existingRoundTypes}
+            />
 
             <div className={CARD}>
               <div className="grid grid-cols-2 gap-x-6 gap-y-5 mobile:grid-cols-1">

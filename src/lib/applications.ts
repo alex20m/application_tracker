@@ -1,6 +1,6 @@
 import { revalidatePath } from "next/cache";
 import { STATUS, type ApplicationStatus } from "./statuses";
-import type { StatusEvent } from "./types";
+import type { InterviewRound, StatusEvent } from "./types";
 
 type ViewScope = "applications" | "wishlist";
 
@@ -15,6 +15,25 @@ export function revalidateApplicationViews(scope: ViewScope = "applications") {
 }
 
 const NO_RESPONSE_STATUSES: readonly ApplicationStatus[] = [STATUS.applied, STATUS.ghosted];
+
+export function addInterviewRound(
+  rounds: InterviewRound[],
+  partial: Omit<InterviewRound, "id">
+): InterviewRound[] {
+  return [...rounds, { ...partial, id: crypto.randomUUID() }];
+}
+
+export function updateInterviewRound(
+  rounds: InterviewRound[],
+  id: string,
+  patch: Partial<Omit<InterviewRound, "id">>
+): InterviewRound[] {
+  return rounds.map((r) => (r.id === id ? { ...r, ...patch } : r));
+}
+
+export function removeInterviewRound(rounds: InterviewRound[], id: string): InterviewRound[] {
+  return rounds.filter((r) => r.id !== id);
+}
 
 export function appendStatusEvent(
   currentStatus: ApplicationStatus,
