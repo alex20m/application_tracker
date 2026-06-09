@@ -8,24 +8,7 @@ import { ROUTES } from "@/lib/env";
 import { BTN_PRIMARY_LINK, SECTION_STACK } from "@/lib/ui";
 import type { ApplicationRecord } from "@/lib/types";
 import { STATUS, ACTIVE_STATUSES } from "@/lib/statuses";
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-function getGreeting(): string {
-  const h = new Date().getHours();
-  if (h < 12) return "Good morning";
-  if (h < 17) return "Good afternoon";
-  return "Good evening";
-}
-
-function getDateStamp(): string {
-  const now = new Date();
-  const day = now.toLocaleDateString("en-US", { weekday: "long" }).toUpperCase();
-  const month = now.toLocaleDateString("en-US", { month: "long" }).toUpperCase();
-  const date = now.getDate();
-  const year = now.getFullYear();
-  return `${day} · ${month} ${date}, ${year}`;
-}
+import { DashboardGreeting } from "@/components/dashboard-greeting";
 
 function pct(value: number | null): string {
   if (value === null) return "—";
@@ -317,35 +300,7 @@ export default async function DashboardPage() {
       <div className={SECTION_STACK}>
         {/* ── Greeting header ─────────────────────────────── */}
         <div className="flex items-end justify-between gap-4 flex-wrap mobile:flex-col mobile:items-stretch mobile:gap-3">
-          <div>
-            <p className="text-[11.5px] font-medium uppercase tracking-[0.08em] text-ink-3 mb-1">
-              {getDateStamp()}
-            </p>
-            <h1 className="text-[32px] font-bold tracking-[-0.03em] leading-[1.15] text-ink mobile:text-[26px]">
-              {getGreeting()} 👋
-            </h1>
-            {activeCount > 0 ? (
-              <p className="text-[13.5px] text-ink-2 mt-1">
-                You have{" "}
-                <strong className="font-semibold text-ink">
-                  {activeCount} active application{activeCount !== 1 ? "s" : ""}
-                </strong>
-                {attentionCount > 0 ? (
-                  <>
-                    {" "}moving and{" "}
-                    <strong className="font-semibold text-ink">
-                      {attentionCount} thing{attentionCount !== 1 ? "s" : ""}
-                    </strong>
-                    {" "}that need attention.
-                  </>
-                ) : (
-                  <> · everything looks good.</>
-                )}
-              </p>
-            ) : (
-              <p className="text-[13.5px] text-ink-2 mt-1">Add your first application to get started.</p>
-            )}
-          </div>
+          <DashboardGreeting activeCount={activeCount} attentionCount={attentionCount} />
           <Link href={ROUTES.newApplication} className={BTN_PRIMARY_LINK}>
             <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
               <path d="M7.5 2v11M2 7.5h11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
