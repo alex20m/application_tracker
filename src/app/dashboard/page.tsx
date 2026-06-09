@@ -149,18 +149,18 @@ function KpiCard({
   const colors = c[variant];
   return (
     <div
-      className="rounded-xl border p-4 flex items-center gap-3"
+      className="rounded-xl border p-4 mobile:p-3 flex items-center gap-3"
       style={{ background: colors.bg, borderColor: colors.border }}
     >
       <div
-        className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center"
+        className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center mobile:hidden"
         style={{ background: colors.border, color: colors.iconColor }}
       >
         {icon}
       </div>
       <div className="min-w-0 flex flex-col justify-center">
-        <p className="text-[13.5px] font-semibold text-ink leading-snug">{title}</p>
-        <p className="text-[12.5px] text-ink-2 mt-0.5">{body}</p>
+        <p className="text-[13.5px] font-semibold text-ink leading-snug mobile:text-[12.5px]">{title}</p>
+        <p className="text-[12.5px] text-ink-2 mt-0.5 mobile:text-[12px]">{body}</p>
       </div>
     </div>
   );

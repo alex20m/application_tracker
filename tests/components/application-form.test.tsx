@@ -31,9 +31,9 @@ describe("ApplicationForm — create mode (no application prop)", () => {
     expect(screen.getByLabelText(/location/i)).toBeInTheDocument();
   });
 
-  it("shows Save Application submit button", () => {
+  it("shows Add submit button", () => {
     render(<ApplicationForm action={noopAction} />);
-    expect(screen.getByRole("button", { name: /save application/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^add$/i })).toBeInTheDocument();
   });
 });
 

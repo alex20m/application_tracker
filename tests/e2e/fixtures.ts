@@ -22,7 +22,7 @@ export const test = base.extend<Fixtures>({
       await page.getByLabel(/company/i).fill(company);
       await page.getByLabel(/role/i).fill(role);
       await page.getByLabel(/location/i).fill(location);
-      await page.getByRole("button", { name: /save application/i }).click();
+      await page.getByRole("button", { name: /^add$/i }).click();
 
       await expect(page).toHaveURL("/applications");
       // Find the new card link
