@@ -7,6 +7,7 @@ import { ApplicationsResults } from "@/app/applications/applications-results";
 import { ApplicationRowsSkeleton } from "@/components/application-rows-skeleton";
 import { DeleteAllApplicationsButton } from "@/components/delete-all-applications-button";
 import { CsvExportButton } from "@/components/csv-export-button";
+import { ApplicationsTabs } from "@/components/applications-tabs";
 
 type ApplicationsPageProps = {
   searchParams: Promise<{ filter?: string }>;
@@ -29,6 +30,10 @@ export default async function ApplicationsPage({ searchParams }: ApplicationsPag
       <div className={SECTION_STACK}>
         <div className={PAGE_HEADER}>
           <h1 className={TEXT_H1}>Applications</h1>
+          {/* On mobile: show tabs here so they appear above the action buttons */}
+          <div className="hidden mobile:block">
+            <ApplicationsTabs active={filter} />
+          </div>
           <div className="flex items-center gap-2">
             <CsvExportButton filter={filter} />
             <Link

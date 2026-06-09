@@ -33,8 +33,8 @@ export function ApplicationsFilterView({
 
   return (
     <div className="space-y-4">
-      {/* Segmented control */}
-      <div className="flex items-center gap-1 rounded-[11px] bg-surface-2 border border-border-base p-[3px] w-fit">
+      {/* Segmented control — hidden on mobile where it appears in the page header instead */}
+      <div className="flex items-center gap-1 rounded-[11px] bg-surface-2 border border-border-base p-[3px] w-fit mobile:hidden">
         {TABS.map(({ filter, label, href }) => {
           const isActive = optimisticFilter === filter;
           const count = counts?.[filter];
