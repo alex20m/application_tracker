@@ -4,7 +4,6 @@ import { useState, useMemo } from "react";
 import {
   STATUS,
   STATUS_NAMES,
-  STATUS_THEME,
   type ApplicationStatus,
 } from "@/lib/statuses";
 import {
@@ -53,9 +52,6 @@ export function AvgStageTime({ applications }: Props) {
     }
   }
 
-  const startDot = STATUS_THEME[startStatus].dot;
-  const endDot = effectiveEnd ? STATUS_THEME[effectiveEnd].dot : "";
-
   return (
     <div className={CARD}>
       <h2 className={`${TEXT_H2} mb-5`}>Stage Duration</h2>
@@ -67,22 +63,17 @@ export function AvgStageTime({ applications }: Props) {
           {/* From */}
           <div className="flex-1 min-w-32">
             <label className={`${LABEL} mb-1.5`}>From</label>
-            <div className="relative">
-              <span
-                className={`absolute left-2.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full flex-shrink-0 ${startDot}`}
-              />
-              <select
-                value={startStatus}
-                onChange={(e) => handleStartChange(e.target.value as ApplicationStatus)}
-                className={`${INPUT} pl-6`}
-              >
-                {START_STATUSES.map((s) => (
-                  <option key={s} value={s}>
-                    {STATUS_NAMES[s]}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <select
+              value={startStatus}
+              onChange={(e) => handleStartChange(e.target.value as ApplicationStatus)}
+              className={INPUT}
+            >
+              {START_STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {STATUS_NAMES[s]}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Arrow — decorative */}
@@ -93,25 +84,18 @@ export function AvgStageTime({ applications }: Props) {
           {/* To */}
           <div className="flex-1 min-w-32">
             <label className={`${LABEL} mb-1.5`}>To</label>
-            <div className="relative">
-              {effectiveEnd && (
-                <span
-                  className={`absolute left-2.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full flex-shrink-0 ${endDot}`}
-                />
-              )}
-              <select
-                value={effectiveEnd ?? ""}
-                onChange={(e) => setEndStatus(e.target.value as ApplicationStatus)}
-                disabled={reachable.length === 0}
-                className={`${INPUT} pl-6`}
-              >
-                {reachable.map((s) => (
-                  <option key={s} value={s}>
-                    {STATUS_NAMES[s]}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <select
+              value={effectiveEnd ?? ""}
+              onChange={(e) => setEndStatus(e.target.value as ApplicationStatus)}
+              disabled={reachable.length === 0}
+              className={INPUT}
+            >
+              {reachable.map((s) => (
+                <option key={s} value={s}>
+                  {STATUS_NAMES[s]}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
