@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
-import { CARD, SECTION_STACK, TEXT_H3, TEXT_META } from "@/lib/ui";
+import { BTN_GHOST, BTN_PRIMARY_LINK, CARD, SECTION_STACK, TEXT_H3, TEXT_LABEL, TEXT_META } from "@/lib/ui";
 import { AppShell } from "@/components/app-shell";
 import { ApplicationForm } from "@/components/application-form";
 import { DeleteApplicationButton } from "@/components/delete-application-button";
@@ -20,18 +20,23 @@ function returnPathFromParam(from: string | undefined): string {
   return "/applications";
 }
 
+function formatDate(dateStr: string | null): string {
+  if (!dateStr) return "—";
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("en-SE", { year: "numeric", month: "short", day: "numeric" });
+}
+
 type ApplicationDetailPageProps = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ from?: string }>;
+  searchParams: Promise<{ from?: string; mode?: string }>;
 };
-
 
 export default async function ApplicationDetailPage({
   params,
   searchParams,
 }: ApplicationDetailPageProps) {
   const { id } = await params;
-  const { from } = await searchParams;
+  const { from, mode } = await searchParams;
   const { supabase, user } = await requireUser();
 
   const [{ data: application }, { data: sourcesData }, { data: locationsData }] = await Promise.all([
@@ -64,6 +69,8 @@ export default async function ApplicationDetailPage({
   )].sort();
 
   const returnPath = returnPathFromParam(from);
+  const viewPath = `/applications/${id}${from ? `?from=${from}` : ""}`;
+  const isEdit = mode === "edit";
 
   if (!application) {
     return (
@@ -92,7 +99,17 @@ export default async function ApplicationDetailPage({
             Applications
           </Link>
           <span className="text-border-strong">/</span>
-          <span className="truncate max-w-[200px] font-medium text-ink-2">{application.company}</span>
+          {isEdit ? (
+            <>
+              <Link href={viewPath} className="transition hover:text-ink-2 truncate max-w-[160px]">
+                {application.company}
+              </Link>
+              <span className="text-border-strong">/</span>
+              <span className="font-medium text-ink-2">Edit</span>
+            </>
+          ) : (
+            <span className="truncate max-w-[200px] font-medium text-ink-2">{application.company}</span>
+          )}
         </div>
 
         {/* Header: monogram + company/role + badge */}
@@ -111,40 +128,90 @@ export default async function ApplicationDetailPage({
           </div>
         </div>
 
-        {/* Pipeline stepper */}
-        <PipelineStepper applicationId={application.id} status={application.status} />
-
-        {/* Form */}
-        <div className={CARD}>
-          <ApplicationForm
-            action={boundAction}
-            application={application}
-            returnPath={returnPath}
-            existingSources={existingSources}
-            existingLocations={existingLocations}
-          />
-        </div>
-
-        {/* Danger zone */}
-        <div
-          className="rounded-2xl border p-5 mobile:p-4"
-          style={{
-            borderColor: "color-mix(in oklch, var(--st-rejected) 28%, transparent)",
-            background: "color-mix(in oklch, var(--st-rejected) 6%, var(--surface))",
-          }}
-        >
-          <div className="flex items-center justify-between gap-4 mobile:flex-col mobile:items-stretch mobile:gap-3">
-            <div>
-              <p className={TEXT_H3}>Danger zone</p>
-              <p className={`mt-0.5 ${TEXT_META}`}>
-                Permanently delete this application. Cannot be undone.
-              </p>
+        {isEdit ? (
+          /* ── Edit mode ── */
+          <>
+            <div className={CARD}>
+              <ApplicationForm
+                action={boundAction}
+                application={application}
+                returnPath={viewPath}
+                existingSources={existingSources}
+                existingLocations={existingLocations}
+              />
             </div>
-            <div className="flex-shrink-0">
-              <DeleteApplicationButton applicationId={id} returnPath={returnPath} />
+
+            <div
+              className="rounded-2xl border p-5 mobile:p-4"
+              style={{
+                borderColor: "color-mix(in oklch, var(--st-rejected) 28%, transparent)",
+                background: "color-mix(in oklch, var(--st-rejected) 6%, var(--surface))",
+              }}
+            >
+              <div className="flex items-center justify-between gap-4 mobile:flex-col mobile:items-stretch mobile:gap-3">
+                <div>
+                  <p className={TEXT_H3}>Danger zone</p>
+                  <p className={`mt-0.5 ${TEXT_META}`}>
+                    Permanently delete this application. Cannot be undone.
+                  </p>
+                </div>
+                <div className="flex-shrink-0">
+                  <DeleteApplicationButton applicationId={id} returnPath={returnPath} />
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </>
+        ) : (
+          /* ── View mode ── */
+          <>
+            <PipelineStepper applicationId={application.id} status={application.status} />
+
+            <div className={CARD}>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-5 mobile:grid-cols-1">
+                <div>
+                  <p className={TEXT_LABEL}>Company</p>
+                  <p className="mt-1 text-sm text-ink">{application.company}</p>
+                </div>
+                <div>
+                  <p className={TEXT_LABEL}>Role</p>
+                  <p className="mt-1 text-sm text-ink">{application.role}</p>
+                </div>
+                <div>
+                  <p className={TEXT_LABEL}>Location</p>
+                  <p className="mt-1 text-sm text-ink">{application.location || "—"}</p>
+                </div>
+                <div>
+                  <p className={TEXT_LABEL}>Source</p>
+                  <p className="mt-1 text-sm text-ink">{application.source || "—"}</p>
+                </div>
+                <div>
+                  <p className={TEXT_LABEL}>Applied On</p>
+                  <p className="mt-1 text-sm text-ink">{formatDate(application.applied_on)}</p>
+                </div>
+                <div>
+                  <p className={TEXT_LABEL}>Status</p>
+                  <p className="mt-1 text-sm text-ink capitalize">{application.status.replace(/_/g, " ")}</p>
+                </div>
+                {application.notes && (
+                  <div className="col-span-2 mobile:col-span-1">
+                    <p className={TEXT_LABEL}>Notes</p>
+                    <p className="mt-1 text-sm text-ink whitespace-pre-wrap">{application.notes}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between gap-3">
+              <Link href={returnPath} className={BTN_GHOST}>← Go Back</Link>
+              <Link
+                href={`/applications/${id}?mode=edit${from ? `&from=${from}` : ""}`}
+                className={BTN_PRIMARY_LINK}
+              >
+                Edit
+              </Link>
+            </div>
+          </>
+        )}
       </div>
     </AppShell>
   );

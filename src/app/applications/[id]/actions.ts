@@ -7,7 +7,14 @@ import { STATUS, type ApplicationStatus } from "@/lib/statuses";
 import { appendStatusEvent } from "@/lib/applications";
 
 const DEFAULT_PATH = "/applications";
-const ALLOWED_RETURN_PATHS = ["/applications", "/applications?filter=closed", "/applications?filter=all"] as const;
+
+function isAllowedReturnPath(path: string): boolean {
+  if (path === "/applications") return true;
+  if (path === "/applications?filter=closed") return true;
+  if (path === "/applications?filter=all") return true;
+  if (/^\/applications\/[0-9a-f-]{36}(\?from=(closed|all))?$/.test(path)) return true;
+  return false;
+}
 import { GENERIC_ACTION_ERROR, sanitizeActionError } from "@/lib/ui";
 import { ApplicationUpdateSchema } from "@/lib/schemas";
 import { z } from "zod";
@@ -86,7 +93,7 @@ export async function updateApplicationAction(
 
   revalidatePath("/analytics");
   const returnPath = formData.get("return_path") as string | null;
-  redirect((ALLOWED_RETURN_PATHS as readonly string[]).includes(returnPath ?? "") ? returnPath! : DEFAULT_PATH);
+  redirect(isAllowedReturnPath(returnPath ?? "") ? returnPath! : DEFAULT_PATH);
 }
 
 export async function deleteApplicationAction(
@@ -113,6 +120,5 @@ export async function deleteApplicationAction(
   }
 
   revalidatePath("/analytics");
-  const safeReturn = (ALLOWED_RETURN_PATHS as readonly string[]).includes(returnPath) ? returnPath : DEFAULT_PATH;
-  redirect(safeReturn);
+  redirect(isAllowedReturnPath(returnPath) ? returnPath : DEFAULT_PATH);
 }
