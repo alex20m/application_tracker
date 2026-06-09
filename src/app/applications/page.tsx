@@ -29,15 +29,17 @@ export default async function ApplicationsPage({ searchParams }: ApplicationsPag
       <div className={SECTION_STACK}>
         <div className={PAGE_HEADER}>
           <h1 className={TEXT_H1}>Applications</h1>
-          <div className="flex items-center gap-2">
-            <CsvExportButton filter={filter} />
+          <div className="flex items-center gap-2 mobile:flex-col mobile:w-full">
             <Link
               href={filter === "open" ? "/applications/new" : `/applications/new?from=${filter}`}
-              className={BTN_PRIMARY_LINK}
+              className={`${BTN_PRIMARY_LINK} mobile:w-full`}
             >
               + Add Application
             </Link>
-            <DeleteAllApplicationsButton hasApplications scope={filter} />
+            <div className="flex gap-2 mobile:w-full">
+              <CsvExportButton filter={filter} />
+              <DeleteAllApplicationsButton hasApplications scope={filter} />
+            </div>
           </div>
         </div>
 

@@ -28,13 +28,13 @@ export function DeleteAllApplicationsButton({
   };
 
   return (
-    <div className="flex flex-col items-end gap-2">
+    <div className="flex flex-col items-end gap-2 mobile:flex-1 mobile:items-stretch">
       {error && <p className={ERROR_BANNER}>{error}</p>}
       <button
         type="button"
         onClick={handleDeleteAll}
         disabled={!hasApplications || isPending}
-        className="cursor-pointer rounded-[10px] border border-border-strong bg-surface px-4 py-2.5 text-[13.5px] font-semibold text-ink-2 shadow-sm transition hover:border-red-200 dark:hover:border-red-500/40 hover:text-red-600 dark:hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-40 mobile:min-h-11 mobile:text-base"
+        className="cursor-pointer rounded-[10px] border border-border-strong bg-surface px-4 py-2.5 text-[13.5px] font-semibold text-ink-2 shadow-sm transition hover:border-red-200 dark:hover:border-red-500/40 hover:text-red-600 dark:hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-40 mobile:min-h-11 mobile:text-base mobile:w-full"
       >
         {isPending ? "Deleting…" : "Delete all"}
       </button>
