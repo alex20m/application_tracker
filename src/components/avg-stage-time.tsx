@@ -69,12 +69,12 @@ export function AvgStageTime({ applications }: Props) {
             <label className={`${LABEL} mb-1.5`}>From</label>
             <div className="relative">
               <span
-                className={`absolute left-3 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full flex-shrink-0 ${startDot}`}
+                className={`absolute left-2.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full flex-shrink-0 ${startDot}`}
               />
               <select
                 value={startStatus}
                 onChange={(e) => handleStartChange(e.target.value as ApplicationStatus)}
-                className={`${INPUT} pl-7`}
+                className={`${INPUT} pl-6`}
               >
                 {START_STATUSES.map((s) => (
                   <option key={s} value={s}>
@@ -96,14 +96,14 @@ export function AvgStageTime({ applications }: Props) {
             <div className="relative">
               {effectiveEnd && (
                 <span
-                  className={`absolute left-3 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full flex-shrink-0 ${endDot}`}
+                  className={`absolute left-2.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full flex-shrink-0 ${endDot}`}
                 />
               )}
               <select
                 value={effectiveEnd ?? ""}
                 onChange={(e) => setEndStatus(e.target.value as ApplicationStatus)}
                 disabled={reachable.length === 0}
-                className={`${INPUT} pl-7`}
+                className={`${INPUT} pl-6`}
               >
                 {reachable.map((s) => (
                   <option key={s} value={s}>
