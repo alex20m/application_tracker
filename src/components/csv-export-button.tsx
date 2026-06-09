@@ -26,7 +26,7 @@ export function CsvExportButton({ filter }: Props) {
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
         <path d="M7 1v8M4 6l3 3 3-3M2 11h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
-      Export CSV
+      Export<span className="mobile:hidden"> CSV</span>
     </button>
   );
 }
