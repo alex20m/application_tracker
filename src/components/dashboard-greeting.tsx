@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 
 function getGreeting(h: number): string {
   if (h < 12) return "Good morning";
@@ -23,12 +23,11 @@ export function DashboardGreeting({
   activeCount: number;
   attentionCount: number;
 }) {
-  // Server snapshot returns null so SSR renders nothing; client snapshot gives local time.
-  const now = useSyncExternalStore(
-    () => () => {},
-    () => new Date(),
-    () => null,
-  );
+  const [now, setNow] = useState<Date | null>(null);
+
+  useEffect(() => {
+    setNow(new Date());
+  }, []);
 
   const dateStamp = now ? getDateStamp(now) : "";
   const greeting = now ? getGreeting(now.getHours()) : "";
