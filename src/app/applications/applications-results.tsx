@@ -1,7 +1,11 @@
+import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { ACTIVE_STATUSES, CLOSED_STATUSES, STATUS } from "@/lib/statuses";
+import { BTN_PRIMARY_LINK } from "@/lib/ui";
 import { ApplicationsSearch } from "@/components/applications-search";
 import { ApplicationsFilterView } from "@/components/applications-filter-view";
+import { CsvExportButton } from "@/components/csv-export-button";
+import { DeleteAllApplicationsButton } from "@/components/delete-all-applications-button";
 
 type Props = {
   filter: "open" | "closed" | "all";
@@ -31,8 +35,21 @@ export async function ApplicationsResults({ filter }: Props) {
   const filtered =
     filter === "open" ? openApps : filter === "closed" ? closedApps : all;
 
+  const actions = (
+    <>
+      <CsvExportButton filter={filter} />
+      <Link
+        href={filter === "open" ? "/applications/new" : `/applications/new?from=${filter}`}
+        className={BTN_PRIMARY_LINK}
+      >
+        + Add<span className="mobile:hidden"> Application</span>
+      </Link>
+      <DeleteAllApplicationsButton hasApplications={filtered.length > 0} scope={filter} />
+    </>
+  );
+
   return (
-    <ApplicationsFilterView active={filter} counts={counts}>
+    <ApplicationsFilterView active={filter} counts={counts} actions={actions}>
       <ApplicationsSearch applications={filtered} fromFilter={filter} />
     </ApplicationsFilterView>
   );
