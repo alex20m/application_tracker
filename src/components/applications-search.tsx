@@ -139,7 +139,7 @@ export function ApplicationsSearch({ applications, fromFilter }: ApplicationsSea
   function toggleStatus(s: string) {
     setStatusFilters((prev) => {
       const next = new Set(prev);
-      next.has(s) ? next.delete(s) : next.add(s);
+      if (next.has(s)) { next.delete(s); } else { next.add(s); }
       return next;
     });
   }
@@ -147,7 +147,7 @@ export function ApplicationsSearch({ applications, fromFilter }: ApplicationsSea
   function toggleLocation(l: string) {
     setLocationFilters((prev) => {
       const next = new Set(prev);
-      next.has(l) ? next.delete(l) : next.add(l);
+      if (next.has(l)) { next.delete(l); } else { next.add(l); }
       return next;
     });
   }
