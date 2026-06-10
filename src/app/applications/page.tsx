@@ -48,20 +48,15 @@ export default async function ApplicationsPage({ searchParams }: ApplicationsPag
           <div className="hidden mobile:block">
             <ApplicationsTabs active={filter} />
           </div>
-          {/* Right column: Add + Delete (top), Export (below) */}
-          <div className="flex flex-col items-end gap-2">
-            <div className="flex items-center gap-2">
-              <Link
-                href={filter === "open" ? "/applications/new" : `/applications/new?from=${filter}`}
-                className={BTN_PRIMARY_LINK}
-              >
-                + Add<span className="mobile:hidden"> Application</span>
-              </Link>
-              <DeleteAllApplicationsButton hasApplications={total > 0} scope={filter} />
-            </div>
-            <div className="flex justify-end">
-              <CsvExportButton filter={filter} />
-            </div>
+          <div className="flex items-center gap-2">
+            <CsvExportButton filter={filter} />
+            <Link
+              href={filter === "open" ? "/applications/new" : `/applications/new?from=${filter}`}
+              className={BTN_PRIMARY_LINK}
+            >
+              + Add<span className="mobile:hidden"> Application</span>
+            </Link>
+            <DeleteAllApplicationsButton hasApplications={total > 0} scope={filter} />
           </div>
         </div>
 

@@ -12,10 +12,7 @@ export default function ApplicationsLoading() {
             <div className="h-8 w-36 rounded-lg bg-surface-2 animate-pulse" />
             <div className="h-3 w-24 rounded bg-surface-2 animate-pulse" />
           </div>
-          <div className="flex flex-col items-end gap-2">
-            <div className="h-9 w-36 rounded-lg bg-surface-2 animate-pulse" />
-            <div className="h-9 w-20 rounded-lg bg-surface-2 animate-pulse" />
-          </div>
+          <div className="h-9 w-48 rounded-lg bg-surface-2 animate-pulse" />
         </div>
         {/* Tabs skeleton */}
         <div className="h-9 w-56 rounded-xl bg-surface-2 animate-pulse" />
