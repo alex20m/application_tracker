@@ -13,18 +13,27 @@ type ApplicationsSearchProps = {
   counts?: { open: number; closed: number; all: number };
 };
 
-// ─── Filter dropdown ─────────────────────────────────────────────────────────
+// ─── Combined filters dropdown ────────────────────────────────────────────────
 
-type FilterDropdownProps = {
-  label: string;
-  options: string[];
-  selected: Set<string>;
-  onToggle: (value: string) => void;
-  onClear: () => void;
-  formatLabel?: (value: string) => string;
+type FiltersDropdownProps = {
+  locations: string[];
+  statuses: string[];
+  selectedLocations: Set<string>;
+  selectedStatuses: Set<string>;
+  onToggleLocation: (value: string) => void;
+  onToggleStatus: (value: string) => void;
+  onClearAll: () => void;
 };
 
-function FilterDropdown({ label, options, selected, onToggle, onClear, formatLabel }: FilterDropdownProps) {
+function FiltersDropdown({
+  locations,
+  statuses,
+  selectedLocations,
+  selectedStatuses,
+  onToggleLocation,
+  onToggleStatus,
+  onClearAll,
+}: FiltersDropdownProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -36,8 +45,12 @@ function FilterDropdown({ label, options, selected, onToggle, onClear, formatLab
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [open]);
 
-  const count = selected.size;
-  const isActive = count > 0;
+  const totalCount = selectedLocations.size + selectedStatuses.size;
+  const isActive = totalCount > 0;
+  const showLocations = locations.length > 1;
+  const showStatuses = statuses.length > 1;
+
+  if (!showLocations && !showStatuses) return null;
 
   return (
     <div ref={ref} className="relative">
@@ -51,10 +64,10 @@ function FilterDropdown({ label, options, selected, onToggle, onClear, formatLab
             : "border-border-base bg-surface text-ink-2 hover:bg-surface-2 hover:text-ink",
         ].join(" ")}
       >
-        {label}
+        Filters
         {isActive && (
           <span className="flex h-[18px] w-[18px] items-center justify-center rounded-full bg-accent text-[10px] font-bold text-accent-ink leading-none">
-            {count}
+            {totalCount}
           </span>
         )}
         <svg
@@ -70,36 +83,70 @@ function FilterDropdown({ label, options, selected, onToggle, onClear, formatLab
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full z-20 mt-1.5 min-w-[180px] rounded-[12px] border border-border-base bg-surface shadow-lg">
+        <div className="absolute left-0 top-full z-20 mt-1.5 min-w-[240px] rounded-[12px] border border-border-base bg-surface shadow-lg overflow-hidden">
           {isActive && (
             <div className="border-b border-border-base px-3 py-2">
               <button
                 type="button"
-                onClick={() => { onClear(); setOpen(false); }}
+                onClick={() => { onClearAll(); setOpen(false); }}
                 className="text-xs font-medium text-accent-strong hover:underline"
               >
                 Clear all
               </button>
             </div>
           )}
-          <ul className="max-h-64 overflow-y-auto py-1.5">
-            {options.map((opt) => {
-              const checked = selected.has(opt);
-              return (
-                <li key={opt}>
-                  <label className="flex cursor-pointer items-center gap-2.5 px-3 py-1.5 text-[13px] text-ink hover:bg-surface-2 transition-colors">
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={() => onToggle(opt)}
-                      className="h-3.5 w-3.5 rounded accent-accent"
-                    />
-                    {formatLabel ? formatLabel(opt) : opt}
-                  </label>
-                </li>
-              );
-            })}
-          </ul>
+
+          <div className="max-h-[360px] overflow-y-auto">
+            {showLocations && (
+              <>
+                <div className="px-3 pt-2.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-ink-3">
+                  Location
+                </div>
+                <ul className="pb-1">
+                  {locations.map((loc) => (
+                    <li key={loc}>
+                      <label className="flex cursor-pointer items-center gap-2.5 px-3 py-1.5 text-[13px] text-ink hover:bg-surface-2 transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={selectedLocations.has(loc)}
+                          onChange={() => onToggleLocation(loc)}
+                          className="h-3.5 w-3.5 rounded accent-accent"
+                        />
+                        {loc}
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+
+            {showLocations && showStatuses && (
+              <div className="border-t border-border-base mx-3 my-1" />
+            )}
+
+            {showStatuses && (
+              <>
+                <div className="px-3 pt-2.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-ink-3">
+                  Status
+                </div>
+                <ul className="pb-1.5">
+                  {statuses.map((s) => (
+                    <li key={s}>
+                      <label className="flex cursor-pointer items-center gap-2.5 px-3 py-1.5 text-[13px] text-ink hover:bg-surface-2 transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={selectedStatuses.has(s)}
+                          onChange={() => onToggleStatus(s)}
+                          className="h-3.5 w-3.5 rounded accent-accent"
+                        />
+                        {STATUS_NAMES[s as ApplicationStatus] ?? s}
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -166,28 +213,15 @@ export function ApplicationsSearch({ applications, fromFilter }: ApplicationsSea
           />
         </div>
 
-        {/* Status filter */}
-        {availableStatuses.length > 1 && (
-          <FilterDropdown
-            label="Status"
-            options={availableStatuses}
-            selected={statusFilters}
-            onToggle={toggleStatus}
-            onClear={() => setStatusFilters(new Set())}
-            formatLabel={(s) => STATUS_NAMES[s as ApplicationStatus] ?? s}
-          />
-        )}
-
-        {/* Location filter */}
-        {availableLocations.length > 1 && (
-          <FilterDropdown
-            label="Location"
-            options={availableLocations}
-            selected={locationFilters}
-            onToggle={toggleLocation}
-            onClear={() => setLocationFilters(new Set())}
-          />
-        )}
+        <FiltersDropdown
+          locations={availableLocations}
+          statuses={availableStatuses}
+          selectedLocations={locationFilters}
+          selectedStatuses={statusFilters}
+          onToggleLocation={toggleLocation}
+          onToggleStatus={toggleStatus}
+          onClearAll={() => { setStatusFilters(new Set()); setLocationFilters(new Set()); }}
+        />
 
         {/* Clear all filters */}
         {(statusFilters.size > 0 || locationFilters.size > 0) && (
