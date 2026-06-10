@@ -56,15 +56,22 @@ function FiltersDropdown({
     <div ref={ref} className="relative">
       <button
         type="button"
+        aria-label="Filters"
         onClick={() => setOpen((v) => !v)}
         className={[
-          "inline-flex items-center gap-1.5 rounded-[10px] border px-3 py-2 text-[13px] font-medium transition select-none",
+          "inline-flex items-center gap-1.5 rounded-[10px] border px-3 py-2 text-[13px] font-medium transition select-none mobile:px-2",
           isActive
             ? "border-accent-line bg-accent/10 text-accent-strong"
             : "border-border-base bg-surface text-ink-2 hover:bg-surface-2 hover:text-ink",
         ].join(" ")}
       >
-        Filters
+        {/* Sliders icon — always visible; label hidden on mobile */}
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M2 4h4.5M9.5 4H12M2 10h2.5M7.5 10H12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          <circle cx="7" cy="4" r="1.5" stroke="currentColor" strokeWidth="1.5" />
+          <circle cx="5" cy="10" r="1.5" stroke="currentColor" strokeWidth="1.5" />
+        </svg>
+        <span className="mobile:hidden">Filters</span>
         {isActive && (
           <span className="flex h-[18px] w-[18px] items-center justify-center rounded-full bg-accent text-[10px] font-bold text-accent-ink leading-none">
             {totalCount}
@@ -204,8 +211,7 @@ export function ApplicationsSearch({ applications, fromFilter }: ApplicationsSea
     <div className="space-y-3">
       {/* Search + filter row */}
       <div className="flex flex-wrap items-center gap-2">
-        {/* Search — full-width on mobile so filters wrap to a second row */}
-        <div className="flex-1 min-w-[180px] mobile:flex-none mobile:w-full">
+        <div className="flex-1 min-w-0">
           <SearchInput
             value={query}
             onChange={setQuery}
