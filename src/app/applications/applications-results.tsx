@@ -1,5 +1,5 @@
 import { requireUser } from "@/lib/auth";
-import { ACTIVE_STATUSES, CLOSED_STATUSES } from "@/lib/statuses";
+import { ACTIVE_STATUSES, CLOSED_STATUSES, STATUS } from "@/lib/statuses";
 import { ApplicationsSearch } from "@/components/applications-search";
 import { ApplicationsFilterView } from "@/components/applications-filter-view";
 
@@ -10,11 +10,12 @@ type Props = {
 export async function ApplicationsResults({ filter }: Props) {
   const { supabase, user } = await requireUser();
 
-  // Fetch all to compute counts
+  // Fetch all non-wishlist applications (wishlist items live on the wishlist page only)
   const { data: allApps } = await supabase
     .from("applications")
     .select("*")
     .eq("user_id", user.id)
+    .neq("status", STATUS.wishlist)
     .order("updated_at", { ascending: false });
 
   const all = allApps ?? [];

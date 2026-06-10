@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
-import { ACTIVE_STATUSES, CLOSED_STATUSES } from "@/lib/statuses";
+import { ACTIVE_STATUSES, CLOSED_STATUSES, STATUS } from "@/lib/statuses";
 import { BTN_PRIMARY_LINK, PAGE_HEADER, SECTION_STACK, TEXT_H1, TEXT_MUTED } from "@/lib/ui";
 import { AppShell } from "@/components/app-shell";
 import { ApplicationsResults } from "@/app/applications/applications-results";
@@ -29,7 +29,8 @@ export default async function ApplicationsPage({ searchParams }: ApplicationsPag
   let countQuery = supabase
     .from("applications")
     .select("*", { count: "exact", head: true })
-    .eq("user_id", user.id);
+    .eq("user_id", user.id)
+    .neq("status", STATUS.wishlist);
   if (filter === "open") countQuery = countQuery.in("status", ACTIVE_STATUSES as unknown as string[]);
   if (filter === "closed") countQuery = countQuery.in("status", CLOSED_STATUSES as unknown as string[]);
   const { count } = await countQuery;
