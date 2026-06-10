@@ -24,15 +24,14 @@ export const LABEL = TEXT_LABEL;
 
 // ─── Buttons ─────────────────────────────────────────────────────────────────
 
-// mobile: min-h-11 (44px) for iOS tap target; text-base (16px) prevents auto-zoom
 export const BTN_PRIMARY =
-  "cursor-pointer rounded-[10px] bg-accent px-4 py-2.5 text-[13.5px] font-semibold text-accent-ink shadow-sm transition hover:bg-accent-strong hover:-translate-y-px disabled:opacity-50 disabled:cursor-not-allowed mobile:min-h-11 mobile:text-base";
+  "cursor-pointer rounded-[10px] bg-accent px-4 py-2.5 text-[13.5px] font-semibold text-accent-ink shadow-sm transition hover:bg-accent-strong hover:-translate-y-px disabled:opacity-50 disabled:cursor-not-allowed";
 
 export const BTN_PRIMARY_LINK =
-  "inline-flex items-center justify-center gap-1.5 cursor-pointer rounded-[10px] bg-accent px-4 py-2.5 text-[13.5px] font-semibold text-accent-ink shadow-sm transition hover:bg-accent-strong hover:-translate-y-px disabled:opacity-50 disabled:cursor-not-allowed mobile:min-h-11 mobile:text-base";
+  "inline-flex items-center justify-center gap-1.5 cursor-pointer rounded-[10px] bg-accent px-4 py-2.5 text-[13.5px] font-semibold text-accent-ink shadow-sm transition hover:bg-accent-strong hover:-translate-y-px disabled:opacity-50 disabled:cursor-not-allowed";
 
 export const BTN_GHOST =
-  "inline-flex items-center justify-center cursor-pointer rounded-[10px] px-3 py-1.5 text-[13.5px] font-medium text-ink-2 transition hover:bg-surface-2 hover:text-ink mobile:min-h-11 mobile:text-base";
+  "inline-flex items-center justify-center cursor-pointer rounded-[10px] px-3 py-1.5 text-[13.5px] font-medium text-ink-2 transition hover:bg-surface-2 hover:text-ink";
 
 export const BTN_SECONDARY =
   "inline-flex items-center justify-center gap-1.5 cursor-pointer rounded-[10px] border border-border-strong bg-surface px-4 py-2.5 text-[13.5px] font-semibold text-ink shadow-sm transition hover:bg-surface-2";
@@ -56,9 +55,8 @@ export const SUCCESS_BANNER =
 // ─── Form inputs ──────────────────────────────────────────────────────────────
 
 // mobile:text-base (16px) prevents iOS auto-zoom on focus
-// mobile:py-3 keeps tap target ≥44px
 export const INPUT =
-  "block w-full rounded-[10px] border border-border-base bg-surface px-3 py-2 text-sm text-ink placeholder:text-ink-3 transition focus:border-accent-line focus:outline-none focus:ring-[3px] focus:ring-accent/20 mobile:py-3 mobile:text-base";
+  "block w-full rounded-[10px] border border-border-base bg-surface px-3 py-2 text-sm text-ink placeholder:text-ink-3 transition focus:border-accent-line focus:outline-none focus:ring-[3px] focus:ring-accent/20 mobile:py-2 mobile:text-base";
 
 export const INPUT_ON_GRAY = INPUT;
 
