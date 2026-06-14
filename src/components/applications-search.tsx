@@ -59,7 +59,7 @@ function FiltersDropdown({
         aria-label="Filters"
         onClick={() => setOpen((v) => !v)}
         className={[
-          "inline-flex items-center gap-1.5 rounded-[10px] border px-3 py-1.5 text-[13px] font-medium transition select-none mobile:px-2",
+          "inline-flex items-center gap-1.5 rounded-[10px] border px-3 py-1.5 text-[13px] font-medium transition select-none cursor-pointer mobile:px-2",
           isActive
             ? "border-accent-line bg-accent/10 text-accent-strong"
             : "border-border-base bg-surface text-ink-2 hover:bg-surface-2 hover:text-ink",
@@ -229,16 +229,6 @@ export function ApplicationsSearch({ applications, fromFilter }: ApplicationsSea
           onClearAll={() => { setStatusFilters(new Set()); setLocationFilters(new Set()); }}
         />
 
-        {/* Clear all filters */}
-        {(statusFilters.size > 0 || locationFilters.size > 0) && (
-          <button
-            type="button"
-            onClick={() => { setStatusFilters(new Set()); setLocationFilters(new Set()); }}
-            className="text-xs font-medium text-ink-3 hover:text-ink transition-colors"
-          >
-            Clear filters
-          </button>
-        )}
       </div>
 
       {/* Results */}

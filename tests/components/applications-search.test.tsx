@@ -171,16 +171,13 @@ describe("ApplicationsSearch — location filter", () => {
     expect(screen.getByText(/no matching applications/i)).toBeInTheDocument();
   });
 
-  it("clears all filters via Clear filters button", async () => {
+  it("clears all filters via Clear all inside dropdown", async () => {
     const user = userEvent.setup();
     render(<ApplicationsSearch applications={multiLocationApps} />);
 
     await user.click(screen.getByRole("button", { name: "Filters" }));
     await user.click(screen.getByLabelText("Remote"));
-    await user.click(document.body); // close dropdown
-
-    expect(screen.getByRole("button", { name: /clear filters/i })).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: /clear filters/i }));
+    await user.click(screen.getByRole("button", { name: /clear all/i }));
 
     expect(screen.getByText("Acme Corp")).toBeInTheDocument();
     expect(screen.getByText("Beta Ltd")).toBeInTheDocument();
