@@ -3,6 +3,8 @@ import {
   ApplicationCreateSchema,
   ApplicationUpdateSchema,
   ApplicationNoteSchema,
+  InterviewRoundCreateSchema,
+  InterviewRoundUpdateSchema,
   PasswordSchema,
   ForgotPasswordSchema,
   ResetPasswordSchema,
@@ -250,5 +252,103 @@ describe("DeleteAccountSchema", () => {
 
   it("rejects when password field is missing", () => {
     expect(DeleteAccountSchema.safeParse({}).success).toBe(false);
+  });
+});
+
+// ─── InterviewRoundCreateSchema ───────────────────────────────────────────────
+
+describe("InterviewRoundCreateSchema", () => {
+  const valid = { type: "Phone screen", scheduled_at: "2026-03-01", outcome: "pending", notes: null };
+
+  it("accepts minimal valid input", () => {
+    expect(InterviewRoundCreateSchema.safeParse(valid).success).toBe(true);
+  });
+
+  it("defaults outcome to pending when omitted", () => {
+    const result = InterviewRoundCreateSchema.safeParse({ type: "Technical", scheduled_at: "2026-03-01" });
+    expect(result.success && result.data.outcome).toBe("pending");
+  });
+
+  it("trims type", () => {
+    const result = InterviewRoundCreateSchema.safeParse({ ...valid, type: "  HR call  " });
+    expect(result.success && result.data.type).toBe("HR call");
+  });
+
+  it("rejects empty type", () => {
+    expect(InterviewRoundCreateSchema.safeParse({ ...valid, type: "" }).success).toBe(false);
+  });
+
+  it("rejects type longer than 60 chars", () => {
+    expect(
+      InterviewRoundCreateSchema.safeParse({ ...valid, type: "a".repeat(61) }).success
+    ).toBe(false);
+  });
+
+  it("accepts type of exactly 60 chars", () => {
+    expect(
+      InterviewRoundCreateSchema.safeParse({ ...valid, type: "a".repeat(60) }).success
+    ).toBe(true);
+  });
+
+  it("rejects invalid outcome", () => {
+    expect(
+      InterviewRoundCreateSchema.safeParse({ ...valid, outcome: "hired" }).success
+    ).toBe(false);
+  });
+
+  it("accepts all valid outcomes", () => {
+    for (const outcome of ["pending", "passed", "failed", "cancelled"] as const) {
+      expect(
+        InterviewRoundCreateSchema.safeParse({ ...valid, outcome }).success
+      ).toBe(true);
+    }
+  });
+
+  it("rejects notes longer than 2000 chars", () => {
+    expect(
+      InterviewRoundCreateSchema.safeParse({ ...valid, notes: "a".repeat(2001) }).success
+    ).toBe(false);
+  });
+
+  it("transforms empty notes to null", () => {
+    const result = InterviewRoundCreateSchema.safeParse({ ...valid, notes: "" });
+    expect(result.success && result.data.notes).toBeNull();
+  });
+
+  it("rejects invalid date format for scheduled_at", () => {
+    expect(
+      InterviewRoundCreateSchema.safeParse({ ...valid, scheduled_at: "01-03-2026" }).success
+    ).toBe(false);
+  });
+
+  it("rejects empty scheduled_at", () => {
+    expect(InterviewRoundCreateSchema.safeParse({ ...valid, scheduled_at: "" }).success).toBe(false);
+  });
+
+  it("rejects null scheduled_at", () => {
+    expect(InterviewRoundCreateSchema.safeParse({ ...valid, scheduled_at: null }).success).toBe(false);
+  });
+});
+
+describe("InterviewRoundUpdateSchema", () => {
+  const valid = {
+    id: "123e4567-e89b-12d3-a456-426614174000",
+    type: "Technical",
+    scheduled_at: "2026-03-01",
+    outcome: "passed",
+  };
+
+  it("accepts valid input with id", () => {
+    expect(InterviewRoundUpdateSchema.safeParse(valid).success).toBe(true);
+  });
+
+  it("rejects when id is missing", () => {
+    expect(InterviewRoundUpdateSchema.safeParse({ type: "Technical", outcome: "passed" }).success).toBe(false);
+  });
+
+  it("rejects non-uuid id", () => {
+    expect(
+      InterviewRoundUpdateSchema.safeParse({ ...valid, id: "not-a-uuid" }).success
+    ).toBe(false);
   });
 });

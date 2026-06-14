@@ -26,6 +26,24 @@ export const ApplicationNoteSchema = z.object({
   notes: z.string().max(5000),
 });
 
+const INTERVIEW_ROUND_OUTCOMES = ["pending", "passed", "failed", "cancelled"] as const;
+
+export const InterviewRoundCreateSchema = z.object({
+  type: z.string().trim().min(1, "Type is required").max(60, "Type must be 60 characters or less"),
+  scheduled_at: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date is required"),
+  outcome: z.enum(INTERVIEW_ROUND_OUTCOMES).default("pending"),
+  notes: z
+    .string()
+    .max(2000)
+    .nullable()
+    .optional()
+    .transform((v) => v || null),
+});
+
+export const InterviewRoundUpdateSchema = InterviewRoundCreateSchema.extend({
+  id: z.string().uuid(),
+});
+
 export const PASSWORD_MIN = 8;
 export const PASSWORD_MAX = 72;
 

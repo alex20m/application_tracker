@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { appendStatusEvent } from "@/lib/applications";
+import { addInterviewRound, appendStatusEvent, isLatestRound, removeInterviewRound, updateInterviewRound } from "@/lib/applications";
 import { STATUS } from "@/lib/statuses";
-import type { StatusEvent } from "@/lib/types";
+import type { InterviewRound, StatusEvent } from "@/lib/types";
+import { makeInterviewRound } from "../../helpers/factories";
 
 const FAKE_NOW = "2026-05-24T10:00:00.000Z";
 
@@ -148,5 +149,125 @@ describe("appendStatusEvent", () => {
         changed_at: FAKE_NOW,
       });
     });
+  });
+});
+
+// ─── Interview round helpers ──────────────────────────────────────────────────
+
+describe("addInterviewRound", () => {
+  it("appends a new round with a generated id", () => {
+    const partial: Omit<InterviewRound, "id"> = {
+      type: "Phone screen",
+      scheduled_at: "2026-03-01",
+      outcome: "pending",
+      notes: null,
+    };
+    const result = addInterviewRound([], partial);
+    expect(result).toHaveLength(1);
+    expect(result[0].type).toBe("Phone screen");
+    expect(result[0].id).toMatch(/^[0-9a-f-]{36}$/);
+  });
+
+  it("does not mutate the original array", () => {
+    const rounds: InterviewRound[] = [makeInterviewRound()];
+    addInterviewRound(rounds, { type: "Technical", scheduled_at: null, outcome: "pending", notes: null });
+    expect(rounds).toHaveLength(1);
+  });
+
+  it("preserves existing rounds", () => {
+    const existing = makeInterviewRound({ type: "Phone screen" });
+    const result = addInterviewRound([existing], {
+      type: "Technical",
+      scheduled_at: null,
+      outcome: "pending",
+      notes: null,
+    });
+    expect(result).toHaveLength(2);
+    expect(result[0]).toEqual(existing);
+    expect(result[1].type).toBe("Technical");
+  });
+});
+
+describe("updateInterviewRound", () => {
+  it("updates the matching round by id", () => {
+    const round = makeInterviewRound({ type: "Phone screen", outcome: "pending" });
+    const result = updateInterviewRound([round], round.id, { outcome: "passed" });
+    expect(result[0].outcome).toBe("passed");
+    expect(result[0].type).toBe("Phone screen");
+  });
+
+  it("does not affect other rounds", () => {
+    const r1 = makeInterviewRound({ type: "Phone screen" });
+    const r2 = makeInterviewRound({ type: "Technical" });
+    const result = updateInterviewRound([r1, r2], r1.id, { outcome: "passed" });
+    expect(result[1]).toEqual(r2);
+  });
+
+  it("returns original array if id not found", () => {
+    const round = makeInterviewRound();
+    const result = updateInterviewRound([round], "non-existent-id", { outcome: "passed" });
+    expect(result).toHaveLength(1);
+    expect(result[0]).toEqual(round);
+  });
+
+  it("does not mutate the original array", () => {
+    const rounds = [makeInterviewRound()];
+    updateInterviewRound(rounds, rounds[0].id, { outcome: "passed" });
+    expect(rounds[0].outcome).toBe("pending");
+  });
+});
+
+describe("isLatestRound", () => {
+  it("returns true when the id matches the last round", () => {
+    const r1 = makeInterviewRound();
+    const r2 = makeInterviewRound();
+    expect(isLatestRound([r1, r2], r2.id)).toBe(true);
+  });
+
+  it("returns false when the id matches a non-latest round", () => {
+    const r1 = makeInterviewRound();
+    const r2 = makeInterviewRound();
+    expect(isLatestRound([r1, r2], r1.id)).toBe(false);
+  });
+
+  it("returns true when there is only one round and it matches", () => {
+    const r = makeInterviewRound();
+    expect(isLatestRound([r], r.id)).toBe(true);
+  });
+
+  it("returns false when the array is empty", () => {
+    expect(isLatestRound([], "any-id")).toBe(false);
+  });
+
+  it("returns false when the id is not found", () => {
+    const r = makeInterviewRound();
+    expect(isLatestRound([r], "unknown-id")).toBe(false);
+  });
+});
+
+describe("removeInterviewRound", () => {
+  it("removes the round with the given id", () => {
+    const r1 = makeInterviewRound();
+    const r2 = makeInterviewRound();
+    const result = removeInterviewRound([r1, r2], r1.id);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toEqual(r2);
+  });
+
+  it("returns empty array when last round is removed", () => {
+    const round = makeInterviewRound();
+    expect(removeInterviewRound([round], round.id)).toHaveLength(0);
+  });
+
+  it("returns unchanged array if id not found", () => {
+    const round = makeInterviewRound();
+    const result = removeInterviewRound([round], "ghost-id");
+    expect(result).toHaveLength(1);
+  });
+
+  it("does not mutate the original array", () => {
+    const rounds = [makeInterviewRound()];
+    removeInterviewRound(rounds, rounds[0].id);
+    expect(rounds).toHaveLength(1);
   });
 });
