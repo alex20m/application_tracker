@@ -30,10 +30,7 @@ const INTERVIEW_ROUND_OUTCOMES = ["pending", "passed", "failed", "cancelled"] as
 
 export const InterviewRoundCreateSchema = z.object({
   type: z.string().trim().min(1, "Type is required").max(60, "Type must be 60 characters or less"),
-  scheduled_at: z
-    .union([z.literal(""), z.string().regex(/^\d{4}-\d{2}-\d{2}$/), z.null()])
-    .optional()
-    .transform((v) => (v === "" || v == null) ? null : v),
+  scheduled_at: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date is required"),
   outcome: z.enum(INTERVIEW_ROUND_OUTCOMES).default("pending"),
   notes: z
     .string()

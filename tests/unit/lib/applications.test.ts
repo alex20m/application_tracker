@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { addInterviewRound, appendStatusEvent, removeInterviewRound, updateInterviewRound } from "@/lib/applications";
+import { addInterviewRound, appendStatusEvent, isLatestRound, removeInterviewRound, updateInterviewRound } from "@/lib/applications";
 import { STATUS } from "@/lib/statuses";
 import type { InterviewRound, StatusEvent } from "@/lib/types";
 import { makeInterviewRound } from "../../helpers/factories";
@@ -214,6 +214,34 @@ describe("updateInterviewRound", () => {
     const rounds = [makeInterviewRound()];
     updateInterviewRound(rounds, rounds[0].id, { outcome: "passed" });
     expect(rounds[0].outcome).toBe("pending");
+  });
+});
+
+describe("isLatestRound", () => {
+  it("returns true when the id matches the last round", () => {
+    const r1 = makeInterviewRound();
+    const r2 = makeInterviewRound();
+    expect(isLatestRound([r1, r2], r2.id)).toBe(true);
+  });
+
+  it("returns false when the id matches a non-latest round", () => {
+    const r1 = makeInterviewRound();
+    const r2 = makeInterviewRound();
+    expect(isLatestRound([r1, r2], r1.id)).toBe(false);
+  });
+
+  it("returns true when there is only one round and it matches", () => {
+    const r = makeInterviewRound();
+    expect(isLatestRound([r], r.id)).toBe(true);
+  });
+
+  it("returns false when the array is empty", () => {
+    expect(isLatestRound([], "any-id")).toBe(false);
+  });
+
+  it("returns false when the id is not found", () => {
+    const r = makeInterviewRound();
+    expect(isLatestRound([r], "unknown-id")).toBe(false);
   });
 });
 

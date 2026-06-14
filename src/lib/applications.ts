@@ -35,6 +35,10 @@ export function removeInterviewRound(rounds: InterviewRound[], id: string): Inte
   return rounds.filter((r) => r.id !== id);
 }
 
+export function isLatestRound(rounds: InterviewRound[], id: string): boolean {
+  return rounds.length > 0 && rounds[rounds.length - 1].id === id;
+}
+
 export function appendStatusEvent(
   currentStatus: ApplicationStatus,
   newStatus: ApplicationStatus,

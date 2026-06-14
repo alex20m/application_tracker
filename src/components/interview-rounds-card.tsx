@@ -8,6 +8,7 @@ import {
   deleteInterviewRoundAction,
 } from "@/app/applications/[id]/actions";
 import type { ApplicationRecord, InterviewRound, InterviewRoundOutcome } from "@/lib/types";
+import { STATUS } from "@/lib/statuses";
 import { BTN_GHOST, BTN_PRIMARY, BTN_SMALL, CARD, ERROR_BANNER, INPUT, LABEL, TEXT_H3 } from "@/lib/ui";
 
 const OUTCOMES: { value: InterviewRoundOutcome; label: string }[] = [
@@ -16,6 +17,43 @@ const OUTCOMES: { value: InterviewRoundOutcome; label: string }[] = [
   { value: "failed", label: "Failed" },
   { value: "cancelled", label: "Cancelled" },
 ];
+
+function pillProps(outcome: InterviewRoundOutcome): {
+  style: Record<string, string>;
+  className: string;
+} {
+  const base =
+    "flex-shrink-0 rounded-xl px-2.5 py-1.5 text-xs font-semibold whitespace-nowrap transition-all max-w-[130px] truncate";
+  switch (outcome) {
+    case "passed":
+      return {
+        className: `${base} text-[var(--st-offer)]`,
+        style: {
+          background: "color-mix(in oklch, var(--st-offer) 14%, var(--surface))",
+          boxShadow: "inset 0 0 0 1px color-mix(in oklch, var(--st-offer) 28%, transparent)",
+        },
+      };
+    case "failed":
+      return {
+        className: `${base} text-[var(--st-rejected)]`,
+        style: {
+          background: "color-mix(in oklch, var(--st-rejected) 14%, var(--surface))",
+          boxShadow: "inset 0 0 0 1px color-mix(in oklch, var(--st-rejected) 28%, transparent)",
+        },
+      };
+    case "pending":
+      return {
+        className: `${base} text-white`,
+        style: { background: "var(--accent)" },
+      };
+    case "cancelled":
+    default:
+      return {
+        className: `${base} text-ink-3 border border-border-base`,
+        style: { background: "var(--surface-2)" },
+      };
+  }
+}
 
 function outcomeStyle(outcome: InterviewRoundOutcome): string {
   switch (outcome) {
@@ -87,19 +125,25 @@ function RoundForm({ round, existingRoundTypes, onCancel, onSuccess, action }: R
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="round-date" className={LABEL}>Date</label>
+          <label htmlFor="round-date" className={LABEL}>
+            Date <span className="text-[var(--st-rejected)]">*</span>
+          </label>
           <DatePicker
             id="round-date"
             name="scheduled_at"
+            required
             defaultValue={round?.scheduled_at ?? undefined}
           />
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="round-outcome" className={LABEL}>Outcome</label>
+          <label htmlFor="round-outcome" className={LABEL}>
+            Outcome <span className="text-[var(--st-rejected)]">*</span>
+          </label>
           <select
             id="round-outcome"
             name="outcome"
+            required
             defaultValue={round?.outcome ?? "pending"}
             className={INPUT}
           >
@@ -147,6 +191,11 @@ export function InterviewRoundsCard({ application, existingRoundTypes }: Props) 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
+  const canEdit = application.status === STATUS.interviews;
+  const rounds = application.interview_rounds;
+  const latestRoundId = rounds[rounds.length - 1]?.id;
+  const reversedRounds = [...rounds].reverse();
+
   const boundAdd = useMemo(
     () => addInterviewRoundAction.bind(null, application.id),
     [application.id]
@@ -161,16 +210,16 @@ export function InterviewRoundsCard({ application, existingRoundTypes }: Props) 
   );
 
   const handleDelete = (roundId: string) => {
-    startTransition(() => { void boundDelete(roundId); });
+    startTransition(() => {
+      void boundDelete(roundId);
+    });
   };
-
-  const rounds = application.interview_rounds;
 
   return (
     <div className={CARD}>
       <div className="mb-4 flex items-center justify-between gap-3">
         <p className={TEXT_H3}>Interview rounds</p>
-        {!isAdding && (
+        {canEdit && !isAdding && (
           <button
             type="button"
             onClick={() => {
@@ -184,73 +233,112 @@ export function InterviewRoundsCard({ application, existingRoundTypes }: Props) 
         )}
       </div>
 
-      <div className="space-y-3">
-        {rounds.length === 0 && !isAdding && (
-          <p className="text-sm text-ink-3">No rounds yet. Add your first interview round.</p>
+      <div>
+        {/* Add form — floats above existing rounds (newest-first order) */}
+        {isAdding && (
+          <div className="mb-4">
+            <RoundForm
+              existingRoundTypes={existingRoundTypes}
+              action={boundAdd}
+              onCancel={() => setIsAdding(false)}
+              onSuccess={() => setIsAdding(false)}
+            />
+          </div>
         )}
 
-        {rounds.map((round) => (
-          <div key={round.id}>
-            {editingId === round.id ? (
-              <RoundForm
-                round={round}
-                existingRoundTypes={existingRoundTypes}
-                action={boundUpdate}
-                onCancel={() => setEditingId(null)}
-                onSuccess={() => setEditingId(null)}
-              />
-            ) : (
-              <div className="flex items-start justify-between gap-3 rounded-xl border border-border-base px-4 py-3">
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-medium text-ink">{round.type}</span>
-                    <span
-                      className={`rounded-md px-1.5 py-0.5 text-xs font-medium ${outcomeStyle(round.outcome)}`}
-                    >
-                      {OUTCOMES.find((o) => o.value === round.outcome)?.label ?? round.outcome}
-                    </span>
-                    {round.scheduled_at && (
-                      <span className="text-xs text-ink-3">{formatDate(round.scheduled_at)}</span>
+        {rounds.length === 0 && !isAdding && (
+          <p className="text-sm text-ink-3">
+            {canEdit
+              ? "No rounds yet. Add your first interview round."
+              : "No interview rounds recorded."}
+          </p>
+        )}
+
+        {/* Vertical timeline: newest at top, oldest at bottom */}
+        {reversedRounds.map((round, displayIdx) => {
+          const isLastInDisplay = displayIdx === reversedRounds.length - 1; // oldest round
+          const roundBelow = reversedRounds[displayIdx + 1]; // the older round below
+          const connectorDone = roundBelow?.outcome === "passed";
+          const isLatest = round.id === latestRoundId;
+          const isEditing = editingId === round.id;
+          const { className: pillClass, style: pillStyle } = pillProps(round.outcome);
+
+          return (
+            <div key={round.id} className="flex items-stretch gap-3">
+              {/* Left: node column (pill + vertical connector) */}
+              <div className="flex flex-col items-center flex-shrink-0">
+                <div className={pillClass} style={pillStyle} title={round.type}>
+                  {round.type}
+                </div>
+                {!isLastInDisplay && (
+                  <div
+                    className="w-[2px] flex-1 min-h-[20px] rounded-full mt-1.5"
+                    style={{
+                      background: connectorDone ? "var(--st-offer)" : "var(--border)",
+                    }}
+                  />
+                )}
+              </div>
+
+              {/* Right: content */}
+              <div className={`flex-1 ${!isLastInDisplay ? "pb-4" : ""}`}>
+                {isEditing ? (
+                  <RoundForm
+                    round={round}
+                    existingRoundTypes={existingRoundTypes}
+                    action={boundUpdate}
+                    onCancel={() => setEditingId(null)}
+                    onSuccess={() => setEditingId(null)}
+                  />
+                ) : (
+                  <div className="flex items-start justify-between gap-2 pt-0.5">
+                    <div className="min-w-0 flex-1">
+                      {/* Outcome badge */}
+                      <span
+                        className={`rounded-md px-1.5 py-0.5 text-xs font-medium ${outcomeStyle(round.outcome)}`}
+                      >
+                        {OUTCOMES.find((o) => o.value === round.outcome)?.label ?? round.outcome}
+                      </span>
+                      {/* Notes first — swapped above date per user request */}
+                      {round.notes && (
+                        <p className="mt-1 line-clamp-2 text-xs text-ink-2">{round.notes}</p>
+                      )}
+                      {/* Date below notes */}
+                      {round.scheduled_at && (
+                        <p className="mt-0.5 text-xs text-ink-3">{formatDate(round.scheduled_at)}</p>
+                      )}
+                    </div>
+
+                    {/* Edit/Delete: only on the latest round while status is interviews */}
+                    {canEdit && isLatest && (
+                      <div className="flex flex-shrink-0 items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingId(round.id);
+                            setIsAdding(false);
+                          }}
+                          className={`${BTN_SMALL} border-border-base text-ink-3 hover:bg-surface-2`}
+                          disabled={isPending}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(round.id)}
+                          className={`${BTN_SMALL} border-[color-mix(in_oklch,var(--st-rejected)_30%,transparent)] text-[var(--st-rejected)] hover:bg-[color-mix(in_oklch,var(--st-rejected)_8%,var(--surface))]`}
+                          disabled={isPending}
+                        >
+                          Delete
+                        </button>
+                      </div>
                     )}
                   </div>
-                  {round.notes && (
-                    <p className="mt-1.5 line-clamp-2 text-xs text-ink-2">{round.notes}</p>
-                  )}
-                </div>
-                <div className="flex flex-shrink-0 items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditingId(round.id);
-                      setIsAdding(false);
-                    }}
-                    className={`${BTN_SMALL} border-border-base text-ink-3 hover:bg-surface-2`}
-                    disabled={isPending}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(round.id)}
-                    className={`${BTN_SMALL} border-[color-mix(in_oklch,var(--st-rejected)_30%,transparent)] text-[var(--st-rejected)] hover:bg-[color-mix(in_oklch,var(--st-rejected)_8%,var(--surface))]`}
-                    disabled={isPending}
-                  >
-                    Delete
-                  </button>
-                </div>
+                )}
               </div>
-            )}
-          </div>
-        ))}
-
-        {isAdding && (
-          <RoundForm
-            existingRoundTypes={existingRoundTypes}
-            action={boundAdd}
-            onCancel={() => setIsAdding(false)}
-            onSuccess={() => setIsAdding(false)}
-          />
-        )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

@@ -265,7 +265,7 @@ describe("InterviewRoundCreateSchema", () => {
   });
 
   it("defaults outcome to pending when omitted", () => {
-    const result = InterviewRoundCreateSchema.safeParse({ type: "Technical" });
+    const result = InterviewRoundCreateSchema.safeParse({ type: "Technical", scheduled_at: "2026-03-01" });
     expect(result.success && result.data.outcome).toBe("pending");
   });
 
@@ -321,9 +321,12 @@ describe("InterviewRoundCreateSchema", () => {
     ).toBe(false);
   });
 
-  it("transforms empty scheduled_at to null", () => {
-    const result = InterviewRoundCreateSchema.safeParse({ ...valid, scheduled_at: "" });
-    expect(result.success && result.data.scheduled_at).toBeNull();
+  it("rejects empty scheduled_at", () => {
+    expect(InterviewRoundCreateSchema.safeParse({ ...valid, scheduled_at: "" }).success).toBe(false);
+  });
+
+  it("rejects null scheduled_at", () => {
+    expect(InterviewRoundCreateSchema.safeParse({ ...valid, scheduled_at: null }).success).toBe(false);
   });
 });
 
@@ -331,6 +334,7 @@ describe("InterviewRoundUpdateSchema", () => {
   const valid = {
     id: "123e4567-e89b-12d3-a456-426614174000",
     type: "Technical",
+    scheduled_at: "2026-03-01",
     outcome: "passed",
   };
 

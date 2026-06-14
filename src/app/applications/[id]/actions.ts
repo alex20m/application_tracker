@@ -19,7 +19,7 @@ import { GENERIC_ACTION_ERROR, sanitizeActionError } from "@/lib/ui";
 import { ApplicationUpdateSchema, InterviewRoundCreateSchema, InterviewRoundUpdateSchema } from "@/lib/schemas";
 import { z } from "zod";
 import type { InterviewRound, StatusEvent } from "@/lib/types";
-import { addInterviewRound, removeInterviewRound, revalidateApplicationViews, updateInterviewRound } from "@/lib/applications";
+import { addInterviewRound, isLatestRound, removeInterviewRound, revalidateApplicationViews, updateInterviewRound } from "@/lib/applications";
 
 export async function updateApplicationAction(
   applicationId: string,
@@ -121,7 +121,7 @@ export async function addInterviewRoundAction(
 
   const { data: currentApp } = await supabase
     .from("applications")
-    .select("interview_rounds")
+    .select("interview_rounds, status")
     .eq("id", applicationId)
     .eq("user_id", user.id)
     .single();
@@ -130,11 +130,15 @@ export async function addInterviewRoundAction(
     return { success: false, error: "Application not found" };
   }
 
+  if (currentApp.status !== STATUS.interviews) {
+    return { success: false, error: GENERIC_ACTION_ERROR };
+  }
+
   const newRounds = addInterviewRound(
     (currentApp.interview_rounds as InterviewRound[]) ?? [],
     {
       type: parsed.data.type,
-      scheduled_at: parsed.data.scheduled_at ?? null,
+      scheduled_at: parsed.data.scheduled_at,
       outcome: parsed.data.outcome,
       notes: parsed.data.notes ?? null,
     }
@@ -179,7 +183,7 @@ export async function updateInterviewRoundAction(
 
   const { data: currentApp } = await supabase
     .from("applications")
-    .select("interview_rounds")
+    .select("interview_rounds, status")
     .eq("id", applicationId)
     .eq("user_id", user.id)
     .single();
@@ -188,12 +192,18 @@ export async function updateInterviewRoundAction(
     return { success: false, error: "Application not found" };
   }
 
+  const rounds = (currentApp.interview_rounds as InterviewRound[]) ?? [];
+
+  if (currentApp.status !== STATUS.interviews || !isLatestRound(rounds, parsed.data.id)) {
+    return { success: false, error: GENERIC_ACTION_ERROR };
+  }
+
   const newRounds = updateInterviewRound(
-    (currentApp.interview_rounds as InterviewRound[]) ?? [],
+    rounds,
     parsed.data.id,
     {
       type: parsed.data.type,
-      scheduled_at: parsed.data.scheduled_at ?? null,
+      scheduled_at: parsed.data.scheduled_at,
       outcome: parsed.data.outcome,
       notes: parsed.data.notes ?? null,
     }
@@ -228,7 +238,7 @@ export async function deleteInterviewRoundAction(
 
   const { data: currentApp } = await supabase
     .from("applications")
-    .select("interview_rounds")
+    .select("interview_rounds, status")
     .eq("id", applicationId)
     .eq("user_id", user.id)
     .single();
@@ -237,10 +247,13 @@ export async function deleteInterviewRoundAction(
     return { success: false, error: "Application not found" };
   }
 
-  const newRounds = removeInterviewRound(
-    (currentApp.interview_rounds as InterviewRound[]) ?? [],
-    roundId
-  );
+  const rounds = (currentApp.interview_rounds as InterviewRound[]) ?? [];
+
+  if (currentApp.status !== STATUS.interviews || !isLatestRound(rounds, roundId)) {
+    return { success: false, error: GENERIC_ACTION_ERROR };
+  }
+
+  const newRounds = removeInterviewRound(rounds, roundId);
 
   const { error } = await supabase
     .from("applications")
