@@ -89,7 +89,7 @@ test.describe("Interview rounds", () => {
     await expect(page.getByText("Phone screen")).toBeVisible();
 
     // Move out of interviews stage (to Offer)
-    await page.getByRole("button", { name: "Offer" }).click();
+    await page.getByRole("button", { name: "Offer", exact: true }).click();
 
     // Card still shows the round history
     await expect(page.getByText("Phone screen")).toBeVisible();
