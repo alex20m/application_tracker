@@ -5,7 +5,7 @@ test.describe("Interview rounds", () => {
     const { url } = await withApplication({ company: "Rounds Test Co" });
 
     await page.goto(url);
-    await expect(page.getByText("Interview rounds")).toBeVisible();
+    await expect(page.getByText("Interview rounds", { exact: true })).toBeVisible();
 
     // Move to interviews stage — rounds card only allows edits here
     await page.getByRole("button", { name: "Interviews" }).click();
