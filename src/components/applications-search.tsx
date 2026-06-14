@@ -59,7 +59,7 @@ function FiltersDropdown({
         aria-label="Filters"
         onClick={() => setOpen((v) => !v)}
         className={[
-          "inline-flex items-center gap-1.5 rounded-[10px] border px-3 py-2 text-[13px] font-medium transition select-none mobile:px-2",
+          "inline-flex items-center gap-1.5 rounded-[10px] border px-3 py-1.5 text-[13px] font-medium transition select-none mobile:px-2",
           isActive
             ? "border-accent-line bg-accent/10 text-accent-strong"
             : "border-border-base bg-surface text-ink-2 hover:bg-surface-2 hover:text-ink",
@@ -90,7 +90,7 @@ function FiltersDropdown({
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full z-20 mt-1.5 min-w-[240px] rounded-[12px] border border-border-base bg-surface shadow-lg overflow-hidden">
+        <div className="absolute right-0 top-full z-20 mt-1.5 min-w-[240px] rounded-[12px] border border-border-base bg-surface shadow-lg overflow-hidden">
           {isActive && (
             <div className="border-b border-border-base px-3 py-2">
               <button

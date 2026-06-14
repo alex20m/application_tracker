@@ -27,7 +27,7 @@ export function SearchInput({ value, onChange, placeholder = "Search by company 
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="block w-full rounded-[10px] border border-border-base bg-surface pl-[38px] pr-3 py-2 text-sm text-ink placeholder:text-ink-3 transition focus:border-accent-line focus:outline-none focus:ring-[3px] focus:ring-accent/20 mobile:py-2 mobile:text-base"
+        className="block w-full rounded-[10px] border border-border-base bg-surface pl-[34px] pr-3 py-1.5 text-[13px] text-ink placeholder:text-ink-3 transition focus:border-accent-line focus:outline-none focus:ring-[3px] focus:ring-accent/20"
       />
     </div>
   );
