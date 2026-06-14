@@ -11,6 +11,8 @@ const STAGES = [
   { label: "Decision", stageIdx: 3 },
 ];
 
+const REVERSED_STAGES = [...STAGES].reverse();
+
 // Maps negative-exit statuses to the last pipeline stage the application was in.
 // The stage at lastStage + 1 will render red (the step that was never reached).
 const EXIT_LAST_STAGE: Partial<Record<ApplicationStatus, number>> = {
@@ -26,6 +28,23 @@ type Props = {
   applicationId: string;
   status: ApplicationStatus;
 };
+
+function pillClassName(isDone: boolean, isCurrent: boolean, isRed: boolean, isNegativeExit: boolean) {
+  const base = "flex-shrink-0 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-all whitespace-nowrap";
+  if (isDone || (isNegativeExit && isCurrent)) return `${base} text-[var(--st-offer)]`;
+  if (isRed) return `${base} text-[var(--st-rejected)]`;
+  if (isCurrent) return `${base} text-white`;
+  return `${base} border border-border-base text-ink-3`;
+}
+
+function pillStyle(isDone: boolean, isCurrent: boolean, isRed: boolean, isNegativeExit: boolean): React.CSSProperties {
+  if (isDone || (isNegativeExit && isCurrent))
+    return { background: "color-mix(in oklch, var(--st-offer) 14%, var(--surface))", boxShadow: "inset 0 0 0 1px color-mix(in oklch, var(--st-offer) 28%, transparent)" };
+  if (isRed)
+    return { background: "color-mix(in oklch, var(--st-rejected) 14%, var(--surface))", boxShadow: "inset 0 0 0 1px color-mix(in oklch, var(--st-rejected) 28%, transparent)" };
+  if (isCurrent) return { background: "var(--accent)" };
+  return { background: "var(--surface-2)" };
+}
 
 export function PipelineStepper({ applicationId, status }: Props) {
   const [isPending, startTransition] = useTransition();
@@ -51,50 +70,48 @@ export function PipelineStepper({ applicationId, status }: Props) {
     <div className="rounded-2xl border border-border-base bg-surface p-[22px] shadow-sm mobile:p-4">
       <p className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-3 mb-4">Pipeline Stage</p>
 
-      {/* Stepper — horizontal on desktop, vertical timeline on mobile */}
-      <div className="flex items-center mobile:flex-col mobile:items-start">
+      {/* Desktop: horizontal left-to-right stepper */}
+      <div className="flex items-center mobile:hidden">
         {STAGES.map((stage, i) => {
-          const isDone = isNegativeExit
-            ? stage.stageIdx < exitLastStage
-            : currentIdx > stage.stageIdx;
-          const isCurrent = isNegativeExit
-            ? stage.stageIdx === exitLastStage
-            : currentIdx === stage.stageIdx;
+          const isDone = isNegativeExit ? stage.stageIdx < exitLastStage : currentIdx > stage.stageIdx;
+          const isCurrent = isNegativeExit ? stage.stageIdx === exitLastStage : currentIdx === stage.stageIdx;
           const isRed = isNegativeExit && stage.stageIdx === exitLastStage + 1;
           const isLast = i === STAGES.length - 1;
-          const connectorDone = isDone;
 
           return (
-            <div key={stage.stageIdx} className="flex flex-1 items-center min-w-0 mobile:flex-none mobile:flex-col mobile:items-start">
-              {/* Pill */}
-              <div
-                className={[
-                  "flex-shrink-0 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-all whitespace-nowrap",
-                  isDone || (isNegativeExit && isCurrent)
-                    ? "text-[var(--st-offer)]"
-                    : isRed
-                      ? "text-[var(--st-rejected)]"
-                      : isCurrent
-                        ? "text-white"
-                        : "border border-border-base text-ink-3",
-                ].join(" ")}
-                style={
-                  isDone || (isNegativeExit && isCurrent)
-                    ? { background: "color-mix(in oklch, var(--st-offer) 14%, var(--surface))", boxShadow: "inset 0 0 0 1px color-mix(in oklch, var(--st-offer) 28%, transparent)" }
-                    : isRed
-                      ? { background: "color-mix(in oklch, var(--st-rejected) 14%, var(--surface))", boxShadow: "inset 0 0 0 1px color-mix(in oklch, var(--st-rejected) 28%, transparent)" }
-                      : isCurrent
-                        ? { background: "var(--accent)" }
-                        : { background: "var(--surface-2)" }
-                }
-              >
+            <div key={stage.stageIdx} className="flex flex-1 items-center min-w-0">
+              <div className={pillClassName(isDone, isCurrent, isRed, isNegativeExit)} style={pillStyle(isDone, isCurrent, isRed, isNegativeExit)}>
                 {stage.label}
               </div>
-
-              {/* Connector — horizontal bar on desktop, vertical bar on mobile */}
               {!isLast && (
                 <div
-                  className="flex-1 h-[2px] mx-1.5 rounded-full transition-all mobile:flex-none mobile:w-[2px] mobile:h-3 mobile:mx-0 mobile:ml-4 mobile:my-1"
+                  className="flex-1 h-[2px] mx-1.5 rounded-full transition-all"
+                  style={{ background: isDone ? "var(--st-offer)" : "var(--border)" }}
+                />
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Mobile: vertical timeline, newest/most-advanced at top, oldest at bottom */}
+      <div className="hidden mobile:flex mobile:flex-col mobile:items-start">
+        {REVERSED_STAGES.map((stage, i) => {
+          const isDone = isNegativeExit ? stage.stageIdx < exitLastStage : currentIdx > stage.stageIdx;
+          const isCurrent = isNegativeExit ? stage.stageIdx === exitLastStage : currentIdx === stage.stageIdx;
+          const isRed = isNegativeExit && stage.stageIdx === exitLastStage + 1;
+          const isLast = i === REVERSED_STAGES.length - 1; // Applied is last
+          // Connector below stage X connects to stage X-1 (less advanced); green if stage X-1 is done.
+          const connectorDone = isNegativeExit ? stage.stageIdx <= exitLastStage : currentIdx >= stage.stageIdx;
+
+          return (
+            <div key={stage.stageIdx} className="flex flex-col items-start">
+              <div className={pillClassName(isDone, isCurrent, isRed, isNegativeExit)} style={pillStyle(isDone, isCurrent, isRed, isNegativeExit)}>
+                {stage.label}
+              </div>
+              {!isLast && (
+                <div
+                  className="w-[2px] h-3 ml-4 my-1 rounded-full transition-all"
                   style={{ background: connectorDone ? "var(--st-offer)" : "var(--border)" }}
                 />
               )}
