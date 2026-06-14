@@ -69,23 +69,33 @@ function buildAttentionItems(applications: ApplicationRecord[]): AttentionItem[]
       }
     }
 
-    // Currently interviewing
-    if (app.status === STATUS.interviews) {
-      items.push({
-        id: app.id,
-        company: app.company,
-        role: app.role,
-        reason: "Interview in progress",
-        reasonColor: "var(--st-interviews)",
-        actionLabel: "Prep notes",
-      });
+    // Upcoming interview rounds within 7 days
+    for (const round of app.interview_rounds ?? []) {
+      if (round.outcome !== "pending" || !round.scheduled_at) continue;
+      const scheduledDate = new Date(round.scheduled_at);
+      const diffMs = scheduledDate.getTime() - today.getTime();
+      if (diffMs >= 0 && diffMs < 7 * 24 * 60 * 60 * 1000) {
+        const dateStr = scheduledDate.toLocaleDateString("en-US", {
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+        });
+        items.push({
+          id: app.id,
+          company: app.company,
+          role: app.role,
+          reason: `${round.type} · ${dateStr}`,
+          reasonColor: "var(--st-interviews)",
+          actionLabel: "Prep notes",
+        });
+      }
     }
   }
 
-  // Sort: offers first, then stalled, then interviews
+  // Sort: offers first, then upcoming interviews, then stalled
   const priority = (item: AttentionItem) => {
     if (item.reasonColor === "var(--st-offer)") return 0;
-    if (item.reasonColor === "var(--st-ghosted)") return 1;
+    if (item.reasonColor === "var(--st-interviews)") return 1;
     return 2;
   };
 
