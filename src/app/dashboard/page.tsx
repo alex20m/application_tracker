@@ -69,9 +69,20 @@ function buildAttentionItems(applications: ApplicationRecord[]): AttentionItem[]
       }
     }
 
-    // Upcoming interview rounds within 7 days
+    // Interview rounds: show within 7 days (with date) or unscheduled pending rounds (generic)
     for (const round of app.interview_rounds ?? []) {
-      if (round.outcome !== "pending" || !round.scheduled_at) continue;
+      if (round.outcome !== "pending") continue;
+      if (!round.scheduled_at) {
+        items.push({
+          id: app.id,
+          company: app.company,
+          role: app.role,
+          reason: `${round.type} — date not set`,
+          reasonColor: "var(--st-interviews)",
+          actionLabel: "Prep notes",
+        });
+        continue;
+      }
       const scheduledDate = new Date(round.scheduled_at);
       const diffMs = scheduledDate.getTime() - today.getTime();
       if (diffMs >= 0 && diffMs < 7 * 24 * 60 * 60 * 1000) {
@@ -89,6 +100,18 @@ function buildAttentionItems(applications: ApplicationRecord[]): AttentionItem[]
           actionLabel: "Prep notes",
         });
       }
+    }
+
+    // In interviews but no rounds logged yet
+    if (app.status === STATUS.interviews && (app.interview_rounds ?? []).length === 0) {
+      items.push({
+        id: app.id,
+        company: app.company,
+        role: app.role,
+        reason: "Interview in progress — add round details",
+        reasonColor: "var(--st-interviews)",
+        actionLabel: "Add round",
+      });
     }
   }
 
