@@ -19,6 +19,7 @@ import type { PieSectorDataItem, PieSectorShapeProps } from "recharts";
 import { CARD, TEXT_H2, TEXT_BODY, TEXT_META } from "@/lib/ui";
 import type { StatusCount, DailyEntry, SourceStat } from "@/lib/analytics";
 import { STATUS, STATUS_THEME } from "@/lib/statuses";
+import type { ApplicationRecord } from "@/lib/types";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 
 type TrendKey = Exclude<keyof DailyEntry, "date" | "label">;
@@ -401,6 +402,117 @@ export function StatusSourceCharts({ statusCounts, sourceStats }: StatusSourcePr
             </table>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+// ── Interview Round Performance ───────────────────────────────────────────────
+
+type RoundTypeStat = {
+  type: string;
+  total: number;
+  passed: number;
+  failed: number;
+  pending: number;
+  cancelled: number;
+  passRate: number | null;
+};
+
+function computeRoundTypeStats(applications: ApplicationRecord[]): RoundTypeStat[] {
+  const map = new Map<string, { total: number; passed: number; failed: number; pending: number; cancelled: number }>();
+  for (const app of applications) {
+    for (const round of app.interview_rounds) {
+      const key = round.type.trim();
+      const entry = map.get(key) ?? { total: 0, passed: 0, failed: 0, pending: 0, cancelled: 0 };
+      entry.total++;
+      entry[round.outcome]++;
+      map.set(key, entry);
+    }
+  }
+  return [...map.entries()]
+    .map(([type, data]) => {
+      const decided = data.passed + data.failed;
+      return {
+        type,
+        ...data,
+        passRate: decided > 0 ? Math.round((data.passed / decided) * 100) : null,
+      };
+    })
+    .sort((a, b) => b.total - a.total);
+}
+
+type InterviewRoundStatsProps = {
+  applications: ApplicationRecord[];
+};
+
+export function InterviewRoundStats({ applications }: InterviewRoundStatsProps) {
+  const stats = useMemo(() => computeRoundTypeStats(applications), [applications]);
+
+  const totalRounds = stats.reduce((s, r) => s + r.total, 0);
+  if (totalRounds === 0) return null;
+
+  return (
+    <div className={CARD}>
+      <h2 className={`${TEXT_H2} mb-0.5`}>Interview Round Performance</h2>
+      <p className={`${TEXT_META} mb-4`}>Pass rate by interview type (excludes pending &amp; cancelled)</p>
+
+      <div className="space-y-3">
+        {stats.map((row) => (
+          <div key={row.type}>
+            <div className="flex items-center justify-between mb-1 gap-2">
+              <span className={`${TEXT_BODY} font-medium truncate`}>{row.type}</span>
+              <div className="flex items-center gap-3 flex-shrink-0">
+                <span className={TEXT_META}>{row.total} round{row.total !== 1 ? "s" : ""}</span>
+                <span
+                  className="text-[13px] font-semibold w-10 text-right"
+                  style={{ color: row.passRate === null ? "var(--text-3)" : row.passRate >= 50 ? "var(--st-offer)" : "var(--st-rejected)" }}
+                >
+                  {row.passRate === null ? "—" : `${row.passRate}%`}
+                </span>
+              </div>
+            </div>
+            <div className="h-2 rounded-full overflow-hidden" style={{ background: "var(--surface-2)" }}>
+              {row.passRate !== null && (
+                <div
+                  className="h-full rounded-full transition-all"
+                  style={{
+                    width: `${row.passRate}%`,
+                    background: row.passRate >= 50 ? "var(--st-offer)" : "var(--st-rejected)",
+                  }}
+                />
+              )}
+              {row.passRate === null && row.pending > 0 && (
+                <div
+                  className="h-full rounded-full"
+                  style={{ width: "100%", background: "var(--accent)", opacity: 0.35 }}
+                />
+              )}
+            </div>
+            <div className="flex gap-3 mt-1 flex-wrap">
+              {row.passed > 0 && (
+                <span className={TEXT_META}>
+                  <span className="font-medium" style={{ color: "var(--st-offer)" }}>{row.passed}</span> passed
+                </span>
+              )}
+              {row.failed > 0 && (
+                <span className={TEXT_META}>
+                  <span className="font-medium" style={{ color: "var(--st-rejected)" }}>{row.failed}</span> failed
+                </span>
+              )}
+              {row.pending > 0 && (
+                <span className={TEXT_META}>
+                  <span className="font-medium text-ink-2">{row.pending}</span> pending
+                </span>
+              )}
+              {row.cancelled > 0 && (
+                <span className={TEXT_META}>
+                  <span className="font-medium text-ink-2">{row.cancelled}</span> cancelled
+                </span>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

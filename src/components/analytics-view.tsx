@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { computeAnalytics } from "@/lib/analytics";
-import { ApplicationsTrendChart, StatusSourceCharts } from "@/components/analytics-charts";
+import { ApplicationsTrendChart, StatusSourceCharts, InterviewRoundStats } from "@/components/analytics-charts";
 import { AvgStageTime } from "@/components/avg-stage-time";
 import { SankeyChart } from "@/components/sankey-chart";
 import { buildSankeyData } from "@/lib/sankey-builder";
@@ -210,6 +210,11 @@ export function AnalyticsView({ applications }: Props) {
       {/* ── Application Flow ────────────────────────────────── */}
       <section>
         <SankeyChart data={sankeyData} />
+      </section>
+
+      {/* ── Interview Round Performance ──────────────────────── */}
+      <section>
+        <InterviewRoundStats applications={filtered} />
       </section>
 
       {/* ── Applications Over Time ───────────────────────────── */}
