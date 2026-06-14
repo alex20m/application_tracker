@@ -1,7 +1,11 @@
+import Link from "next/link";
 import { requireUser } from "@/lib/auth";
-import { ACTIVE_STATUSES, CLOSED_STATUSES } from "@/lib/statuses";
+import { ACTIVE_STATUSES, CLOSED_STATUSES, STATUS } from "@/lib/statuses";
+import { BTN_PRIMARY_LINK } from "@/lib/ui";
 import { ApplicationsSearch } from "@/components/applications-search";
 import { ApplicationsFilterView } from "@/components/applications-filter-view";
+import { CsvExportButton } from "@/components/csv-export-button";
+import { DeleteAllApplicationsButton } from "@/components/delete-all-applications-button";
 
 type Props = {
   filter: "open" | "closed" | "all";
@@ -10,11 +14,12 @@ type Props = {
 export async function ApplicationsResults({ filter }: Props) {
   const { supabase, user } = await requireUser();
 
-  // Fetch all to compute counts
+  // Fetch all non-wishlist applications (wishlist items live on the wishlist page only)
   const { data: allApps } = await supabase
     .from("applications")
     .select("*")
     .eq("user_id", user.id)
+    .neq("status", STATUS.wishlist)
     .order("updated_at", { ascending: false });
 
   const all = allApps ?? [];
@@ -30,8 +35,21 @@ export async function ApplicationsResults({ filter }: Props) {
   const filtered =
     filter === "open" ? openApps : filter === "closed" ? closedApps : all;
 
+  const actions = (
+    <>
+      <CsvExportButton filter={filter} />
+      <Link
+        href={filter === "open" ? "/applications/new" : `/applications/new?from=${filter}`}
+        className={BTN_PRIMARY_LINK}
+      >
+        + Add<span className="mobile:hidden"> Application</span>
+      </Link>
+      <DeleteAllApplicationsButton hasApplications={filtered.length > 0} scope={filter} />
+    </>
+  );
+
   return (
-    <ApplicationsFilterView active={filter} counts={counts}>
+    <ApplicationsFilterView active={filter} counts={counts} actions={actions}>
       <ApplicationsSearch applications={filtered} fromFilter={filter} />
     </ApplicationsFilterView>
   );

@@ -5,29 +5,20 @@ type ApplicationsTabsProps = {
 };
 
 const PILL_ACTIVE =
-  "px-3 py-1.5 text-sm font-semibold rounded-lg bg-indigo-600 text-white";
+  "px-3 py-1.5 text-[13px] font-semibold rounded-[8px] bg-surface shadow-sm text-ink";
 const PILL_INACTIVE =
-  "px-3 py-1.5 text-sm font-medium rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 transition-colors";
+  "px-3 py-1.5 text-[13px] font-medium text-ink-3 hover:text-ink-2 transition-colors";
 
 export function ApplicationsTabs({ active }: ApplicationsTabsProps) {
   return (
-    <div className="flex items-center gap-1 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 p-1 w-fit">
-      <Link
-        href="/applications"
-        className={active === "open" ? PILL_ACTIVE : PILL_INACTIVE}
-      >
+    <div className="flex items-center gap-1 rounded-[11px] bg-surface-2 border border-border-base p-[3px] w-fit">
+      <Link href="/applications" className={active === "open" ? PILL_ACTIVE : PILL_INACTIVE}>
         Open
       </Link>
-      <Link
-        href="/applications?filter=closed"
-        className={active === "closed" ? PILL_ACTIVE : PILL_INACTIVE}
-      >
+      <Link href="/applications?filter=closed" className={active === "closed" ? PILL_ACTIVE : PILL_INACTIVE}>
         Closed
       </Link>
-      <Link
-        href="/applications?filter=all"
-        className={active === "all" ? PILL_ACTIVE : PILL_INACTIVE}
-      >
+      <Link href="/applications?filter=all" className={active === "all" ? PILL_ACTIVE : PILL_INACTIVE}>
         All
       </Link>
     </div>

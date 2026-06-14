@@ -29,7 +29,7 @@ export function DeleteAllWishlistButton({ hasWishlist }: DeleteAllWishlistButton
         type="button"
         onClick={handleDeleteAll}
         disabled={!hasWishlist || isPending}
-        className="cursor-pointer rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 transition hover:border-red-200 dark:hover:border-red-500/40 hover:text-red-600 dark:hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-40 mobile:min-h-11 mobile:text-base mobile:px-4"
+        className="cursor-pointer rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 transition hover:border-red-200 dark:hover:border-red-500/40 hover:text-red-600 dark:hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-40"
       >
         {isPending ? "Deleting…" : "Delete all"}
       </button>

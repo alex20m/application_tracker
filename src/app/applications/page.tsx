@@ -1,12 +1,9 @@
 import { Suspense } from "react";
-import Link from "next/link";
 import { requireUser } from "@/lib/auth";
-import { BTN_PRIMARY_LINK, PAGE_HEADER, SECTION_STACK, TEXT_H1 } from "@/lib/ui";
+import { PAGE_HEADER, SECTION_STACK, TEXT_H1 } from "@/lib/ui";
 import { AppShell } from "@/components/app-shell";
 import { ApplicationsResults } from "@/app/applications/applications-results";
 import { ApplicationRowsSkeleton } from "@/components/application-rows-skeleton";
-import { DeleteAllApplicationsButton } from "@/components/delete-all-applications-button";
-import { CsvExportButton } from "@/components/csv-export-button";
 
 type ApplicationsPageProps = {
   searchParams: Promise<{ filter?: string }>;
@@ -29,16 +26,6 @@ export default async function ApplicationsPage({ searchParams }: ApplicationsPag
       <div className={SECTION_STACK}>
         <div className={PAGE_HEADER}>
           <h1 className={TEXT_H1}>Applications</h1>
-          <div className="flex items-center gap-2">
-            <CsvExportButton filter={filter} />
-            <Link
-              href={filter === "open" ? "/applications/new" : `/applications/new?from=${filter}`}
-              className={BTN_PRIMARY_LINK}
-            >
-              + Add<span className="mobile:hidden"> Application</span>
-            </Link>
-            <DeleteAllApplicationsButton hasApplications scope={filter} />
-          </div>
         </div>
 
         <Suspense fallback={<ApplicationRowsSkeleton />}>
