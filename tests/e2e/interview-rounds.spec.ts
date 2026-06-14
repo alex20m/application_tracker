@@ -15,7 +15,7 @@ test.describe("Interview rounds", () => {
     await page.getByRole("button", { name: /\+ Add round/i }).click();
     await page.getByLabel(/type/i).fill("Phone screen");
     await page.getByLabel(/date/i).click();
-    await page.getByRole("button", { name: "Today" }).click();
+    await page.getByRole("button", { name: "Today", exact: true }).click();
     await page.getByRole("button", { name: /Add round/i }).click();
 
     // Round appears in the timeline
@@ -50,7 +50,7 @@ test.describe("Interview rounds", () => {
     await page.getByRole("button", { name: /\+ Add round/i }).click();
     await page.getByLabel(/type/i).fill("Phone screen");
     await page.getByLabel(/date/i).click();
-    await page.getByRole("button", { name: "Today" }).click();
+    await page.getByRole("button", { name: "Today", exact: true }).click();
     await page.getByRole("button", { name: /Add round/i }).click();
     await expect(page.getByText("Phone screen")).toBeVisible();
 
@@ -58,7 +58,7 @@ test.describe("Interview rounds", () => {
     await page.getByRole("button", { name: /\+ Add round/i }).click();
     await page.getByLabel(/type/i).fill("Technical");
     await page.getByLabel(/date/i).click();
-    await page.getByRole("button", { name: "Today" }).click();
+    await page.getByRole("button", { name: "Today", exact: true }).click();
     await page.getByRole("button", { name: /Add round/i }).click();
     await expect(page.getByText("Technical")).toBeVisible();
 
@@ -84,7 +84,7 @@ test.describe("Interview rounds", () => {
     await page.getByRole("button", { name: /\+ Add round/i }).click();
     await page.getByLabel(/type/i).fill("Phone screen");
     await page.getByLabel(/date/i).click();
-    await page.getByRole("button", { name: "Today" }).click();
+    await page.getByRole("button", { name: "Today", exact: true }).click();
     await page.getByRole("button", { name: /Add round/i }).click();
     await expect(page.getByText("Phone screen")).toBeVisible();
 
@@ -112,7 +112,7 @@ test.describe("Interview rounds", () => {
     await page.getByRole("button", { name: /\+ Add round/i }).click();
     await page.getByLabel(/type/i).fill("Technical");
     await page.getByLabel(/date/i).click();
-    await page.getByRole("button", { name: "Today" }).click();
+    await page.getByRole("button", { name: "Today", exact: true }).click();
     await page.getByRole("button", { name: /Add round/i }).click();
     await expect(page.getByText("Technical")).toBeVisible();
 
