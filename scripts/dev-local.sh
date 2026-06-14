@@ -68,4 +68,4 @@ echo ""
 
 # ── Run dev server ─────────────────────────────────────────────────────────────
 cd "$REPO_ROOT"
-npm run dev
+npx next dev
