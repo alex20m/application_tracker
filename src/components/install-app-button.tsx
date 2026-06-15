@@ -39,14 +39,16 @@ export function InstallAppButton({ variant }: Props) {
   const [platform] = useState(detectPlatform);
   const [standalone] = useState(isStandalone);
   // Track the native install prompt in state so the component re-renders when
-  // the event becomes available, regardless of whether it fired before or after
-  // hydration.
+  // the event becomes available. Start as null — the useEffect below picks up
+  // any pre-hydration value via the pwa-install-available event (Case 2).
+  // Reading window here would throw during SSR.
   const [installPrompt, setInstallPrompt] =
-    useState<BeforeInstallPromptEvent | null>(
-      () => window.__pwaInstallPrompt ?? null,
-    );
+    useState<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
+    // Pick up a prompt that sw-register.js captured before hydration.
+    if (window.__pwaInstallPrompt) setInstallPrompt(window.__pwaInstallPrompt);
+
     // Case 1: beforeinstallprompt fires after hydration — capture it directly.
     const onBeforeInstall = (e: Event) => {
       e.preventDefault();
