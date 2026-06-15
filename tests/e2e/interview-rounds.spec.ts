@@ -54,6 +54,10 @@ test.describe("Interview rounds", () => {
     await page.getByRole("button", { name: /Add round/i }).click();
     await expect(page.getByText("Phone screen").first()).toBeVisible();
 
+    // Mark first round as Passed so a second round can be added
+    await page.getByRole("button", { name: "Passed" }).click();
+    await expect(page.getByRole("button", { name: "Passed" })).toBeDisabled();
+
     // Add second round
     await page.getByRole("button", { name: /\+ Add round/i }).click();
     await page.getByLabel(/type/i).fill("Technical");
