@@ -5,7 +5,8 @@ test.describe("Interview rounds", () => {
     const { url } = await withApplication({ company: "Rounds Test Co" });
 
     await page.goto(url);
-    await expect(page.getByText("Interview Rounds")).toBeVisible();
+    // Header text; use .first() since the parent div also contains "Interview Rounds"
+    await expect(page.getByText("Interview Rounds").first()).toBeVisible();
 
     // Move to interviews stage — rounds card only allows edits here
     await page.getByRole("button", { name: "Interviews" }).click();
@@ -18,7 +19,7 @@ test.describe("Interview rounds", () => {
     await page.getByRole("button", { name: "Today", exact: true }).click();
     await page.getByRole("button", { name: /Add round/i }).click();
 
-    // Round pill appears in the stepper (desktop + mobile both render, use first())
+    // Round pill appears in the stepper (desktop + mobile both render, use .first())
     await expect(page.getByText("Phone screen").first()).toBeVisible();
     // Current outcome is Pending — shown as disabled button in "Set outcome:" row
     await expect(page.getByRole("button", { name: "Pending" })).toBeDisabled();
@@ -34,7 +35,7 @@ test.describe("Interview rounds", () => {
 
     // Delete the round
     await page.getByRole("button", { name: /^Delete$/i }).click();
-    await expect(page.getByText("Phone screen")).not.toBeVisible();
+    await expect(page.getByText("Phone screen").first()).not.toBeVisible();
     await expect(page.getByText("No rounds yet")).toBeVisible();
   });
 
@@ -67,7 +68,7 @@ test.describe("Interview rounds", () => {
 
     // Delete the latest round — Edit/Delete should move to the new latest (Phone screen)
     await page.getByRole("button", { name: /^Delete$/i }).click();
-    await expect(page.getByText("Technical")).not.toBeVisible();
+    await expect(page.getByText("Technical").first()).not.toBeVisible();
     await expect(page.getByRole("button", { name: /^Edit$/i })).toHaveCount(1);
     await expect(page.getByRole("button", { name: /^Delete$/i })).toHaveCount(1);
   });
