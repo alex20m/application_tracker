@@ -5,7 +5,8 @@ test.describe("Interview rounds", () => {
     const { url } = await withApplication({ company: "Rounds Test Co" });
 
     await page.goto(url);
-    await expect(page.getByText("Interview rounds", { exact: true })).toBeVisible();
+    // Header text; use .first() since the parent div also contains "Interview Rounds"
+    await expect(page.getByText("Interview Rounds").first()).toBeVisible();
 
     // Move to interviews stage — rounds card only allows edits here
     await page.getByRole("button", { name: "Interviews" }).click();
@@ -18,24 +19,23 @@ test.describe("Interview rounds", () => {
     await page.getByRole("button", { name: "Today", exact: true }).click();
     await page.getByRole("button", { name: /Add round/i }).click();
 
-    // Round appears in the timeline
-    await expect(page.getByText("Phone screen")).toBeVisible();
-    await expect(page.getByText("Pending")).toBeVisible();
+    // Round pill appears in the stepper (desktop + mobile both render, use .first())
+    await expect(page.getByText("Phone screen").first()).toBeVisible();
+    // Current outcome is Pending — shown as disabled button in "Set outcome:" row
+    await expect(page.getByRole("button", { name: "Pending" })).toBeDisabled();
 
     // Reload — round persists
     await page.reload();
-    await expect(page.getByText("Phone screen")).toBeVisible();
+    await expect(page.getByText("Phone screen").first()).toBeVisible();
 
-    // Edit outcome to passed (only latest round has Edit button)
-    await page.getByRole("button", { name: /^Edit$/i }).first().click();
-    await page.getByLabel(/outcome/i).selectOption("passed");
-    await page.getByRole("button", { name: /Update/i }).click();
-
-    await expect(page.getByText("Passed")).toBeVisible();
+    // Update outcome to Passed via inline "Set outcome:" button (no edit form needed)
+    await page.getByRole("button", { name: "Passed" }).click();
+    // After updating, "Passed" button becomes disabled (it's now the current outcome)
+    await expect(page.getByRole("button", { name: "Passed" })).toBeDisabled();
 
     // Delete the round
-    await page.getByRole("button", { name: /^Delete$/i }).first().click();
-    await expect(page.getByText("Phone screen")).not.toBeVisible();
+    await page.getByRole("button", { name: /^Delete$/i }).click();
+    await expect(page.getByText("Phone screen").first()).not.toBeVisible();
     await expect(page.getByText("No rounds yet")).toBeVisible();
   });
 
@@ -52,7 +52,7 @@ test.describe("Interview rounds", () => {
     await page.getByLabel(/date/i).click();
     await page.getByRole("button", { name: "Today", exact: true }).click();
     await page.getByRole("button", { name: /Add round/i }).click();
-    await expect(page.getByText("Phone screen")).toBeVisible();
+    await expect(page.getByText("Phone screen").first()).toBeVisible();
 
     // Add second round
     await page.getByRole("button", { name: /\+ Add round/i }).click();
@@ -60,7 +60,7 @@ test.describe("Interview rounds", () => {
     await page.getByLabel(/date/i).click();
     await page.getByRole("button", { name: "Today", exact: true }).click();
     await page.getByRole("button", { name: /Add round/i }).click();
-    await expect(page.getByText("Technical")).toBeVisible();
+    await expect(page.getByText("Technical").first()).toBeVisible();
 
     // Only one set of Edit/Delete buttons — on the latest (Technical) round
     await expect(page.getByRole("button", { name: /^Edit$/i })).toHaveCount(1);
@@ -68,9 +68,13 @@ test.describe("Interview rounds", () => {
 
     // Delete the latest round — Edit/Delete should move to the new latest (Phone screen)
     await page.getByRole("button", { name: /^Delete$/i }).click();
-    await expect(page.getByText("Technical")).not.toBeVisible();
+    await expect(page.getByText("Technical").first()).not.toBeVisible();
     await expect(page.getByRole("button", { name: /^Edit$/i })).toHaveCount(1);
     await expect(page.getByRole("button", { name: /^Delete$/i })).toHaveCount(1);
+
+    // Transition out of interviews so the fixture cleanup finds the application Delete button
+    // (not the round Delete button, which would leave the page URL unchanged)
+    await page.getByRole("button", { name: "Offer", exact: true }).click();
   });
 
   test("card is read-only outside interviews stage", async ({ page, withApplication }) => {
@@ -86,18 +90,19 @@ test.describe("Interview rounds", () => {
     await page.getByLabel(/date/i).click();
     await page.getByRole("button", { name: "Today", exact: true }).click();
     await page.getByRole("button", { name: /Add round/i }).click();
-    await expect(page.getByText("Phone screen")).toBeVisible();
+    await expect(page.getByText("Phone screen").first()).toBeVisible();
 
     // Move out of interviews stage (to Offer)
     await page.getByRole("button", { name: "Offer", exact: true }).click();
 
     // Card still shows the round history
-    await expect(page.getByText("Phone screen")).toBeVisible();
+    await expect(page.getByText("Phone screen").first()).toBeVisible();
 
-    // But no Add/Edit/Delete controls
+    // But no Add/Edit/Delete/Set-outcome controls
     await expect(page.getByRole("button", { name: /\+ Add round/i })).not.toBeVisible();
     await expect(page.getByRole("button", { name: /^Edit$/i })).not.toBeVisible();
     await expect(page.getByRole("button", { name: /^Delete$/i })).not.toBeVisible();
+    await expect(page.getByText("Set outcome:")).not.toBeVisible();
   });
 
   test("round type suggestions appear for a second application", async ({ page, withApplication }) => {
@@ -114,7 +119,7 @@ test.describe("Interview rounds", () => {
     await page.getByLabel(/date/i).click();
     await page.getByRole("button", { name: "Today", exact: true }).click();
     await page.getByRole("button", { name: /Add round/i }).click();
-    await expect(page.getByText("Technical")).toBeVisible();
+    await expect(page.getByText("Technical").first()).toBeVisible();
 
     // Open the second app — "Technical" should be in datalist suggestions
     await page.goto(url2);
@@ -127,5 +132,10 @@ test.describe("Interview rounds", () => {
     // The datalist is wired — verify the input exists and accepts the value
     await typeInput.fill("Technical");
     await expect(typeInput).toHaveValue("Technical");
+
+    // Transition url1 out of interviews so the fixture cleanup finds the application Delete button
+    // (not the round Delete button, which would leave the page URL unchanged)
+    await page.goto(url1);
+    await page.getByRole("button", { name: "Offer", exact: true }).click();
   });
 });
