@@ -1,7 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { detectPlatform, isStandalone } from "@/lib/install";
+import {
+  detectPlatform,
+  isStandalone,
+  type BeforeInstallPromptEvent,
+} from "@/lib/install";
 import { InstallInstructionsModal } from "@/components/install-instructions-modal";
 import { BTN_GHOST, BTN_PRIMARY, CARD, TEXT_H3 } from "@/lib/ui";
 
@@ -34,28 +38,58 @@ export function InstallAppButton({ variant }: Props) {
   const [hidden, setHidden] = useState(false);
   const [platform] = useState(detectPlatform);
   const [standalone] = useState(isStandalone);
+  // Track the native install prompt in state so the component re-renders when
+  // the event becomes available, regardless of whether it fired before or after
+  // hydration.
+  const [installPrompt, setInstallPrompt] =
+    useState<BeforeInstallPromptEvent | null>(
+      () => window.__pwaInstallPrompt ?? null,
+    );
 
   useEffect(() => {
+    // Case 1: beforeinstallprompt fires after hydration — capture it directly.
+    const onBeforeInstall = (e: Event) => {
+      e.preventDefault();
+      window.__pwaInstallPrompt = e as BeforeInstallPromptEvent;
+      setInstallPrompt(e as BeforeInstallPromptEvent);
+    };
+
+    // Case 2: sw-register.js captured it before hydration and dispatched the
+    // custom event — re-read the global so we pick it up in state.
+    const onInstallAvailable = () => {
+      if (window.__pwaInstallPrompt) {
+        setInstallPrompt(window.__pwaInstallPrompt);
+      }
+    };
+
     const onInstalled = () => setHidden(true);
+
+    window.addEventListener("beforeinstallprompt", onBeforeInstall);
+    window.addEventListener("pwa-install-available", onInstallAvailable);
     window.addEventListener("appinstalled", onInstalled);
-    return () => window.removeEventListener("appinstalled", onInstalled);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", onBeforeInstall);
+      window.removeEventListener("pwa-install-available", onInstallAvailable);
+      window.removeEventListener("appinstalled", onInstalled);
+    };
   }, []);
 
   if (standalone || hidden) return null;
 
   const handleClick = async () => {
-    const event = window.__pwaInstallPrompt;
-    if (event) {
+    if (installPrompt) {
       try {
-        await event.prompt();
-        const { outcome } = await event.userChoice;
+        await installPrompt.prompt();
+        const { outcome } = await installPrompt.userChoice;
+        // The prompt can only be used once — clear it.
         window.__pwaInstallPrompt = undefined;
+        setInstallPrompt(null);
         if (outcome === "accepted") {
           setHidden(true);
           return;
         }
       } catch {
-        // event already consumed or unavailable — fall through to modal
+        // Event already consumed or unavailable — fall through to manual instructions.
       }
     }
     setShowModal(true);
