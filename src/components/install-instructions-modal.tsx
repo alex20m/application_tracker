@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import type { Platform } from "@/lib/install";
 
 type Props = {
@@ -212,6 +213,15 @@ function FallbackSteps() {
 }
 
 export function InstallInstructionsModal({ platform, onClose }: Props) {
+  // useSyncExternalStore gives false on the server (getServerSnapshot) and true
+  // on the client (getSnapshot), so we can safely portal to document.body only
+  // after hydration — without a setState-in-effect lint violation.
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -237,7 +247,7 @@ export function InstallInstructionsModal({ platform, onClose }: Props) {
           ? "Add to Home Screen"
           : "Install AppTrack";
 
-  return (
+  const overlay = (
     <div className="fixed inset-0 z-50 flex items-center mobile:items-end justify-center p-4">
       {/* Backdrop */}
       <div
@@ -295,4 +305,10 @@ export function InstallInstructionsModal({ platform, onClose }: Props) {
       </div>
     </div>
   );
+
+  // Portal to document.body so `fixed` positioning works relative to the
+  // viewport — not relative to any `backdrop-filter` ancestor (e.g. the
+  // sticky header), which would confine the modal to the header's bounding box.
+  if (!mounted) return null;
+  return createPortal(overlay, document.body);
 }
