@@ -118,7 +118,7 @@ describe("InterviewRoundsCard", () => {
 
     expect(mockUpdateAction).toHaveBeenCalledOnce();
     // Bound action is called as updateInterviewRoundAction(appId, prevState, formData)
-    const [_appId, _prevState, formData]: [unknown, unknown, FormData] = mockUpdateAction.mock.calls[0];
+    const [_appId, _prevState, formData] = mockUpdateAction.mock.calls[0] as [string, unknown, FormData];
     expect(formData.get("id")).toBe("r1");
     expect(formData.get("outcome")).toBe("passed");
     expect(formData.get("type")).toBe("Phone Screen");
