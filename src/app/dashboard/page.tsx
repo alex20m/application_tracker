@@ -69,23 +69,56 @@ function buildAttentionItems(applications: ApplicationRecord[]): AttentionItem[]
       }
     }
 
-    // Currently interviewing
-    if (app.status === STATUS.interviews) {
+    // Interview rounds: show within 7 days (with date) or unscheduled pending rounds (generic)
+    for (const round of app.interview_rounds ?? []) {
+      if (round.outcome !== "pending") continue;
+      if (!round.scheduled_at) {
+        items.push({
+          id: app.id,
+          company: app.company,
+          role: app.role,
+          reason: `${round.type} — date not set`,
+          reasonColor: "var(--st-interviews)",
+          actionLabel: "Prep notes",
+        });
+        continue;
+      }
+      const scheduledDate = new Date(round.scheduled_at);
+      const diffMs = scheduledDate.getTime() - today.getTime();
+      if (diffMs >= 0 && diffMs < 7 * 24 * 60 * 60 * 1000) {
+        const dateStr = scheduledDate.toLocaleDateString("en-US", {
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+        });
+        items.push({
+          id: app.id,
+          company: app.company,
+          role: app.role,
+          reason: `${round.type} · ${dateStr}`,
+          reasonColor: "var(--st-interviews)",
+          actionLabel: "Prep notes",
+        });
+      }
+    }
+
+    // In interviews but no rounds logged yet
+    if (app.status === STATUS.interviews && (app.interview_rounds ?? []).length === 0) {
       items.push({
         id: app.id,
         company: app.company,
         role: app.role,
-        reason: "Interview in progress",
+        reason: "Interview in progress — add round details",
         reasonColor: "var(--st-interviews)",
-        actionLabel: "Prep notes",
+        actionLabel: "Add round",
       });
     }
   }
 
-  // Sort: offers first, then stalled, then interviews
+  // Sort: offers first, then upcoming interviews, then stalled
   const priority = (item: AttentionItem) => {
     if (item.reasonColor === "var(--st-offer)") return 0;
-    if (item.reasonColor === "var(--st-ghosted)") return 1;
+    if (item.reasonColor === "var(--st-interviews)") return 1;
     return 2;
   };
 
