@@ -49,5 +49,9 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+  // Exclude static public PWA assets so Chrome can fetch the manifest and
+  // service-worker script unauthenticated (required for installability).
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|sw\\.js|sw-register\\.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
 };
