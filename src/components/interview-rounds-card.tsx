@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useTransition, useState, useEffect, useMemo } from "react";
+import { useActionState, useOptimistic, useTransition, useState, useEffect, useMemo } from "react";
 import { DatePicker } from "@/components/date-picker";
 import {
   addInterviewRoundAction,
@@ -9,7 +9,7 @@ import {
 } from "@/app/applications/[id]/actions";
 import type { ApplicationRecord, InterviewRound, InterviewRoundOutcome } from "@/lib/types";
 import { STATUS } from "@/lib/statuses";
-import { BTN_GHOST, BTN_PRIMARY, BTN_SMALL, CARD, ERROR_BANNER, INPUT, LABEL, TEXT_H3 } from "@/lib/ui";
+import { BTN_GHOST, BTN_PRIMARY, BTN_SMALL, CARD, ERROR_BANNER, INPUT, LABEL, TEXT_LABEL } from "@/lib/ui";
 
 const OUTCOMES: { value: InterviewRoundOutcome; label: string }[] = [
   { value: "pending", label: "Pending" },
@@ -52,19 +52,6 @@ function pillProps(outcome: InterviewRoundOutcome): {
         className: `${base} text-ink-3 border border-border-base`,
         style: { background: "var(--surface-2)" },
       };
-  }
-}
-
-function outcomeStyle(outcome: InterviewRoundOutcome): string {
-  switch (outcome) {
-    case "passed":
-      return "text-[var(--st-offer)] bg-[color-mix(in_oklch,var(--st-offer)_10%,transparent)]";
-    case "failed":
-      return "text-[var(--st-rejected)] bg-[color-mix(in_oklch,var(--st-rejected)_10%,transparent)]";
-    case "cancelled":
-      return "text-ink-3 bg-surface-2";
-    default:
-      return "text-ink-3 bg-surface-2";
   }
 }
 
@@ -193,8 +180,12 @@ export function InterviewRoundsCard({ application, existingRoundTypes }: Props) 
 
   const canEdit = application.status === STATUS.interviews;
   const rounds = application.interview_rounds;
-  const latestRoundId = rounds[rounds.length - 1]?.id;
-  const reversedRounds = [...rounds].reverse();
+  const latestRound = rounds[rounds.length - 1] ?? null;
+  const reversedRounds = useMemo(() => [...rounds].reverse(), [rounds]);
+
+  const [optimisticOutcome, setOptimisticOutcome] = useOptimistic<InterviewRoundOutcome>(
+    latestRound?.outcome ?? "pending"
+  );
 
   const boundAdd = useMemo(
     () => addInterviewRoundAction.bind(null, application.id),
@@ -209,16 +200,35 @@ export function InterviewRoundsCard({ application, existingRoundTypes }: Props) 
     [application.id]
   );
 
-  const handleDelete = (roundId: string) => {
+  const handleDelete = () => {
+    if (!latestRound) return;
     startTransition(() => {
-      void boundDelete(roundId);
+      void boundDelete(latestRound.id);
     });
   };
 
+  const handleSetOutcome = (outcome: InterviewRoundOutcome) => {
+    if (!latestRound) return;
+    const fd = new FormData();
+    fd.set("id", latestRound.id);
+    fd.set("type", latestRound.type);
+    if (latestRound.scheduled_at) fd.set("scheduled_at", latestRound.scheduled_at);
+    if (latestRound.notes) fd.set("notes", latestRound.notes);
+    fd.set("outcome", outcome);
+    startTransition(async () => {
+      setOptimisticOutcome(outcome);
+      await boundUpdate(null, fd);
+    });
+  };
+
+  const effectiveOutcome = (round: InterviewRound): InterviewRoundOutcome =>
+    round.id === latestRound?.id ? optimisticOutcome : round.outcome;
+
   return (
     <div className={CARD}>
+      {/* Header — matches pipeline card style */}
       <div className="mb-4 flex items-center justify-between gap-3">
-        <p className={TEXT_H3}>Interview rounds</p>
+        <p className={TEXT_LABEL}>Interview Rounds</p>
         {canEdit && !isAdding && (
           <button
             type="button"
@@ -233,89 +243,122 @@ export function InterviewRoundsCard({ application, existingRoundTypes }: Props) 
         )}
       </div>
 
-      <div>
-        {/* Add form — floats above existing rounds (newest-first order) */}
-        {isAdding && (
-          <div className="mb-4">
-            <RoundForm
-              existingRoundTypes={existingRoundTypes}
-              action={boundAdd}
-              onCancel={() => setIsAdding(false)}
-              onSuccess={() => setIsAdding(false)}
-            />
-          </div>
-        )}
+      {/* Add form */}
+      {isAdding && (
+        <div className="mb-4">
+          <RoundForm
+            existingRoundTypes={existingRoundTypes}
+            action={boundAdd}
+            onCancel={() => setIsAdding(false)}
+            onSuccess={() => setIsAdding(false)}
+          />
+        </div>
+      )}
 
-        {rounds.length === 0 && !isAdding && (
-          <p className="text-sm text-ink-3">
-            {canEdit
-              ? "No rounds yet. Add your first interview round."
-              : "No interview rounds recorded."}
-          </p>
-        )}
+      {rounds.length === 0 && !isAdding && (
+        <p className="text-sm text-ink-3">
+          {canEdit
+            ? "No rounds yet. Add your first interview round."
+            : "No interview rounds recorded."}
+        </p>
+      )}
 
-        {/* Vertical timeline: newest at top, oldest at bottom */}
-        {reversedRounds.map((round, displayIdx) => {
-          const isLastInDisplay = displayIdx === reversedRounds.length - 1; // oldest round
-          const roundBelow = reversedRounds[displayIdx + 1]; // the older round below
-          const connectorDone = roundBelow?.outcome === "passed";
-          const isLatest = round.id === latestRoundId;
-          const isEditing = editingId === round.id;
-          const { className: pillClass, style: pillStyle } = pillProps(round.outcome);
+      {rounds.length > 0 && (
+        <>
+          {/* Desktop: horizontal stepper, chronological left-to-right */}
+          <div className="flex items-start mobile:hidden">
+            {rounds.map((round, i) => {
+              const isLast = i === rounds.length - 1;
+              const outcome = effectiveOutcome(round);
+              const { className: pillClass, style: pStyle } = pillProps(outcome);
+              const date = formatDate(round.scheduled_at);
+              const connectorDone = outcome === "passed";
 
-          return (
-            <div key={round.id} className="flex items-stretch gap-3">
-              {/* Left: node column (pill + vertical connector) */}
-              <div className="flex flex-col items-center flex-shrink-0">
-                <div className={pillClass} style={pillStyle} title={round.type}>
-                  {round.type}
-                </div>
-                {!isLastInDisplay && (
-                  <div
-                    className="w-[2px] flex-1 min-h-[20px] rounded-full mt-1.5"
-                    style={{
-                      background: connectorDone ? "var(--st-offer)" : "var(--border)",
-                    }}
-                  />
-                )}
-              </div>
-
-              {/* Right: content */}
-              <div className={`flex-1 ${!isLastInDisplay ? "pb-4" : ""}`}>
-                {isEditing ? (
-                  <RoundForm
-                    round={round}
-                    existingRoundTypes={existingRoundTypes}
-                    action={boundUpdate}
-                    onCancel={() => setEditingId(null)}
-                    onSuccess={() => setEditingId(null)}
-                  />
-                ) : (
-                  <div className="flex items-start justify-between gap-2 pt-0.5">
-                    <div className="min-w-0 flex-1">
-                      {/* Outcome badge */}
-                      <span
-                        className={`rounded-md px-1.5 py-0.5 text-xs font-medium ${outcomeStyle(round.outcome)}`}
-                      >
-                        {OUTCOMES.find((o) => o.value === round.outcome)?.label ?? round.outcome}
-                      </span>
-                      {/* Notes first — swapped above date per user request */}
-                      {round.notes && (
-                        <p className="mt-1 line-clamp-2 text-xs text-ink-2">{round.notes}</p>
-                      )}
-                      {/* Date below notes */}
-                      {round.scheduled_at && (
-                        <p className="mt-0.5 text-xs text-ink-3">{formatDate(round.scheduled_at)}</p>
-                      )}
+              return (
+                <div key={round.id} className="flex flex-1 items-start min-w-0">
+                  <div className="flex-shrink-0 flex flex-col items-center">
+                    <div className={pillClass} style={pStyle} title={round.type}>
+                      {round.type}
                     </div>
+                    {date && (
+                      <span className="mt-1 text-[11px] text-ink-3 text-center">{date}</span>
+                    )}
+                  </div>
+                  {!isLast && (
+                    <div
+                      className="flex-1 h-[2px] mx-1.5 mt-[14px] rounded-full transition-all"
+                      style={{ background: connectorDone ? "var(--st-offer)" : "var(--border)" }}
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </div>
 
-                    {/* Edit/Delete: only on the latest round while status is interviews */}
-                    {canEdit && isLatest && (
-                      <div className="flex flex-shrink-0 items-center gap-1.5">
+          {/* Mobile: vertical timeline, newest at top */}
+          <div className="hidden mobile:flex mobile:flex-col mobile:items-start">
+            {reversedRounds.map((round, i) => {
+              const isLast = i === reversedRounds.length - 1;
+              const outcome = effectiveOutcome(round);
+              const { className: pillClass, style: pStyle } = pillProps(outcome);
+              const date = formatDate(round.scheduled_at);
+              const olderRound = reversedRounds[i + 1];
+              const connectorDone = olderRound ? effectiveOutcome(olderRound) === "passed" : false;
+
+              return (
+                <div key={round.id} className="flex flex-col items-start">
+                  <div className={pillClass} style={pStyle} title={round.type}>
+                    {round.type}
+                  </div>
+                  {date && (
+                    <span className="mt-0.5 text-[11px] text-ink-3">{date}</span>
+                  )}
+                  {!isLast && (
+                    <div
+                      className="w-[2px] h-3 ml-4 my-1 rounded-full transition-all"
+                      style={{ background: connectorDone ? "var(--st-offer)" : "var(--border)" }}
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Bottom section: notes for latest round + inline outcome change + edit/delete */}
+          {latestRound && (canEdit || !!latestRound.notes) && (
+            <div className="mt-4 pt-4 border-t border-border-base">
+              {editingId === latestRound.id ? (
+                <RoundForm
+                  round={latestRound}
+                  existingRoundTypes={existingRoundTypes}
+                  action={boundUpdate}
+                  onCancel={() => setEditingId(null)}
+                  onSuccess={() => setEditingId(null)}
+                />
+              ) : (
+                <>
+                  {latestRound.notes && (
+                    <p className="mb-3 text-sm text-ink-2 line-clamp-3">{latestRound.notes}</p>
+                  )}
+                  {canEdit && (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-[13px] text-ink-2 mr-1">Set outcome:</span>
+                      {OUTCOMES.map((o) => (
+                        <button
+                          key={o.value}
+                          type="button"
+                          onClick={() => handleSetOutcome(o.value)}
+                          disabled={isPending || optimisticOutcome === o.value}
+                          className="cursor-pointer rounded-xl border border-border-base bg-surface px-3.5 py-2 text-[13px] font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {o.label}
+                        </button>
+                      ))}
+                      <div className="ml-auto flex items-center gap-1.5">
                         <button
                           type="button"
                           onClick={() => {
-                            setEditingId(round.id);
+                            setEditingId(latestRound.id);
                             setIsAdding(false);
                           }}
                           className={`${BTN_SMALL} border-border-base text-ink-3 hover:bg-surface-2`}
@@ -325,21 +368,21 @@ export function InterviewRoundsCard({ application, existingRoundTypes }: Props) 
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleDelete(round.id)}
+                          onClick={handleDelete}
                           className={`${BTN_SMALL} border-[color-mix(in_oklch,var(--st-rejected)_30%,transparent)] text-[var(--st-rejected)] hover:bg-[color-mix(in_oklch,var(--st-rejected)_8%,var(--surface))]`}
                           disabled={isPending}
                         >
                           Delete
                         </button>
                       </div>
-                    )}
-                  </div>
-                )}
-              </div>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
-          );
-        })}
-      </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
