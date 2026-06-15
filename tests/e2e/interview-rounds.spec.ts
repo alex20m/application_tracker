@@ -71,6 +71,10 @@ test.describe("Interview rounds", () => {
     await expect(page.getByText("Technical").first()).not.toBeVisible();
     await expect(page.getByRole("button", { name: /^Edit$/i })).toHaveCount(1);
     await expect(page.getByRole("button", { name: /^Delete$/i })).toHaveCount(1);
+
+    // Transition out of interviews so the fixture cleanup finds the application Delete button
+    // (not the round Delete button, which would leave the page URL unchanged)
+    await page.getByRole("button", { name: "Offer", exact: true }).click();
   });
 
   test("card is read-only outside interviews stage", async ({ page, withApplication }) => {
@@ -128,5 +132,10 @@ test.describe("Interview rounds", () => {
     // The datalist is wired — verify the input exists and accepts the value
     await typeInput.fill("Technical");
     await expect(typeInput).toHaveValue("Technical");
+
+    // Transition url1 out of interviews so the fixture cleanup finds the application Delete button
+    // (not the round Delete button, which would leave the page URL unchanged)
+    await page.goto(url1);
+    await page.getByRole("button", { name: "Offer", exact: true }).click();
   });
 });
