@@ -183,6 +183,13 @@ export function InterviewRoundsCard({ application, existingRoundTypes }: Props) 
   const latestRound = rounds[rounds.length - 1] ?? null;
   const reversedRounds = useMemo(() => [...rounds].reverse(), [rounds]);
 
+  // Can only add a new round when the previous round is closed (passed/cancelled).
+  // Pending = still open; failed = terminal state.
+  const canAddNewRound =
+    rounds.length === 0 ||
+    latestRound?.outcome === "passed" ||
+    latestRound?.outcome === "cancelled";
+
   const [optimisticOutcome, setOptimisticOutcome] = useOptimistic<InterviewRoundOutcome>(
     latestRound?.outcome ?? "pending"
   );
@@ -229,7 +236,7 @@ export function InterviewRoundsCard({ application, existingRoundTypes }: Props) 
       {/* Header — matches pipeline card style */}
       <div className="mb-4 flex items-center justify-between gap-3">
         <p className={TEXT_LABEL}>Interview Rounds</p>
-        {canEdit && !isAdding && (
+        {canEdit && canAddNewRound && !isAdding && (
           <button
             type="button"
             onClick={() => {
