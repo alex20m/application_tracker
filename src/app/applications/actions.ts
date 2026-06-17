@@ -9,7 +9,7 @@ import { sanitizeActionError } from "@/lib/ui";
 import { ApplicationCreateSchema, ApplicationNoteSchema } from "@/lib/schemas";
 import { randomUUID } from "crypto";
 import { z } from "zod";
-import type { StatusEvent } from "@/lib/types";
+import type { InterviewRound, StatusEvent } from "@/lib/types";
 
 export async function createApplicationAction(
   prevState: unknown,
@@ -73,27 +73,35 @@ export async function createApplicationAction(
 
 export async function transitionApplicationStatusAction(
   formData: FormData
-): Promise<void> {
+): Promise<{ error?: string }> {
   const { supabase, user } = await requireUser();
 
   const applicationId = formData.get("application_id") as string;
   const nextStatus = formData.get("next_status") as ApplicationStatus;
 
-  if (!applicationId || !nextStatus) return;
+  if (!applicationId || !nextStatus) return {};
 
-  if (!z.string().uuid().safeParse(applicationId).success) return;
+  if (!z.string().uuid().safeParse(applicationId).success) return {};
 
   const { data: currentApp } = await supabase
     .from("applications")
-    .select("status, events")
+    .select("status, events, interview_rounds")
     .eq("id", applicationId)
     .eq("user_id", user.id)
     .single();
 
-  if (!currentApp) return;
+  if (!currentApp) return {};
 
   const allowedNext = STATUS_NEXT[currentApp.status as ApplicationStatus] ?? [];
-  if (!allowedNext.includes(nextStatus)) return;
+  if (!allowedNext.includes(nextStatus)) return {};
+
+  // Block leaving interviews while a round is still pending
+  if (currentApp.status === STATUS.interviews) {
+    const rounds = (currentApp.interview_rounds as InterviewRound[]) ?? [];
+    if (rounds.some((r) => r.outcome === "pending")) {
+      return { error: "Close the ongoing interview round before moving to the next stage." };
+    }
+  }
 
   const events = appendStatusEvent(
     currentApp.status as ApplicationStatus,
@@ -114,6 +122,7 @@ export async function transitionApplicationStatusAction(
   if (error) console.error("[application:transition]", error);
 
   revalidateApplicationViews();
+  return {};
 }
 
 export async function updateApplicationNoteAction(formData: FormData): Promise<void> {
