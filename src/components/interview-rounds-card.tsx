@@ -331,8 +331,8 @@ export function InterviewRoundsCard({ application, existingRoundTypes }: Props) 
             })}
           </div>
 
-          {/* Bottom section: notes for latest round + inline outcome change + edit/delete */}
-          {latestRound && (canEdit || !!latestRound.notes) && (
+          {/* Bottom section: notes (interviews stage only) + inline outcome change + edit/delete */}
+          {latestRound && canEdit && (
             <div className="mt-4 pt-4 border-t border-border-base">
               {editingId === latestRound.id ? (
                 <RoundForm

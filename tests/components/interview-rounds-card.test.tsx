@@ -138,17 +138,30 @@ describe("InterviewRoundsCard", () => {
     expect(formData.get("scheduled_at")).toBe("2026-05-01");
   });
 
-  it("does not show 'Set outcome:' or Edit/Delete when status is not interviews", () => {
-    const round = makeRound();
+  it("does not show notes, Set outcome, or Edit/Delete when status is not interviews", () => {
+    const round = makeRound({ notes: "some prep notes" });
     render(
       <InterviewRoundsCard
         application={makeApp({ status: STATUS.offer, interview_rounds: [round] })}
         existingRoundTypes={[]}
       />
     );
+    expect(screen.queryByText("some prep notes")).not.toBeInTheDocument();
     expect(screen.queryByText("Set outcome:")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Edit" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Delete" })).not.toBeInTheDocument();
+  });
+
+  it("shows round pills outside interviews stage (card is always visible)", () => {
+    const round = makeRound({ type: "Technical" });
+    render(
+      <InterviewRoundsCard
+        application={makeApp({ status: STATUS.offer, interview_rounds: [round] })}
+        existingRoundTypes={[]}
+      />
+    );
+    const pills = screen.getAllByTitle("Technical");
+    expect(pills.length).toBeGreaterThan(0);
   });
 
   it("shows notes of the latest round in the bottom section", () => {

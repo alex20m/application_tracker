@@ -5,9 +5,11 @@ test.describe("Interview rounds", () => {
     const { url } = await withApplication({ company: "Rounds Test Co" });
 
     await page.goto(url);
-    // Card is only shown in interviews stage
-    await page.getByRole("button", { name: "Interviews" }).click();
+    // Card is always visible (shows round history even outside interviews stage)
     await expect(page.getByText("Interview Rounds").first()).toBeVisible();
+
+    // Move to interviews stage — rounds card allows edits here
+    await page.getByRole("button", { name: "Interviews" }).click();
     await expect(page.getByRole("button", { name: /\+ Add round/i })).toBeVisible();
 
     // Add a round (date is now required)
@@ -81,26 +83,36 @@ test.describe("Interview rounds", () => {
     await page.getByRole("button", { name: "Offer", exact: true }).click();
   });
 
-  test("card is read-only outside interviews stage", async ({ page, withApplication }) => {
+  test("card shows rounds but hides notes outside interviews stage", async ({ page, withApplication }) => {
     const { url } = await withApplication({ company: "Readonly Test Co" });
 
     await page.goto(url);
     await page.getByRole("button", { name: "Interviews" }).click();
     await expect(page.getByRole("button", { name: /\+ Add round/i })).toBeVisible();
 
-    // Add a round
+    // Add a round with notes
     await page.getByRole("button", { name: /\+ Add round/i }).click();
     await page.getByLabel(/type/i).fill("Phone screen");
     await page.getByLabel(/date/i).click();
     await page.getByRole("button", { name: "Today", exact: true }).click();
+    await page.getByLabel(/notes/i).fill("Prep note visible in interviews");
     await page.getByRole("button", { name: /Add round/i }).click();
     await expect(page.getByText("Phone screen").first()).toBeVisible();
+    await expect(page.getByText("Prep note visible in interviews")).toBeVisible();
 
     // Move out of interviews stage (to Offer)
     await page.getByRole("button", { name: "Offer", exact: true }).click();
 
-    // Card is hidden entirely outside interviews stage
-    await expect(page.getByText("Interview Rounds")).not.toBeVisible();
+    // Card and round pill are still visible — only notes are hidden
+    await expect(page.getByText("Interview Rounds").first()).toBeVisible();
+    await expect(page.getByText("Phone screen").first()).toBeVisible();
+    await expect(page.getByText("Prep note visible in interviews")).not.toBeVisible();
+
+    // No Add/Edit/Delete/Set-outcome controls outside interviews stage
+    await expect(page.getByRole("button", { name: /\+ Add round/i })).not.toBeVisible();
+    await expect(page.getByRole("button", { name: /^Edit$/i })).not.toBeVisible();
+    await expect(page.getByRole("button", { name: /^Delete$/i })).not.toBeVisible();
+    await expect(page.getByText("Set outcome:")).not.toBeVisible();
   });
 
   test("round type suggestions appear for a second application", async ({ page, withApplication }) => {
