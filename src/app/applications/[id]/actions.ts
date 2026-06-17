@@ -134,8 +134,14 @@ export async function addInterviewRoundAction(
     return { success: false, error: GENERIC_ACTION_ERROR };
   }
 
+  const existingRounds = (currentApp.interview_rounds as InterviewRound[]) ?? [];
+  const lastRound = existingRounds[existingRounds.length - 1] ?? null;
+  if (lastRound && lastRound.outcome !== "passed" && lastRound.outcome !== "cancelled") {
+    return { success: false, error: GENERIC_ACTION_ERROR };
+  }
+
   const newRounds = addInterviewRound(
-    (currentApp.interview_rounds as InterviewRound[]) ?? [],
+    existingRounds,
     {
       type: parsed.data.type,
       scheduled_at: parsed.data.scheduled_at,
