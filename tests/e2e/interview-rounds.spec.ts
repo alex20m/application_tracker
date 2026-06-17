@@ -100,8 +100,15 @@ test.describe("Interview rounds", () => {
     await expect(page.getByText("Phone screen").first()).toBeVisible();
     await expect(page.getByText("Prep note visible in interviews")).toBeVisible();
 
+    // Close the round (required before leaving interviews stage — issue #142 blocks pending rounds)
+    await page.getByRole("button", { name: "Passed" }).click();
+    await expect(page.getByText("Set outcome:")).not.toBeVisible();
+
     // Move out of interviews stage (to Offer)
     await page.getByRole("button", { name: "Offer", exact: true }).click();
+
+    // Wait for page to revalidate: "+ Add round" only shows in interviews stage
+    await expect(page.getByRole("button", { name: /\+ Add round/i })).not.toBeVisible();
 
     // Card and round pill are still visible — only notes are hidden
     await expect(page.getByText("Interview Rounds").first()).toBeVisible();
