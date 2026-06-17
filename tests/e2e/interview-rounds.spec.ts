@@ -5,11 +5,9 @@ test.describe("Interview rounds", () => {
     const { url } = await withApplication({ company: "Rounds Test Co" });
 
     await page.goto(url);
-    // Header text; use .first() since the parent div also contains "Interview Rounds"
-    await expect(page.getByText("Interview Rounds").first()).toBeVisible();
-
-    // Move to interviews stage — rounds card only allows edits here
+    // Card is only shown in interviews stage
     await page.getByRole("button", { name: "Interviews" }).click();
+    await expect(page.getByText("Interview Rounds").first()).toBeVisible();
     await expect(page.getByRole("button", { name: /\+ Add round/i })).toBeVisible();
 
     // Add a round (date is now required)
@@ -21,17 +19,18 @@ test.describe("Interview rounds", () => {
 
     // Round pill appears in the stepper (desktop + mobile both render, use .first())
     await expect(page.getByText("Phone screen").first()).toBeVisible();
-    // Current outcome is Pending — shown as disabled button in "Set outcome:" row
-    await expect(page.getByRole("button", { name: "Pending" })).toBeDisabled();
+    // Current outcome is Pending — forward moves (Passed/Failed/Cancelled) are shown, no Pending button
+    await expect(page.getByRole("button", { name: "Passed" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Pending" })).not.toBeVisible();
 
     // Reload — round persists
     await page.reload();
     await expect(page.getByText("Phone screen").first()).toBeVisible();
 
-    // Update outcome to Passed via inline "Set outcome:" button (no edit form needed)
+    // Update outcome to Passed via inline "Set outcome:" button
     await page.getByRole("button", { name: "Passed" }).click();
-    // After updating, "Passed" button becomes disabled (it's now the current outcome)
-    await expect(page.getByRole("button", { name: "Passed" })).toBeDisabled();
+    // After moving away from pending, outcome buttons disappear from quick view
+    await expect(page.getByText("Set outcome:")).not.toBeVisible();
 
     // Delete the round
     await page.getByRole("button", { name: /^Delete$/i }).click();
@@ -56,7 +55,8 @@ test.describe("Interview rounds", () => {
 
     // Mark first round as Passed so a second round can be added
     await page.getByRole("button", { name: "Passed" }).click();
-    await expect(page.getByRole("button", { name: "Passed" })).toBeDisabled();
+    // After moving away from pending, outcome buttons disappear
+    await expect(page.getByText("Set outcome:")).not.toBeVisible();
 
     // Add second round
     await page.getByRole("button", { name: /\+ Add round/i }).click();
@@ -99,14 +99,8 @@ test.describe("Interview rounds", () => {
     // Move out of interviews stage (to Offer)
     await page.getByRole("button", { name: "Offer", exact: true }).click();
 
-    // Card still shows the round history
-    await expect(page.getByText("Phone screen").first()).toBeVisible();
-
-    // But no Add/Edit/Delete/Set-outcome controls
-    await expect(page.getByRole("button", { name: /\+ Add round/i })).not.toBeVisible();
-    await expect(page.getByRole("button", { name: /^Edit$/i })).not.toBeVisible();
-    await expect(page.getByRole("button", { name: /^Delete$/i })).not.toBeVisible();
-    await expect(page.getByText("Set outcome:")).not.toBeVisible();
+    // Card is hidden entirely outside interviews stage
+    await expect(page.getByText("Interview Rounds")).not.toBeVisible();
   });
 
   test("round type suggestions appear for a second application", async ({ page, withApplication }) => {
