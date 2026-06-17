@@ -349,18 +349,22 @@ export function InterviewRoundsCard({ application, existingRoundTypes }: Props) 
                   )}
                   {canEdit && (
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-[13px] text-ink-2 mr-1">Set outcome:</span>
-                      {OUTCOMES.map((o) => (
-                        <button
-                          key={o.value}
-                          type="button"
-                          onClick={() => handleSetOutcome(o.value)}
-                          disabled={isPending || optimisticOutcome === o.value}
-                          className="cursor-pointer rounded-xl border border-border-base bg-surface px-3.5 py-2 text-[13px] font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                          {o.label}
-                        </button>
-                      ))}
+                      {optimisticOutcome === "pending" && (
+                        <>
+                          <span className="text-[13px] text-ink-2 mr-1">Set outcome:</span>
+                          {OUTCOMES.filter((o) => o.value !== "pending").map((o) => (
+                            <button
+                              key={o.value}
+                              type="button"
+                              onClick={() => handleSetOutcome(o.value)}
+                              disabled={isPending}
+                              className="cursor-pointer rounded-xl border border-border-base bg-surface px-3.5 py-2 text-[13px] font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              {o.label}
+                            </button>
+                          ))}
+                        </>
+                      )}
                       <div className="ml-auto flex items-center gap-1.5">
                         <button
                           type="button"

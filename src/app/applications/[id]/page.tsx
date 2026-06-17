@@ -8,6 +8,7 @@ import { PipelineStepper } from "@/components/pipeline-stepper";
 import { StatusBadge } from "@/components/status-badge";
 import { InterviewRoundsCard } from "@/components/interview-rounds-card";
 import type { InterviewRound } from "@/lib/types";
+import { STATUS } from "@/lib/statuses";
 import { updateApplicationAction } from "./actions";
 
 function getCompanyInitials(company: string): string {
@@ -179,10 +180,12 @@ export default async function ApplicationDetailPage({
           <>
             <PipelineStepper applicationId={application.id} status={application.status} />
 
-            <InterviewRoundsCard
-              application={application}
-              existingRoundTypes={existingRoundTypes}
-            />
+            {application.status === STATUS.interviews && (
+              <InterviewRoundsCard
+                application={application}
+                existingRoundTypes={existingRoundTypes}
+              />
+            )}
 
             <div className={CARD}>
               <div className="grid grid-cols-2 gap-x-6 gap-y-5 mobile:grid-cols-1">
