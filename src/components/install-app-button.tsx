@@ -39,11 +39,12 @@ export function InstallAppButton({ variant }: Props) {
   const [platform] = useState(detectPlatform);
   const [standalone] = useState(isStandalone);
   // Track the native install prompt in state so the component re-renders when
-  // the event becomes available, regardless of whether it fired before or after
-  // hydration.
+  // the event becomes available. The initializer reads the global set by
+  // sw-register.js (pre-hydration capture); the typeof guard makes it safe
+  // during SSR where window is undefined.
   const [installPrompt, setInstallPrompt] =
     useState<BeforeInstallPromptEvent | null>(
-      () => window.__pwaInstallPrompt ?? null,
+      () => (typeof window !== "undefined" ? (window.__pwaInstallPrompt ?? null) : null),
     );
 
   useEffect(() => {
