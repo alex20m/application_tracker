@@ -183,16 +183,17 @@ export function InterviewRoundsCard({ application, existingRoundTypes }: Props) 
   const latestRound = rounds[rounds.length - 1] ?? null;
   const reversedRounds = useMemo(() => [...rounds].reverse(), [rounds]);
 
-  // Can only add a new round when the previous round is closed (passed/cancelled).
-  // Pending = still open; failed = terminal state.
-  const canAddNewRound =
-    rounds.length === 0 ||
-    latestRound?.outcome === "passed" ||
-    latestRound?.outcome === "cancelled";
-
   const [optimisticOutcome, setOptimisticOutcome] = useOptimistic<InterviewRoundOutcome>(
     latestRound?.outcome ?? "pending"
   );
+
+  // Can only add a new round when the previous round is closed (passed/cancelled).
+  // Use optimisticOutcome so the button appears immediately after setting outcome,
+  // without waiting for server revalidation.
+  const canAddNewRound =
+    rounds.length === 0 ||
+    optimisticOutcome === "passed" ||
+    optimisticOutcome === "cancelled";
 
   const boundAdd = useMemo(
     () => addInterviewRoundAction.bind(null, application.id),
