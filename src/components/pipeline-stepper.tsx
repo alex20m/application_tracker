@@ -1,6 +1,6 @@
 "use client";
 
-import { useOptimistic, useTransition } from "react";
+import { useOptimistic, useTransition, useState } from "react";
 import { transitionApplicationStatusAction } from "@/app/applications/actions";
 import { STATUS, STATUS_NEXT, STATUS_NAMES, statusStageIndex, FINAL_STATUSES, type ApplicationStatus } from "@/lib/statuses";
 
@@ -49,6 +49,7 @@ function pillStyle(isDone: boolean, isCurrent: boolean, isRed: boolean, isNegati
 export function PipelineStepper({ applicationId, status }: Props) {
   const [isPending, startTransition] = useTransition();
   const [optimisticStatus, setOptimisticStatus] = useOptimistic(status);
+  const [transitionError, setTransitionError] = useState<string | null>(null);
 
   const currentIdx = statusStageIndex(optimisticStatus);
   const nextStatuses = STATUS_NEXT[optimisticStatus] ?? [];
@@ -57,12 +58,14 @@ export function PipelineStepper({ applicationId, status }: Props) {
   const isNegativeExit = exitLastStage >= 0;
 
   const handleMove = (nextStatus: ApplicationStatus) => {
+    setTransitionError(null);
     const formData = new FormData();
     formData.set("application_id", applicationId);
     formData.set("next_status", nextStatus);
     startTransition(async () => {
       setOptimisticStatus(nextStatus);
-      await transitionApplicationStatusAction(formData);
+      const result = await transitionApplicationStatusAction(formData);
+      if (result?.error) setTransitionError(result.error);
     });
   };
 
@@ -137,6 +140,9 @@ export function PipelineStepper({ applicationId, status }: Props) {
               </button>
             ))}
           </div>
+          {transitionError && (
+            <p className="mt-2 text-[13px] text-[var(--st-rejected)]">{transitionError}</p>
+          )}
         </div>
       )}
     </div>

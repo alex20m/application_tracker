@@ -98,13 +98,26 @@ describe("InterviewRoundsCard", () => {
     expect(screen.getByRole("button", { name: "Cancelled" })).toBeInTheDocument();
   });
 
-  it("disables the current outcome button", () => {
+  it("does not show a Pending button; only shows forward moves from pending", () => {
     const round = makeRound({ outcome: "pending" });
     render(
       <InterviewRoundsCard application={makeApp({ interview_rounds: [round] })} existingRoundTypes={[]} />
     );
-    expect(screen.getByRole("button", { name: "Pending" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "Passed" })).not.toBeDisabled();
+    expect(screen.queryByRole("button", { name: "Pending" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Passed" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Failed" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Cancelled" })).toBeInTheDocument();
+  });
+
+  it("hides Set outcome buttons when latest round outcome is not pending", () => {
+    const round = makeRound({ outcome: "passed" });
+    render(
+      <InterviewRoundsCard application={makeApp({ interview_rounds: [round] })} existingRoundTypes={[]} />
+    );
+    expect(screen.queryByText("Set outcome:")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Passed" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Failed" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Cancelled" })).not.toBeInTheDocument();
   });
 
   it("calls updateInterviewRoundAction with correct formData when outcome is set", async () => {
@@ -125,17 +138,30 @@ describe("InterviewRoundsCard", () => {
     expect(formData.get("scheduled_at")).toBe("2026-05-01");
   });
 
-  it("does not show 'Set outcome:' or Edit/Delete when status is not interviews", () => {
-    const round = makeRound();
+  it("does not show notes, Set outcome, or Edit/Delete when status is not interviews", () => {
+    const round = makeRound({ notes: "some prep notes" });
     render(
       <InterviewRoundsCard
         application={makeApp({ status: STATUS.offer, interview_rounds: [round] })}
         existingRoundTypes={[]}
       />
     );
+    expect(screen.queryByText("some prep notes")).not.toBeInTheDocument();
     expect(screen.queryByText("Set outcome:")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Edit" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Delete" })).not.toBeInTheDocument();
+  });
+
+  it("shows round pills outside interviews stage (card is always visible)", () => {
+    const round = makeRound({ type: "Technical" });
+    render(
+      <InterviewRoundsCard
+        application={makeApp({ status: STATUS.offer, interview_rounds: [round] })}
+        existingRoundTypes={[]}
+      />
+    );
+    const pills = screen.getAllByTitle("Technical");
+    expect(pills.length).toBeGreaterThan(0);
   });
 
   it("shows notes of the latest round in the bottom section", () => {

@@ -25,15 +25,19 @@ export function ApplicationStatusCell({
   const nextStatuses = STATUS_NEXT[optimisticStatus] ?? [];
   const isFinal = FINAL_STATUSES.includes(optimisticStatus);
 
+  const [transitionError, setTransitionError] = useState<string | null>(null);
+
   const handleChangeStatus = (nextStatus: ApplicationStatus) => {
     setIsOpen(false);
+    setTransitionError(null);
     const formData = new FormData();
     formData.set("application_id", applicationId);
     formData.set("next_status", nextStatus);
 
     startTransition(async () => {
       setOptimisticStatus(nextStatus);
-      await transitionApplicationStatusAction(formData);
+      const result = await transitionApplicationStatusAction(formData);
+      if (result?.error) setTransitionError(result.error);
     });
   };
 
@@ -78,8 +82,9 @@ export function ApplicationStatusCell({
   }, [isOpen]);
 
   return (
-    <div className="flex flex-row items-center gap-2">
-      <StatusBadge status={optimisticStatus} />
+    <div className="flex flex-col items-end gap-1">
+      <div className="flex flex-row items-center gap-2">
+        <StatusBadge status={optimisticStatus} />
 
       {!isFinal && (
         <button
@@ -115,6 +120,10 @@ export function ApplicationStatusCell({
           ))}
         </div>,
         document.body
+      )}
+      </div>
+      {transitionError && (
+        <p className="text-[11px] text-[var(--st-rejected)] max-w-[200px] text-right">{transitionError}</p>
       )}
     </div>
   );

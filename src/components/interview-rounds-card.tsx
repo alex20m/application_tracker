@@ -331,8 +331,8 @@ export function InterviewRoundsCard({ application, existingRoundTypes }: Props) 
             })}
           </div>
 
-          {/* Bottom section: notes for latest round + inline outcome change + edit/delete */}
-          {latestRound && (canEdit || !!latestRound.notes) && (
+          {/* Bottom section: notes (interviews stage only) + inline outcome change + edit/delete */}
+          {latestRound && canEdit && (
             <div className="mt-4 pt-4 border-t border-border-base">
               {editingId === latestRound.id ? (
                 <RoundForm
@@ -348,20 +348,24 @@ export function InterviewRoundsCard({ application, existingRoundTypes }: Props) 
                     <p className="mb-3 text-sm text-ink-2 line-clamp-3">{latestRound.notes}</p>
                   )}
                   {canEdit && (
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-[13px] text-ink-2 mr-1">Set outcome:</span>
-                      {OUTCOMES.map((o) => (
-                        <button
-                          key={o.value}
-                          type="button"
-                          onClick={() => handleSetOutcome(o.value)}
-                          disabled={isPending || optimisticOutcome === o.value}
-                          className="cursor-pointer rounded-xl border border-border-base bg-surface px-3.5 py-2 text-[13px] font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                          {o.label}
-                        </button>
-                      ))}
-                      <div className="ml-auto flex items-center gap-1.5">
+                    <div className="flex flex-col gap-2">
+                      {optimisticOutcome === "pending" && (
+                        <div className="flex items-center gap-2">
+                          <span className="flex-shrink-0 text-[13px] text-ink-2 whitespace-nowrap">Set outcome:</span>
+                          {OUTCOMES.filter((o) => o.value !== "pending").map((o) => (
+                            <button
+                              key={o.value}
+                              type="button"
+                              onClick={() => handleSetOutcome(o.value)}
+                              disabled={isPending}
+                              className="flex-1 cursor-pointer rounded-xl border border-border-base bg-surface py-2 text-[13px] font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              {o.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      <div className="flex justify-end items-center gap-1.5">
                         <button
                           type="button"
                           onClick={() => {
