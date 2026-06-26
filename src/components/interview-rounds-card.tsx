@@ -358,7 +358,7 @@ export function InterviewRoundsCard({ application, existingRoundTypes }: Props) 
                               type="button"
                               onClick={() => handleSetOutcome(o.value)}
                               disabled={isPending}
-                              className="flex-1 cursor-pointer rounded-xl border border-border-base bg-surface py-2 text-[13px] font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
+                              className="cursor-pointer rounded-xl border border-border-base bg-surface px-3.5 py-2 text-[13px] font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
                             >
                               {o.label}
                             </button>
