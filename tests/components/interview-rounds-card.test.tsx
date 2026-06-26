@@ -183,7 +183,9 @@ describe("InterviewRoundsCard", () => {
       <InterviewRoundsCard application={makeApp({ interview_rounds: [round] })} existingRoundTypes={[]} />
     );
 
-    await user.click(screen.getByRole("button", { name: "Edit" }));
+    // Both desktop stepper and mobile timeline render Edit buttons; CSS hides one at runtime
+    const editButtons = screen.getAllByRole("button", { name: "Edit" });
+    await user.click(editButtons[0]);
     expect(screen.getByRole("button", { name: "Update" })).toBeInTheDocument();
   });
 });
