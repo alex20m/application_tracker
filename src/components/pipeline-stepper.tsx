@@ -3,6 +3,7 @@
 import { useOptimistic, useTransition, useState } from "react";
 import { transitionApplicationStatusAction } from "@/app/applications/actions";
 import { STATUS, STATUS_NEXT, STATUS_NAMES, statusStageIndex, FINAL_STATUSES, type ApplicationStatus } from "@/lib/statuses";
+import { ERROR_BANNER } from "@/lib/ui";
 
 const STAGES = [
   { label: "Applied", stageIdx: 0 },
@@ -141,7 +142,7 @@ export function PipelineStepper({ applicationId, status }: Props) {
             ))}
           </div>
           {transitionError && (
-            <p className="mt-2 text-[13px] text-[var(--st-rejected)]">{transitionError}</p>
+            <div className={`mt-3 ${ERROR_BANNER}`}>{transitionError}</div>
           )}
         </div>
       )}

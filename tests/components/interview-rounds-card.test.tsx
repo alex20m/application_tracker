@@ -183,7 +183,9 @@ describe("InterviewRoundsCard", () => {
       <InterviewRoundsCard application={makeApp({ interview_rounds: [round] })} existingRoundTypes={[]} />
     );
 
-    await user.click(screen.getByRole("button", { name: "Edit" }));
+    // Edit button appears in both desktop and mobile timeline views (one hidden via CSS)
+    const editButtons = screen.getAllByRole("button", { name: "Edit" });
+    await user.click(editButtons[0]);
     expect(screen.getByRole("button", { name: "Update" })).toBeInTheDocument();
   });
 });

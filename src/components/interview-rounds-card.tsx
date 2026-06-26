@@ -276,10 +276,12 @@ export function InterviewRoundsCard({ application, existingRoundTypes }: Props) 
           <div className="flex items-start mobile:hidden">
             {rounds.map((round, i) => {
               const isLast = i === rounds.length - 1;
+              const isLatest = isLast;
               const outcome = effectiveOutcome(round);
               const { className: pillClass, style: pStyle } = pillProps(outcome);
               const date = formatDate(round.scheduled_at);
               const connectorDone = outcome === "passed";
+              const showActions = canEdit && isLatest && editingId !== round.id;
 
               return (
                 <div key={round.id} className="flex flex-1 items-start min-w-0">
@@ -289,6 +291,26 @@ export function InterviewRoundsCard({ application, existingRoundTypes }: Props) 
                     </div>
                     {date && (
                       <span className="mt-1 text-[11px] text-ink-3 text-center">{date}</span>
+                    )}
+                    {showActions && (
+                      <div className="mt-2 flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => { setEditingId(round.id); setIsAdding(false); }}
+                          className={`${BTN_SMALL} border-border-base text-ink-3 hover:bg-surface-2`}
+                          disabled={isPending}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleDelete}
+                          className={`${BTN_SMALL} border-[color-mix(in_oklch,var(--st-rejected)_30%,transparent)] text-[var(--st-rejected)] hover:bg-[color-mix(in_oklch,var(--st-rejected)_8%,var(--surface))]`}
+                          disabled={isPending}
+                        >
+                          Delete
+                        </button>
+                      </div>
                     )}
                   </div>
                   {!isLast && (
@@ -306,11 +328,13 @@ export function InterviewRoundsCard({ application, existingRoundTypes }: Props) 
           <div className="hidden mobile:flex mobile:flex-col mobile:items-start">
             {reversedRounds.map((round, i) => {
               const isLast = i === reversedRounds.length - 1;
+              const isLatest = i === 0;
               const outcome = effectiveOutcome(round);
               const { className: pillClass, style: pStyle } = pillProps(outcome);
               const date = formatDate(round.scheduled_at);
               const olderRound = reversedRounds[i + 1];
               const connectorDone = olderRound ? effectiveOutcome(olderRound) === "passed" : false;
+              const showActions = canEdit && isLatest && editingId !== round.id;
 
               return (
                 <div key={round.id} className="flex flex-col items-start">
@@ -319,6 +343,26 @@ export function InterviewRoundsCard({ application, existingRoundTypes }: Props) 
                   </div>
                   {date && (
                     <span className="mt-0.5 text-[11px] text-ink-3">{date}</span>
+                  )}
+                  {showActions && (
+                    <div className="mt-1.5 flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => { setEditingId(round.id); setIsAdding(false); }}
+                        className={`${BTN_SMALL} border-border-base text-ink-3 hover:bg-surface-2`}
+                        disabled={isPending}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleDelete}
+                        className={`${BTN_SMALL} border-[color-mix(in_oklch,var(--st-rejected)_30%,transparent)] text-[var(--st-rejected)] hover:bg-[color-mix(in_oklch,var(--st-rejected)_8%,var(--surface))]`}
+                        disabled={isPending}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   )}
                   {!isLast && (
                     <div
@@ -331,8 +375,8 @@ export function InterviewRoundsCard({ application, existingRoundTypes }: Props) 
             })}
           </div>
 
-          {/* Bottom section: notes (interviews stage only) + inline outcome change + edit/delete */}
-          {latestRound && canEdit && (
+          {/* Bottom section: notes + inline outcome change + edit form */}
+          {latestRound && canEdit && (editingId === latestRound.id || !!latestRound.notes || optimisticOutcome === "pending") && (
             <div className="mt-4 pt-4 border-t border-border-base">
               {editingId === latestRound.id ? (
                 <RoundForm
@@ -347,45 +391,20 @@ export function InterviewRoundsCard({ application, existingRoundTypes }: Props) 
                   {latestRound.notes && (
                     <p className="mb-3 text-sm text-ink-2 line-clamp-3">{latestRound.notes}</p>
                   )}
-                  {canEdit && (
-                    <div className="flex flex-col gap-2">
-                      {optimisticOutcome === "pending" && (
-                        <div className="flex items-center gap-2">
-                          <span className="flex-shrink-0 text-[13px] text-ink-2 whitespace-nowrap">Set outcome:</span>
-                          {OUTCOMES.filter((o) => o.value !== "pending").map((o) => (
-                            <button
-                              key={o.value}
-                              type="button"
-                              onClick={() => handleSetOutcome(o.value)}
-                              disabled={isPending}
-                              className="flex-1 cursor-pointer rounded-xl border border-border-base bg-surface py-2 text-[13px] font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                              {o.label}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                      <div className="flex justify-end items-center gap-1.5">
+                  {optimisticOutcome === "pending" && (
+                    <div className="flex flex-nowrap items-center gap-2">
+                      <span className="flex-shrink-0 text-[13px] text-ink-2 whitespace-nowrap">Set outcome:</span>
+                      {OUTCOMES.filter((o) => o.value !== "pending").map((o) => (
                         <button
+                          key={o.value}
                           type="button"
-                          onClick={() => {
-                            setEditingId(latestRound.id);
-                            setIsAdding(false);
-                          }}
-                          className={`${BTN_SMALL} border-border-base text-ink-3 hover:bg-surface-2`}
+                          onClick={() => handleSetOutcome(o.value)}
                           disabled={isPending}
+                          className="flex-1 cursor-pointer rounded-xl border border-border-base bg-surface py-2 text-center text-[13px] font-semibold text-ink-2 transition hover:bg-surface-2 hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                          Edit
+                          {o.label}
                         </button>
-                        <button
-                          type="button"
-                          onClick={handleDelete}
-                          className={`${BTN_SMALL} border-[color-mix(in_oklch,var(--st-rejected)_30%,transparent)] text-[var(--st-rejected)] hover:bg-[color-mix(in_oklch,var(--st-rejected)_8%,var(--surface))]`}
-                          disabled={isPending}
-                        >
-                          Delete
-                        </button>
-                      </div>
+                      ))}
                     </div>
                   )}
                 </>
