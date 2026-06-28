@@ -1,3 +1,5 @@
+import { createClient } from "@supabase/supabase-js";
+
 export const runtime = "nodejs";
 
 export async function GET(request: Request) {
@@ -8,24 +10,20 @@ export async function GET(request: Request) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false } }
+  );
 
-  if (!supabaseUrl || !anonKey) {
-    return Response.json(
-      { success: false, error: "Missing Supabase configuration" },
-      { status: 500 }
-    );
-  }
+  // Asks the DB "how many rows?" — returns just a number, no user data
+  const { error } = await supabase
+    .from("applications")
+    .select("*", { count: "exact", head: true });
 
-  // Hits the PostgREST root — no table access, equivalent to SELECT 1
-  const res = await fetch(`${supabaseUrl}/rest/v1/`, {
-    headers: { apikey: anonKey },
-  });
-
-  if (!res.ok) {
-    console.error("[cron:keep-alive] error:", res.status);
-    return Response.json({ success: false, error: res.status }, { status: 500 });
+  if (error) {
+    console.error("[cron:keep-alive] error:", error);
+    return Response.json({ success: false, error: error.message }, { status: 500 });
   }
 
   console.log("[cron:keep-alive] ok");
