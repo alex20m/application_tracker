@@ -1,5 +1,3 @@
-import { createClient } from "@supabase/supabase-js";
-
 export const runtime = "nodejs";
 
 export async function GET(request: Request) {
@@ -11,25 +9,23 @@ export async function GET(request: Request) {
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (!supabaseUrl || !serviceRoleKey) {
+  if (!supabaseUrl || !anonKey) {
     return Response.json(
-      { success: false, error: "Missing Supabase service role configuration" },
+      { success: false, error: "Missing Supabase configuration" },
       { status: 500 }
     );
   }
 
-  const supabase = createClient(supabaseUrl, serviceRoleKey, {
-    auth: { persistSession: false },
+  // Hits the PostgREST root — no table access, equivalent to SELECT 1
+  const res = await fetch(`${supabaseUrl}/rest/v1/`, {
+    headers: { apikey: anonKey },
   });
 
-  // Read-only query — touches no user data, just keeps the db active
-  const { error } = await supabase.from("applications").select("id").limit(1);
-
-  if (error) {
-    console.error("[cron:keep-alive] error:", error);
-    return Response.json({ success: false, error: error.message }, { status: 500 });
+  if (!res.ok) {
+    console.error("[cron:keep-alive] error:", res.status);
+    return Response.json({ success: false, error: res.status }, { status: 500 });
   }
 
   console.log("[cron:keep-alive] ok");
