@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/auto-ghost",
       "schedule": "0 1 * * *"
+    },
+    {
+      "path": "/api/cron/keep-alive",
+      "schedule": "0 2 */5 * *"
     }
   ]
 }
