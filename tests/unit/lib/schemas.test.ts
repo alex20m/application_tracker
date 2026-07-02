@@ -3,6 +3,7 @@ import {
   ApplicationCreateSchema,
   ApplicationUpdateSchema,
   ApplicationNoteSchema,
+  ExtensionApplicationSchema,
   InterviewRoundCreateSchema,
   InterviewRoundUpdateSchema,
   PasswordSchema,
@@ -125,6 +126,43 @@ describe("ApplicationNoteSchema", () => {
 
   it("rejects notes over 5000 chars", () => {
     expect(ApplicationNoteSchema.safeParse({ notes: "a".repeat(5001) }).success).toBe(false);
+  });
+});
+
+describe("ExtensionApplicationSchema", () => {
+  it("accepts company and role alone, defaulting the rest", () => {
+    const result = ExtensionApplicationSchema.safeParse({ company: "Acme", role: "Engineer" });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.location).toBe("");
+      expect(result.data.source).toBe("");
+      expect(result.data.applied_on).toBeUndefined();
+    }
+  });
+
+  it("requires company and role", () => {
+    expect(ExtensionApplicationSchema.safeParse({ company: "Acme" }).success).toBe(false);
+    expect(ExtensionApplicationSchema.safeParse({ role: "Engineer" }).success).toBe(false);
+    expect(
+      ExtensionApplicationSchema.safeParse({ company: "  ", role: "Engineer" }).success
+    ).toBe(false);
+  });
+
+  it("accepts a valid applied_on and rejects malformed dates", () => {
+    expect(
+      ExtensionApplicationSchema.safeParse({
+        company: "Acme",
+        role: "Engineer",
+        applied_on: "2026-07-01",
+      }).success
+    ).toBe(true);
+    expect(
+      ExtensionApplicationSchema.safeParse({
+        company: "Acme",
+        role: "Engineer",
+        applied_on: "07/01/2026",
+      }).success
+    ).toBe(false);
   });
 });
 

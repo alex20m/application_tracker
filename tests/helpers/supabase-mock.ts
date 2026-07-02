@@ -41,6 +41,7 @@ export function buildSupabaseMock(opts: MockOptions = {}) {
       eq: vi.fn().mockReturnThis(),
       neq: vi.fn().mockReturnThis(),
       in: vi.fn().mockReturnThis(),
+      ilike: vi.fn().mockReturnThis(),
       order: vi.fn().mockReturnThis(),
       limit: vi.fn().mockReturnThis(),
       single: vi.fn().mockResolvedValue({ data: terminalValue, error: terminalError }),

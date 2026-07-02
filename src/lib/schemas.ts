@@ -26,6 +26,20 @@ export const ApplicationNoteSchema = z.object({
   notes: z.string().max(5000),
 });
 
+// Scraped job data is best-effort: location may be missing and the extension
+// falls back to the server's current date when applied_on is omitted.
+export const ExtensionApplicationSchema = z.object({
+  company: trimmedString(200),
+  role: trimmedString(200),
+  location: z.string().trim().max(200).optional().default(""),
+  source: z.string().trim().max(200).optional().default(""),
+  notes: z.string().max(5000).optional().default(""),
+  applied_on: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date")
+    .optional(),
+});
+
 const INTERVIEW_ROUND_OUTCOMES = ["pending", "passed", "failed", "cancelled"] as const;
 
 export const InterviewRoundCreateSchema = z.object({

@@ -20,6 +20,19 @@ const eslintConfig = defineConfig([
       "react-hooks/rules-of-hooks": "off",
     },
   },
+  // Browser-extension scripts (MV3, plain JS with chrome APIs and a shared
+  // JobInfo global loaded via manifest content_scripts ordering).
+  {
+    files: ["extension/**/*.js"],
+    languageOptions: {
+      globals: {
+        chrome: "readonly",
+        JobInfo: "readonly",
+        ConfirmPrompt: "readonly",
+        module: "writable",
+      },
+    },
+  },
 ]);
 
 export default eslintConfig;

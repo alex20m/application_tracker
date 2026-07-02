@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Application Tracker Capture — Settings</title>
+    <style>
+      body {
+        max-width: 560px;
+        margin: 40px auto;
+        padding: 0 16px;
+        font-family: system-ui, -apple-system, sans-serif;
+        font-size: 14px;
+        color: #111827;
+      }
+      label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+      }
+      input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 8px 10px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font: inherit;
+      }
+      button {
+        margin-top: 12px;
+        padding: 8px 14px;
+        border: none;
+        border-radius: 6px;
+        background: #111827;
+        color: #fff;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      p.hint {
+        color: #6b7280;
+      }
+      #status.ok {
+        color: #15803d;
+      }
+      #status.error {
+        color: #b91c1c;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Application Tracker Capture</h1>
+    <p class="hint">
+      Enter the URL where your Application Tracker runs (for example
+      <code>https://your-tracker.vercel.app</code> or <code>http://localhost:3000</code>).
+      Saving asks for permission to talk to that site, and captures use the
+      session from your normal browser login — so sign in to the tracker in
+      this browser first.
+    </p>
+
+    <label for="app-url">Tracker URL</label>
+    <input id="app-url" type="url" placeholder="https://your-tracker.vercel.app" />
+    <button id="save">Save</button>
+    <p id="status" hidden></p>
+
+    <script src="options.js"></script>
+  </body>
+</html>
