@@ -33,7 +33,9 @@
 
   const CONFIRMATION_PATTERN =
     /application (was )?sent|application submitted|your application was sent/i;
-  const DID_APPLY_PATTERN = /did you apply/i;
+  // LinkedIn phrases this dialog as "Did you apply?" or "Did you finish
+  // applying?" depending on the flow.
+  const DID_APPLY_PATTERN = /did you (finish )?apply/i;
 
   const THROTTLE_MS = 500;
   const REPEAT_COOLDOWN_MS = 60000;
