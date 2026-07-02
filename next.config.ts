@@ -11,6 +11,11 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // The extension download route zips the extension/ directory at runtime;
+  // without this the files are not traced into the serverless bundle.
+  outputFileTracingIncludes: {
+    "/api/extension/download": ["./extension/**/*"],
+  },
   async headers() {
     return [
       {

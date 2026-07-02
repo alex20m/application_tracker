@@ -5,6 +5,7 @@ import { ChangePasswordForm } from "@/components/change-password-form";
 import { DeleteAccountForm } from "@/components/delete-account-form";
 import { CARD, SECTION_STACK, TEXT_H1, TEXT_H2 } from "@/lib/ui";
 import { InstallAppButton } from "@/components/install-app-button";
+import { ExtensionDownloadCard } from "@/components/extension-download-card";
 import { changePasswordAction, deleteAccountAction } from "./actions";
 
 export default async function SettingsPage() {
@@ -23,6 +24,8 @@ export default async function SettingsPage() {
         </div>
 
         <InstallAppButton variant="card" />
+
+        <ExtensionDownloadCard />
 
         {user.email && (
           <div className={CARD}>

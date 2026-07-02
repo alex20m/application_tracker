@@ -34,4 +34,5 @@ export const ROUTES = {
   resetPasswordCallback: "/api/auth/reset-password",
   cronAutoGhost: "/api/cron/auto-ghost",
   extensionApplications: "/api/extension/applications",
+  extensionDownload: "/api/extension/download",
 } as const;

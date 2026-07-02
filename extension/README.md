@@ -27,7 +27,17 @@ It also has a popup for saving the currently viewed job manually.
 - The toolbar badge flashes `✓` (saved), `=` (duplicate), or `!` (failed).
   The popup shows the last capture result and a prefilled manual-save form.
 
-## Install (unpacked)
+## Install (from the app — recommended)
+
+Open the tracker's **Settings** page and click **Download extension**. The
+zip it serves is preconfigured for that deployment (host permission + app
+URL baked in), so after unzipping you only need:
+
+1. Open `chrome://extensions`, enable **Developer mode**.
+2. Click **Load unpacked** and select the unzipped folder.
+3. Sign in to the tracker in the same browser.
+
+## Install (from the repo)
 
 1. Open `chrome://extensions`, enable **Developer mode**.
 2. Click **Load unpacked** and select this `extension/` directory.
