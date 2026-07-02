@@ -1,7 +1,10 @@
 // Captures job details on Indeed and detects submitted applications.
 // The apply flow moves from www.indeed.com to smartapply.indeed.com (a
 // different origin), so job details are forwarded to the background worker
-// as "job-context" and merged there if the post-apply page scrape is thin.
+// as "job-context" and fetched back when the post-apply page scrape is thin.
+// Nothing is stored without the user answering a confirmation prompt that
+// previews the captured fields; "Apply on company site" clicks additionally
+// require answering "Did you apply?" after returning to the tab.
 (function () {
   "use strict";
 
@@ -31,11 +34,21 @@
     /application (has been |was )?submitted|you('|’)ve applied|application complete/i;
 
   const THROTTLE_MS = 500;
-  const RESEND_COOLDOWN_MS = 60000;
+  const REPEAT_COOLDOWN_MS = 60000;
+  const PENDING_TTL_MS = 45 * 60 * 1000;
+  const RETURN_PROMPT_DELAY_MS = 1500;
+
+  const EXTERNAL_NOTE = "Applied via the company's site (captured from Indeed).";
 
   let lastSentKey = "";
   let lastSentAt = 0;
+  let lastOfferedKey = "";
+  let lastOfferedAt = 0;
   let throttleTimer = null;
+
+  // Job whose "Apply on company site" link was clicked, awaiting confirmation.
+  let pendingExternalJob = null;
+  let pendingExternalAt = 0;
 
   function scrapeJob() {
     const fallback = JobInfo.parseTitleParts(document.title, "Indeed");
@@ -54,30 +67,86 @@
     }
   }
 
-  function isPostApplyPage() {
-    if (/post-?apply/i.test(location.pathname)) return true;
-    const heading = document.querySelector("h1, h2");
-    return Boolean(heading && CONFIRMATION_PATTERN.test(heading.textContent || ""));
+  // The post-apply page may not repeat the job details; fill missing fields
+  // from the job context stored in the background worker.
+  async function resolveJob() {
+    const job = scrapeJob();
+    if (JobInfo.isCompleteJob(job)) return job;
+
+    const reply = await chrome.runtime
+      .sendMessage({ type: "get-job-context" })
+      .catch(function () {
+        return null;
+      });
+    if (!reply || !reply.job) return job;
+
+    const merged = Object.assign({}, reply.job);
+    for (const [field, value] of Object.entries(job)) {
+      if (value) merged[field] = value;
+    }
+    return JobInfo.normalizeJob(merged);
   }
 
-  function reportSubmission(extraNotes) {
-    // The post-apply page may not repeat the job details; the background
-    // worker fills in missing fields from the last "job-context" message.
-    let job = scrapeJob();
-    if (extraNotes) job = Object.assign({}, job, { notes: extraNotes });
+  function getPendingExternal() {
+    if (pendingExternalJob && Date.now() - pendingExternalAt < PENDING_TTL_MS) {
+      return pendingExternalJob;
+    }
+    return null;
+  }
 
-    const key = JobInfo.jobKey(job) + "@" + location.pathname;
+  function clearPendingExternal() {
+    pendingExternalJob = null;
+  }
+
+  function submitToTracker(job) {
+    const key = JobInfo.jobKey(job);
     const now = Date.now();
-    if (key === lastSentKey && now - lastSentAt < RESEND_COOLDOWN_MS) return;
+    if (key === lastSentKey && now - lastSentAt < REPEAT_COOLDOWN_MS) return;
     lastSentKey = key;
     lastSentAt = now;
 
     chrome.runtime.sendMessage({ type: "application-submitted", job }).catch(function () {});
   }
 
+  // Final gate before anything is stored: shows exactly what would be saved.
+  // The cooldown stops the mutation observer from re-opening a prompt the
+  // user just answered or dismissed.
+  function askToSave(job, title, yesLabel) {
+    if (!JobInfo.isCompleteJob(job)) return;
+
+    const key = JobInfo.jobKey(job);
+    const now = Date.now();
+    if (key === lastOfferedKey && now - lastOfferedAt < REPEAT_COOLDOWN_MS) return;
+    lastOfferedKey = key;
+    lastOfferedAt = now;
+
+    ConfirmPrompt.show(
+      {
+        title: title || "Save to your tracker?",
+        job,
+        yesLabel: yesLabel || "Save",
+        noLabel: title ? "No" : "Don't save",
+      },
+      function () {
+        submitToTracker(job);
+      },
+      function () {}
+    );
+  }
+
+  function isPostApplyPage() {
+    if (/post-?apply/i.test(location.pathname)) return true;
+    const heading = document.querySelector("h1, h2");
+    return Boolean(heading && CONFIRMATION_PATTERN.test(heading.textContent || ""));
+  }
+
   function checkPage() {
     rememberJob();
-    if (isPostApplyPage()) reportSubmission();
+    if (isPostApplyPage()) {
+      resolveJob().then(function (job) {
+        askToSave(job);
+      });
+    }
   }
 
   const observer = new MutationObserver(function () {
@@ -91,9 +160,9 @@
   observer.observe(document.body, { childList: true, subtree: true });
   checkPage();
 
-  // "Apply on company site" leaves Indeed with no confirmation page, so the
-  // click is the capture signal. Indeed-hosted applies (Smart Apply) are
-  // handled by the post-apply detection above instead.
+  // "Apply on company site" leaves Indeed with no confirmation page. Only
+  // mark the job as pending — the user may just be opening the page to look;
+  // they confirm after returning to this tab.
   document.addEventListener(
     "click",
     function (event) {
@@ -107,10 +176,29 @@
       );
       if (!/apply on company (web)?site|apply now on company/i.test(label)) return;
 
-      reportSubmission("Auto-captured when opening the company's application page from Indeed.");
+      const job = scrapeJob();
+      if (JobInfo.isCompleteJob(job)) {
+        pendingExternalJob = job;
+        pendingExternalAt = Date.now();
+      }
     },
     true
   );
+
+  function maybePromptOnReturn() {
+    if (document.visibilityState !== "visible") return;
+    if (!getPendingExternal()) return;
+
+    setTimeout(function () {
+      const job = getPendingExternal();
+      if (!job) return;
+      clearPendingExternal();
+      askToSave(Object.assign({}, job, { notes: EXTERNAL_NOTE }), "Did you apply?", "Yes, save it");
+    }, RETURN_PROMPT_DELAY_MS);
+  }
+
+  document.addEventListener("visibilitychange", maybePromptOnReturn);
+  window.addEventListener("focus", maybePromptOnReturn);
 
   chrome.runtime.onMessage.addListener(function (message, _sender, sendResponse) {
     if (message && message.type === "get-job-info") {

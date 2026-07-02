@@ -156,6 +156,12 @@ chrome.runtime.onMessage.addListener(function (message, _sender, sendResponse) {
     setJobContext(message.job);
     return undefined;
   }
+  if (message.type === "get-job-context") {
+    getJobContext().then(function (job) {
+      sendResponse({ job });
+    });
+    return true;
+  }
   if (message.type === "application-submitted") {
     handleSubmission(message.job);
     return undefined;

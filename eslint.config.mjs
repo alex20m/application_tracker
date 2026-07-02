@@ -28,6 +28,7 @@ const eslintConfig = defineConfig([
       globals: {
         chrome: "readonly",
         JobInfo: "readonly",
+        ConfirmPrompt: "readonly",
         module: "writable",
       },
     },
