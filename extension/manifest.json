@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "Application Tracker Capture",
+  "version": "0.1.0",
+  "description": "Automatically saves jobs you apply to on LinkedIn and Indeed to your Application Tracker.",
+  "permissions": ["storage", "activeTab"],
+  "optional_host_permissions": ["https://*/*", "http://localhost/*", "http://127.0.0.1/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.linkedin.com/jobs/*"],
+      "js": ["shared/job-info.js", "content/linkedin.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://*.indeed.com/*"],
+      "js": ["shared/job-info.js", "content/indeed.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "Application Tracker",
+    "default_icon": {
+      "96": "icons/icon-96.png",
+      "192": "icons/icon-192.png"
+    }
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  },
+  "icons": {
+    "96": "icons/icon-96.png",
+    "192": "icons/icon-192.png"
+  }
+}

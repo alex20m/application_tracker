@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Application Tracker</h1>
+      <p id="auth-status" class="muted">Checking sign-in…</p>
+    </header>
+
+    <main>
+      <form id="save-form">
+        <label>
+          Company
+          <input id="company" name="company" type="text" required maxlength="200" />
+        </label>
+        <label>
+          Role
+          <input id="role" name="role" type="text" required maxlength="200" />
+        </label>
+        <label>
+          Location
+          <input id="location" name="location" type="text" maxlength="200" />
+        </label>
+        <label>
+          Source
+          <input id="source" name="source" type="text" maxlength="200" />
+        </label>
+        <button id="save-button" type="submit">Save application</button>
+      </form>
+      <p id="result" class="muted" hidden></p>
+      <p id="last-auto" class="muted" hidden></p>
+    </main>
+
+    <footer>
+      <a id="open-tracker" href="#" target="_blank" rel="noreferrer">Open tracker</a>
+      <a id="open-options" href="#">Settings</a>
+    </footer>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
