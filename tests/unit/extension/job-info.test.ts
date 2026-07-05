@@ -88,3 +88,72 @@ describe("firstText", () => {
     expect(JobInfo.firstText([".missing"])).toBe("");
   });
 });
+
+describe("elementLabel", () => {
+  it("combines aria-label and visible text", () => {
+    document.body.innerHTML = '<button aria-label="Yes, I applied"><span> Yes </span></button>';
+    expect(JobInfo.elementLabel(document.querySelector("button"))).toBe("Yes, I applied Yes");
+  });
+
+  it("handles missing elements and attributes", () => {
+    expect(JobInfo.elementLabel(null)).toBe("");
+    document.body.innerHTML = "<button>No</button>";
+    expect(JobInfo.elementLabel(document.querySelector("button"))).toBe("No");
+  });
+});
+
+describe("findAncestorMatching", () => {
+  const pattern = /did you (finish )?apply/i;
+
+  it("finds the prompt container from a button inside an inline card", () => {
+    document.body.innerHTML = `
+      <div class="page">
+        <div class="card">
+          <p>Did you finish applying?</p>
+          <button id="yes">Yes</button>
+        </div>
+      </div>`;
+    const found = JobInfo.findAncestorMatching(
+      document.getElementById("yes"),
+      pattern,
+      12,
+      1500
+    );
+    expect(found).toBe(document.querySelector(".card"));
+  });
+
+  it("skips containers whose text exceeds the length cap", () => {
+    document.body.innerHTML = `
+      <div class="huge">
+        <p>${"x".repeat(2000)} did you apply</p>
+        <button id="yes">Yes</button>
+      </div>`;
+    const found = JobInfo.findAncestorMatching(
+      document.getElementById("yes"),
+      pattern,
+      12,
+      1500
+    );
+    expect(found).toBeNull();
+  });
+
+  it("respects the depth limit", () => {
+    document.body.innerHTML = `
+      <div class="outer">Did you apply?
+        <div><div><div><button id="yes">Yes</button></div></div></div>
+      </div>`;
+    expect(
+      JobInfo.findAncestorMatching(document.getElementById("yes"), pattern, 2, 1500)
+    ).toBeNull();
+    expect(
+      JobInfo.findAncestorMatching(document.getElementById("yes"), pattern, 6, 1500)
+    ).toBe(document.querySelector(".outer"));
+  });
+
+  it("returns null when nothing matches", () => {
+    document.body.innerHTML = '<div><button id="yes">Yes</button></div>';
+    expect(
+      JobInfo.findAncestorMatching(document.getElementById("yes"), pattern, 12, 1500)
+    ).toBeNull();
+  });
+});
