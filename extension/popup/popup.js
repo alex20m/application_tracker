@@ -1,12 +1,11 @@
-// Popup: shows sign-in status, prefills a manual-save form from the current
-// job page (LinkedIn/Indeed), and lets the user save it to the tracker.
+// Popup: shows sign-in status and lets the user fill out and save an
+// application to the tracker.
 "use strict";
 
 const authStatus = document.getElementById("auth-status");
 const form = document.getElementById("save-form");
 const saveButton = document.getElementById("save-button");
 const resultEl = document.getElementById("result");
-const lastAutoEl = document.getElementById("last-auto");
 
 function showResult(text, ok) {
   resultEl.textContent = text;
@@ -30,36 +29,6 @@ async function initAuth() {
   const appUrl = status && status.appUrl ? status.appUrl : "";
   const openTracker = document.getElementById("open-tracker");
   if (appUrl) openTracker.href = appUrl + "/applications";
-}
-
-async function prefillFromActiveTab() {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (!tab || !tab.id || !tab.url) return;
-  if (!/linkedin\.com|indeed\.com/.test(tab.url)) return;
-
-  const reply = await chrome.tabs
-    .sendMessage(tab.id, { type: "get-job-info" })
-    .catch(function () {
-      return null;
-    });
-  if (!reply || !reply.job) return;
-
-  const job = reply.job;
-  if (job.company) document.getElementById("company").value = job.company;
-  if (job.role) document.getElementById("role").value = job.role;
-  if (job.location) document.getElementById("location").value = job.location;
-  if (job.source) document.getElementById("source").value = job.source;
-}
-
-async function showLastAutoSave() {
-  const { lastResult } = await chrome.storage.session.get("lastResult");
-  if (!lastResult || !lastResult.job) return;
-
-  const label = lastResult.job.company + " — " + lastResult.job.role;
-  lastAutoEl.textContent = lastResult.ok
-    ? "Last capture: saved " + label
-    : "Last capture failed (" + label + "): " + (lastResult.error || "unknown error");
-  lastAutoEl.hidden = false;
 }
 
 form.addEventListener("submit", async function (event) {
@@ -93,5 +62,3 @@ document.getElementById("open-options").addEventListener("click", function (even
 });
 
 initAuth();
-prefillFromActiveTab();
-showLastAutoSave();

@@ -54,15 +54,11 @@ describe("GET /api/extension/download", () => {
     expect(options).toContain(`const DEFAULT_APP_URL = "${origin}";`);
   });
 
-  it("bundles every extension file, including content scripts and icons", async () => {
+  it("bundles every extension file, including the popup and icons", async () => {
     const zip = await downloadZip();
     for (const file of [
       "manifest.json",
       "background.js",
-      "shared/job-info.js",
-      "shared/confirm-prompt.js",
-      "content/linkedin.js",
-      "content/indeed.js",
       "popup/popup.html",
       "popup/popup.js",
       "options/options.html",

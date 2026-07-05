@@ -9,14 +9,14 @@ Cross-device job application tracker built with Next.js 16 + Supabase.
 - Supabase (Auth + Postgres + RLS)
 - Tailwind CSS
 - PWA support (installable on iPhone + desktop)
-- Browser extension (Chrome MV3) that captures applications from LinkedIn/Indeed
+- Browser extension (Chrome MV3) for saving applications with one click
 
 ## Browser extension
 
-A companion extension captures jobs you apply to on LinkedIn (Easy Apply and
-external applies) and Indeed, and saves them into the tracker after you
-confirm a prompt previewing the captured fields. Nothing is stored without
-your confirmation, and duplicates are skipped automatically.
+A companion extension lets you save a job application to the tracker without
+leaving the job posting: click the toolbar icon, fill in the company, role,
+location, and source, and click Save. Nothing is read from the page and
+nothing is sent until you click Save; duplicates are skipped automatically.
 
 To install it, open **Settings → Browser Extension → Download extension** in
 the running app — the zip is preconfigured for that deployment, so you only
