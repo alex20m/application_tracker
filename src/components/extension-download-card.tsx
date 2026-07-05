@@ -6,9 +6,10 @@ export function ExtensionDownloadCard() {
     <div className={CARD}>
       <h2 className={`${TEXT_H2} mb-1`}>Browser Extension</h2>
       <p className="text-[13px] text-ink-2 mb-4 max-w-md">
-        Save jobs you apply to on LinkedIn and Indeed straight into the tracker.
-        The download comes preconfigured for this site, so there is nothing to
-        set up inside the extension.
+        Click the extension icon while looking at a job posting, fill in the
+        details, and save it straight into the tracker. The download comes
+        preconfigured for this site, so there is nothing to set up inside the
+        extension.
       </p>
       <a href={ROUTES.extensionDownload} className={BTN_PRIMARY_LINK} download>
         Download extension
@@ -32,9 +33,9 @@ export function ExtensionDownloadCard() {
             application-tracker-extension folder.
           </li>
           <li>
-            Done — stay signed in to this site in the same browser, then apply
-            to a job on LinkedIn or Indeed and confirm the save prompt that
-            appears.
+            Done — stay signed in to this site in the same browser, then click
+            the extension icon on any job posting to fill out and save an
+            application.
           </li>
         </ol>
       </details>
