@@ -65,6 +65,27 @@
     return { role: parts[0] || "", company: parts[1] || "" };
   }
 
+  // Accessible name of a control: aria-label plus visible text.
+  function elementLabel(el) {
+    if (!el) return "";
+    return cleanText((el.getAttribute("aria-label") || "") + " " + (el.textContent || ""));
+  }
+
+  // Nearest ancestor whose text matches `pattern`. Job boards render the same
+  // prompt as a modal, an inline card, or a list item, so this works from the
+  // clicked button outward instead of assuming a dialog wrapper. maxTextLength
+  // keeps it from matching a page-sized container that merely contains the
+  // phrase somewhere else.
+  function findAncestorMatching(el, pattern, maxDepth, maxTextLength) {
+    let node = el;
+    for (let depth = 0; node && depth < maxDepth; depth += 1) {
+      const text = node.textContent || "";
+      if (text.length <= maxTextLength && pattern.test(text)) return node;
+      node = node.parentElement;
+    }
+    return null;
+  }
+
   const api = {
     cleanText: cleanText,
     firstText: firstText,
@@ -73,6 +94,8 @@
     isCompleteJob: isCompleteJob,
     jobKey: jobKey,
     parseTitleParts: parseTitleParts,
+    elementLabel: elementLabel,
+    findAncestorMatching: findAncestorMatching,
   };
 
   if (typeof module !== "undefined" && module.exports) {
