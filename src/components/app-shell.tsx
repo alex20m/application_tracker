@@ -276,9 +276,9 @@ export function AppShell({ email, children }: AppShellProps) {
             role="dialog"
             aria-modal="true"
             aria-label="Navigation menu"
-            className="absolute right-0 top-0 flex h-full w-72 max-w-[85vw] flex-col bg-surface shadow-xl"
+            className="absolute right-0 top-0 flex h-dvh max-h-dvh w-72 max-w-[85vw] flex-col bg-surface shadow-xl"
           >
-            <div className="flex items-center justify-between border-b border-border-base px-4 py-3">
+            <div className="flex flex-shrink-0 items-center justify-between border-b border-border-base px-4 py-3">
               <span className="text-sm font-bold text-ink">Menu</span>
               <button
                 type="button"
@@ -292,7 +292,7 @@ export function AppShell({ email, children }: AppShellProps) {
               </button>
             </div>
 
-            <nav className="flex flex-col p-2">
+            <nav className="flex min-h-0 flex-1 flex-col overflow-y-auto p-2">
               {navItems.map((item) => {
                 const isActive = pathname === item.href || (item.href !== ROUTES.dashboard && pathname.startsWith(item.href));
                 return (
@@ -314,7 +314,7 @@ export function AppShell({ email, children }: AppShellProps) {
               })}
             </nav>
 
-            <div className="mt-auto border-t border-border-base p-4 space-y-3">
+            <div className="flex-shrink-0 border-t border-border-base p-4 space-y-3">
               <div className="flex items-center gap-2.5">
                 <span
                   className="flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-bold text-accent-ink flex-shrink-0"
