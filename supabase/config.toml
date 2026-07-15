@@ -239,6 +239,12 @@ otp_expiry = 3600
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
 
+# Send a 6-digit one-time passcode instead of a magic link for email OTP sign-in.
+# The template renders {{ .Token }} (the numeric code) rather than a confirmation URL.
+[auth.email.template.magic_link]
+subject = "Your AppTrack sign-in code"
+content_path = "./supabase/templates/magic_link.html"
+
 # Uncomment to customize email template
 # [auth.email.template.invite]
 # subject = "You have been invited"

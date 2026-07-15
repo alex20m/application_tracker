@@ -6,36 +6,104 @@ import { BTN_PRIMARY, ERROR_BANNER, INPUT_ON_GRAY, LABEL, SUCCESS_BANNER } from 
 import { ROUTES } from "@/lib/env";
 import { PasswordCriteria } from "./password-criteria";
 
-type LoginAction = (
-  prevState: unknown,
-  formData: FormData
-) => Promise<{
+type ActionResult = {
   success?: boolean;
   error?: string;
   message?: string;
-}>;
+  otpSent?: boolean;
+};
+
+type LoginAction = (
+  prevState: unknown,
+  formData: FormData
+) => Promise<ActionResult>;
+
+type VerifyAction = (
+  prevState: unknown,
+  formData: FormData
+) => Promise<{ success?: boolean; error?: string }>;
 
 type LoginFormProps = {
   action: LoginAction;
+  verifyAction: VerifyAction;
 };
 
-export function LoginForm({ action }: LoginFormProps) {
+export function LoginForm({ action, verifyAction }: LoginFormProps) {
   const [state, formAction, isPending] = useActionState(action, {
     success: false,
   });
-  const [authMode, setAuthMode] = useState<"password" | "magic">("password");
+  const [verifyState, verifyFormAction, isVerifying] = useActionState(verifyAction, {
+    success: false,
+  });
+  const [authMode, setAuthMode] = useState<"password" | "otp">("password");
   const [authIntent, setAuthIntent] = useState<"signin" | "signup">("signin");
   const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+
+  const otpSent = authMode === "otp" && state.otpSent === true;
+
+  // ── Step 2 of OTP flow: enter the 6-digit code ─────────────────────
+  if (otpSent) {
+    return (
+      <form action={verifyFormAction} className="space-y-4">
+        {verifyState.error && <div className={ERROR_BANNER}>{verifyState.error}</div>}
+        {!verifyState.error && state.message && (
+          <div className={SUCCESS_BANNER}>{state.message}</div>
+        )}
+
+        <input type="hidden" name="email" value={email} />
+
+        <div>
+          <label htmlFor="token" className={LABEL}>6-digit code</label>
+          <input
+            id="token"
+            name="token"
+            type="text"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            pattern="\d{6}"
+            maxLength={6}
+            required
+            autoFocus
+            className={`${INPUT_ON_GRAY} text-center tracking-[0.5em] font-mono`}
+            placeholder="000000"
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={isVerifying}
+          className={`w-full py-2.5 ${BTN_PRIMARY}`}
+        >
+          {isVerifying ? "Verifying…" : "Verify code"}
+        </button>
+
+        <div className="pt-1">
+          <button
+            type="button"
+            onClick={() => {
+              setAuthMode("password");
+              setPassword("");
+            }}
+            className="cursor-pointer text-xs text-gray-500 dark:text-gray-500 transition hover:text-gray-700 dark:hover:text-gray-300"
+          >
+            Use a different email or password
+          </button>
+        </div>
+      </form>
+    );
+  }
 
   const primaryLabel =
-    authMode === "magic"
-      ? "Send Sign-In Link"
+    authMode === "otp"
+      ? "Send Code"
       : authIntent === "signup"
         ? "Create Account"
         : "Sign In";
 
   const showCriteria = authMode === "password" && authIntent === "signup";
 
+  // ── Step 1: email + (password | request code) ─────────────────────
   return (
     <form action={formAction} className="space-y-4">
       {state.error && (
@@ -55,6 +123,8 @@ export function LoginForm({ action }: LoginFormProps) {
           required
           className={INPUT_ON_GRAY}
           placeholder="you@example.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
       </div>
 
@@ -100,12 +170,12 @@ export function LoginForm({ action }: LoginFormProps) {
         <button
           type="button"
           onClick={() => {
-            setAuthMode(authMode === "password" ? "magic" : "password");
+            setAuthMode(authMode === "password" ? "otp" : "password");
             setPassword("");
           }}
           className="cursor-pointer text-xs text-gray-500 dark:text-gray-500 transition hover:text-gray-700 dark:hover:text-gray-300"
         >
-          Use {authMode === "password" ? "email sign-in link" : "password"}
+          Use {authMode === "password" ? "email code" : "password"}
         </button>
         <button
           type="button"
