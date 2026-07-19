@@ -16,7 +16,7 @@ A **complete, production-ready MVP** for a cross-device job application tracker:
 ✅ **Real-time sync** across devices in one account  
 ✅ **Sankey visualization** of application status flow  
 ✅ **Full CRUD** for job applications  
-✅ **Email/magic-link auth** ready to go  
+✅ **Email/password + 6-digit OTP auth** ready to go  
 
 ---
 
@@ -151,7 +151,7 @@ After deploying to Vercel:
 ```
 src/
 ├── app/
-│   ├── auth/callback/          # OAuth callback
+│   ├── api/auth/callback/      # Email confirmation callback
 │   ├── login/                  # Sign-in page
 │   ├── dashboard/              # Dashboard home
 │   ├── applications/           # App list & CRUD
@@ -190,7 +190,7 @@ src/
 ### 🔐 Security
 
 - **RLS** ensures users only see their own data
-- **Email/password auth** with optional magic links
+- **Email/password auth** with optional 6-digit email OTP sign-in
 - Credentials never sent to client
 - Session stored in secure httpOnly cookies
 
@@ -220,7 +220,7 @@ src/
 - [ ] Created Supabase project
 - [ ] Applied initial migration (`npm run db:push`)
 - [ ] Added and pushed migration files in `supabase/migrations/`
-- [ ] Configured auth providers (email + magic link)
+- [ ] Configured auth providers (email + password + OTP)
 - [ ] Set `.env.local` with correct credentials
 - [ ] Tested locally: sign up, create app, view sankey
 - [ ] Tested iPhone PWA install

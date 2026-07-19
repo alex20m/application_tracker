@@ -1,5 +1,5 @@
 import { LoginForm } from "@/components/login-form";
-import { loginAction } from "./actions";
+import { loginAction, verifyOtpAction } from "./actions";
 import { SUCCESS_BANNER, ERROR_BANNER } from "@/lib/ui";
 
 type Props = {
@@ -95,7 +95,7 @@ export default async function LoginPage({ searchParams }: Props) {
           )}
 
           <div className="rounded-2xl border border-border-base bg-surface p-6 shadow-sm">
-            <LoginForm action={loginAction} />
+            <LoginForm action={loginAction} verifyAction={verifyOtpAction} />
           </div>
         </div>
       </main>

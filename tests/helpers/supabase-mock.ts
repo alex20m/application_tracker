@@ -10,6 +10,7 @@ type MockOptions = {
   signInError?: unknown;
   signUpError?: unknown;
   signInWithOtpError?: unknown;
+  verifyOtpError?: unknown;
   resetPasswordForEmailError?: unknown;
   updateUserError?: unknown;
   rpcError?: unknown;
@@ -30,6 +31,7 @@ export function buildSupabaseMock(opts: MockOptions = {}) {
     signInError = null,
     signUpError = null,
     signInWithOtpError = null,
+    verifyOtpError = null,
     resetPasswordForEmailError = null,
     updateUserError = null,
     rpcError = null,
@@ -65,6 +67,7 @@ export function buildSupabaseMock(opts: MockOptions = {}) {
       signInWithPassword: vi.fn().mockResolvedValue({ data: {}, error: signInError }),
       signUp: vi.fn().mockResolvedValue({ data: {}, error: signUpError }),
       signInWithOtp: vi.fn().mockResolvedValue({ data: {}, error: signInWithOtpError }),
+      verifyOtp: vi.fn().mockResolvedValue({ data: {}, error: verifyOtpError }),
       signOut: vi.fn().mockResolvedValue({ error: null }),
       resetPasswordForEmail: vi.fn().mockResolvedValue({ data: {}, error: resetPasswordForEmailError }),
       updateUser: vi.fn().mockResolvedValue({ data: {}, error: updateUserError }),

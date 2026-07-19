@@ -24,7 +24,7 @@ vi.mock("@/lib/env", () => ({
   },
 }));
 
-import { loginAction } from "@/app/login/actions";
+import { loginAction, verifyOtpAction } from "@/app/login/actions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const createClientMock = vi.mocked(createSupabaseServerClient);
@@ -49,21 +49,69 @@ describe("loginAction", () => {
     expect(result.error).toMatch(/email/i);
   });
 
-  describe("magic link mode", () => {
-    it("calls signInWithOtp and returns success message", async () => {
-      const fd = makeFormData({ email: "user@example.com", authMode: "magic", authIntent: "" });
+  describe("OTP mode", () => {
+    it("calls signInWithOtp and flags that a code was sent", async () => {
+      const fd = makeFormData({ email: "user@example.com", authMode: "otp", authIntent: "" });
       const result = await loginAction(null, fd);
       expect(mockSupabase.auth.signInWithOtp).toHaveBeenCalledOnce();
       expect(result.success).toBe(true);
+      expect(result.otpSent).toBe(true);
       expect(result.message).toBeTruthy();
+    });
+
+    it("does not use a magic-link redirect when sending the code", async () => {
+      const fd = makeFormData({ email: "user@example.com", authMode: "otp", authIntent: "" });
+      await loginAction(null, fd);
+      const options = mockSupabase.auth.signInWithOtp.mock.calls[0][0].options;
+      expect(options.emailRedirectTo).toBeUndefined();
     });
 
     it("returns generic error when signInWithOtp fails", async () => {
       const errorSupabase = buildSupabaseMock({ signInWithOtpError: { message: "rate limit" } });
       createClientMock.mockResolvedValue(errorSupabase as never);
-      const fd = makeFormData({ email: "user@example.com", authMode: "magic", authIntent: "" });
+      const fd = makeFormData({ email: "user@example.com", authMode: "otp", authIntent: "" });
       const result = await loginAction(null, fd);
       expect(result.success).toBe(false);
+      expect(result.otpSent).toBeFalsy();
+    });
+  });
+
+  describe("verifyOtpAction", () => {
+    it("verifies a valid 6-digit code and redirects to /dashboard", async () => {
+      const fd = makeFormData({ email: "user@example.com", token: "123456" });
+      await expect(verifyOtpAction(null, fd)).rejects.toMatchObject({
+        type: "redirect",
+        url: "/dashboard",
+      });
+      expect(mockSupabase.auth.verifyOtp).toHaveBeenCalledWith({
+        email: "user@example.com",
+        token: "123456",
+        type: "email",
+      });
+    });
+
+    it("rejects a non-6-digit code without calling verifyOtp", async () => {
+      const fd = makeFormData({ email: "user@example.com", token: "12ab" });
+      const result = await verifyOtpAction(null, fd);
+      expect(result.success).toBe(false);
+      expect(result.error).toMatch(/6-digit/i);
+      expect(mockSupabase.auth.verifyOtp).not.toHaveBeenCalled();
+    });
+
+    it("returns error when email is missing", async () => {
+      const fd = makeFormData({ token: "123456" });
+      const result = await verifyOtpAction(null, fd);
+      expect(result.success).toBe(false);
+      expect(result.error).toMatch(/email/i);
+    });
+
+    it("returns error when verifyOtp fails", async () => {
+      const errorSupabase = buildSupabaseMock({ verifyOtpError: { message: "invalid otp" } });
+      createClientMock.mockResolvedValue(errorSupabase as never);
+      const fd = makeFormData({ email: "user@example.com", token: "123456" });
+      const result = await verifyOtpAction(null, fd);
+      expect(result.success).toBe(false);
+      expect(result.error).toMatch(/invalid or has expired/i);
     });
   });
 

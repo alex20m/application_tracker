@@ -16,6 +16,7 @@ export async function loginAction(
   success: boolean;
   error?: string;
   message?: string;
+  otpSent?: boolean;
 }> {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
@@ -28,22 +29,25 @@ export async function loginAction(
 
   const supabase = await createSupabaseServerClient();
 
-  // Magic link flow
-  if (authMode === "magic") {
+  // One-time passcode (OTP) flow — sends a 6-digit code to the user's email.
+  if (authMode === "otp") {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
         shouldCreateUser: true,
-        emailRedirectTo: `${APP_URL}${ROUTES.authCallback}`,
       },
     });
 
     if (error) {
-      console.error("[login] magic-link error:", error);
+      console.error("[login] otp-send error:", error);
       return genericAuthError();
     }
 
-    return { success: true, message: "Sign-in link sent. Check your email." };
+    return {
+      success: true,
+      otpSent: true,
+      message: "We sent a 6-digit code to your email. Enter it below to sign in.",
+    };
   }
 
   // Password flow
@@ -79,6 +83,40 @@ export async function loginAction(
   if (error) {
     console.error("[login] signin error:", error);
     return genericAuthError();
+  }
+
+  redirect(ROUTES.dashboard);
+}
+
+export async function verifyOtpAction(
+  _prevState: unknown,
+  formData: FormData
+): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  const email = formData.get("email") as string;
+  const token = ((formData.get("token") as string) ?? "").trim();
+
+  if (!email) {
+    return { success: false, error: "Email is required" };
+  }
+
+  if (!/^\d{6}$/.test(token)) {
+    return { success: false, error: "Enter the 6-digit code from your email." };
+  }
+
+  const supabase = await createSupabaseServerClient();
+
+  const { error } = await supabase.auth.verifyOtp({
+    email,
+    token,
+    type: "email",
+  });
+
+  if (error) {
+    console.error("[login] otp-verify error:", error);
+    return { success: false, error: "That code is invalid or has expired. Please try again." };
   }
 
   redirect(ROUTES.dashboard);
