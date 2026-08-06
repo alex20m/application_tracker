@@ -26,7 +26,7 @@
   /* text */
   --text:   oklch(0.245 0.014 68);
   --text-2: oklch(0.474 0.014 72);
-  --text-3: oklch(0.596 0.013 76);
+  --text-3: oklch(0.518 0.013 76);
   /* accent (slate blue) */
   --accent:        oklch(0.448 0.072 246);
   --accent-strong: oklch(0.385 0.078 246);
@@ -63,7 +63,7 @@
   --border-2:  oklch(0.412 0.014 76);
   --text:   oklch(0.932 0.008 88);
   --text-2: oklch(0.744 0.011 82);
-  --text-3: oklch(0.618 0.012 78);
+  --text-3: oklch(0.675 0.012 78);
   --accent:        oklch(0.742 0.078 246);
   --accent-strong: oklch(0.815 0.070 246);
   --accent-ink:    oklch(0.190 0.012 72);
