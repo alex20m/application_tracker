@@ -105,7 +105,9 @@ export const STATUS_THEME: Record<
 };
 
 export const SANKEY_ROOT = "applications";
-export const SANKEY_ROOT_COLOR = "#60a5fa";
+// The root "Applications" node is chrome, not a status — it follows the accent
+// so it stays theme-aware alongside the var(--st-*) colours above.
+export const SANKEY_ROOT_COLOR = "var(--accent)";
 export const SANKEY_ROOT_LABEL = "Applications";
 
 export function getStatusRank(status: ApplicationStatus): number {

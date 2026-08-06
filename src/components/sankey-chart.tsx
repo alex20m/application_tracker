@@ -56,7 +56,7 @@ function nodeLabel(name: string): string {
 
 function EmptyContent() {
   return (
-    <div className="flex h-full items-center justify-center text-center text-sm text-gray-500 dark:text-gray-400">
+    <div className="flex h-full items-center justify-center text-center text-sm text-ink-3">
       No applications yet. Create an application to see the flow.
     </div>
   );
@@ -65,11 +65,11 @@ function EmptyContent() {
 function SingleNodeContent({ node }: { node: NodeDatum }) {
   return (
     <div className="flex h-full items-center justify-center">
-      <div className="inline-flex items-center gap-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-indigo-50 dark:bg-indigo-500/10 px-6 py-4">
-        <div className="w-4 h-16 rounded bg-indigo-500 dark:bg-indigo-400" />
+      <div className="inline-flex items-center gap-3 rounded-2xl border border-border-base bg-accent-soft px-6 py-4">
+        <div className="w-4 h-16 rounded-full bg-accent" />
         <div className="text-left">
-          <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{SANKEY_ROOT_LABEL}</div>
-          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+          <div className="text-sm font-semibold text-ink">{SANKEY_ROOT_LABEL}</div>
+          <div className="text-xs text-ink-2 mt-1">
             {node.name === SANKEY_ROOT ? "No transitions yet" : ""}
           </div>
         </div>

@@ -104,7 +104,7 @@ export function ApplicationStatusCell({
           role="menu"
           onClick={(e) => e.stopPropagation()}
           style={{ ...dropdownPos, transform: "translateX(-100%)" }}
-          className="fixed z-[9999] rounded-lg border border-border-base bg-surface shadow-lg py-1"
+          className="fixed z-[9999] rounded-2xl border border-border-base bg-surface shadow-panel py-1"
         >
           {nextStatuses.map((status) => (
             <button

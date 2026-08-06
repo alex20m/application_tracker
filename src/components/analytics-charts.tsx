@@ -98,7 +98,7 @@ function ChartTooltip({
   const visible = payload.filter((p) => p.value !== null);
   if (!visible.length) return null;
   return (
-    <div className="rounded-xl border border-border-base bg-surface px-3 py-2 text-xs shadow-md">
+    <div className="rounded-2xl border border-border-base bg-surface px-3 py-2 text-xs shadow-soft">
       {label && (
         <p className="font-semibold text-ink mb-1">{label}</p>
       )}

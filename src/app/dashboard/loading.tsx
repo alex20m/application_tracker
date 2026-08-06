@@ -17,7 +17,7 @@ export default function DashboardLoading() {
         {/* KPI tiles */}
         <div className="grid grid-cols-4 gap-3 mobile:grid-cols-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="rounded-2xl border border-border-base bg-surface p-5">
+            <div key={i} className="rounded-3xl border border-border-base bg-surface p-5">
               <div className="h-3 w-16 rounded bg-surface-2 mb-3" />
               <div className="h-8 w-12 rounded bg-surface-3" />
             </div>
@@ -27,7 +27,7 @@ export default function DashboardLoading() {
         {/* Needs Attention + Pipeline */}
         <div className="grid grid-cols-[1fr_300px] gap-4 mobile:grid-cols-1">
           {/* Needs Attention */}
-          <div className="rounded-2xl border border-border-base bg-surface p-[22px]">
+          <div className="rounded-3xl border border-border-base bg-surface p-[22px]">
             <div className="h-3 w-28 rounded bg-surface-2 mb-4" />
             <div className="space-y-2">
               {Array.from({ length: 3 }).map((_, i) => (
@@ -44,7 +44,7 @@ export default function DashboardLoading() {
           </div>
 
           {/* Pipeline */}
-          <div className="rounded-2xl border border-border-base bg-surface p-[22px]">
+          <div className="rounded-3xl border border-border-base bg-surface p-[22px]">
             <div className="h-3 w-16 rounded bg-surface-2 mb-4" />
             <div className="space-y-4">
               {Array.from({ length: 4 }).map((_, i) => (
@@ -69,7 +69,7 @@ export default function DashboardLoading() {
         {/* Recent rows */}
         <div className="space-y-2">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="flex overflow-hidden rounded-[13px] border border-border-base bg-surface shadow-sm">
+            <div key={i} className="flex overflow-hidden rounded-2xl border border-border-base bg-surface shadow-soft">
               <div className="w-[3px] flex-shrink-0 bg-surface-3" />
               <div className="flex flex-1 items-center gap-3 px-4 py-3">
                 <div className="h-[42px] w-[42px] flex-shrink-0 rounded-[10px] bg-surface-2" />

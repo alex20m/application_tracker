@@ -45,7 +45,7 @@ export function ApplicationList({ applications, fromFilter }: ApplicationListPro
       {applications.map((app) => (
         <div
           key={app.id}
-          className="group relative flex overflow-hidden rounded-[13px] border border-border-base bg-surface shadow-sm transition hover:-translate-y-px hover:shadow-md hover:border-border-strong"
+          className="group relative flex overflow-hidden rounded-2xl border border-border-base bg-surface shadow-soft transition hover:-translate-y-px hover:shadow-panel hover:border-border-strong"
         >
           {/* Stretched link */}
           <Link
@@ -86,7 +86,7 @@ export function ApplicationList({ applications, fromFilter }: ApplicationListPro
                       <path d="M1 5h10" stroke="currentColor" strokeWidth="1.2" />
                       <path d="M4 1v3M8 1v3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
                     </svg>
-                    <span className="font-mono">
+                    <span className="tabular-nums">
                       <FormattedDate dateString={app.applied_on} />
                     </span>
                   </span>
@@ -112,7 +112,7 @@ export function ApplicationList({ applications, fromFilter }: ApplicationListPro
                     <path d="M1 5h10" stroke="currentColor" strokeWidth="1.2" />
                     <path d="M4 1v3M8 1v3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
                   </svg>
-                  <span className="font-mono">
+                  <span className="tabular-nums">
                     <FormattedDate dateString={app.applied_on} />
                   </span>
                 </span>

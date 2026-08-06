@@ -67,7 +67,7 @@ function DateFilter({ allTime, onAllTime, startDate, endDate, onStart, onEnd }: 
           className={[
             "cursor-pointer rounded-[8px] px-3 py-1.5 text-[13px] font-medium transition-all",
             allTime
-              ? "bg-surface shadow-sm font-semibold text-ink"
+              ? "bg-surface shadow-soft font-semibold text-ink"
               : "text-ink-3 hover:text-ink-2",
           ].join(" ")}
         >
@@ -79,7 +79,7 @@ function DateFilter({ allTime, onAllTime, startDate, endDate, onStart, onEnd }: 
           className={[
             "cursor-pointer rounded-[8px] px-3 py-1.5 text-[13px] font-medium transition-all",
             !allTime
-              ? "bg-surface shadow-sm font-semibold text-ink"
+              ? "bg-surface shadow-soft font-semibold text-ink"
               : "text-ink-3 hover:text-ink-2",
           ].join(" ")}
         >

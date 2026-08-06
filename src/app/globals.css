@@ -11,68 +11,79 @@
   }
 }
 
+/* ── Slate ────────────────────────────────────────────────────────────────
+   Linen paper, cooled espresso ink, one desaturated slate-blue accent.
+   The accent is deliberately low-chroma so it reads as chrome rather than
+   competing with the status hues, which are the only saturated colour here. */
 :root {
   /* surfaces */
-  --bg:        oklch(0.985 0.004 95);
-  --surface:   oklch(1 0 0);
-  --surface-2: oklch(0.974 0.005 95);
-  --surface-3: oklch(0.962 0.006 95);
-  --border:    oklch(0.912 0.006 90);
-  --border-2:  oklch(0.86 0.008 90);
+  --bg:        oklch(0.971 0.005 96);
+  --surface:   oklch(0.998 0.002 96);
+  --surface-2: oklch(0.950 0.006 94);
+  --surface-3: oklch(0.928 0.007 94);
+  --border:    oklch(0.886 0.008 90);
+  --border-2:  oklch(0.828 0.010 90);
   /* text */
-  --text:   oklch(0.245 0.012 70);
-  --text-2: oklch(0.46 0.01 75);
-  --text-3: oklch(0.52 0.008 75);
-  /* accent (teal) */
-  --accent:        oklch(0.55 0.085 188);
-  --accent-strong: oklch(0.47 0.095 188);
-  --accent-ink:    oklch(0.99 0.01 188);
-  --accent-soft:   oklch(0.955 0.028 188);
-  --accent-line:   oklch(0.86 0.05 188);
+  --text:   oklch(0.245 0.014 68);
+  --text-2: oklch(0.474 0.014 72);
+  --text-3: oklch(0.596 0.013 76);
+  /* accent (slate blue) */
+  --accent:        oklch(0.448 0.072 246);
+  --accent-strong: oklch(0.385 0.078 246);
+  --accent-ink:    oklch(0.994 0.003 96);
+  --accent-soft:   oklch(0.945 0.018 246);
+  --accent-line:   oklch(0.855 0.035 246);
   /* status hues */
-  --st-wishlist:   oklch(0.60 0.035 255);
-  --st-applied:    oklch(0.58 0.13 240);
-  --st-ghosted:    oklch(0.70 0.13 70);
-  --st-cancelled:  oklch(0.58 0.012 260);
-  --st-withdrew:   oklch(0.57 0.02 80);
-  --st-rejected:   oklch(0.585 0.18 25);
-  --st-interviews: oklch(0.56 0.16 295);
-  --st-no_offer:   oklch(0.60 0.17 12);
-  --st-offer:      oklch(0.62 0.14 150);
-  --st-accepted:   oklch(0.63 0.13 165);
-  --st-declined:   oklch(0.70 0.12 85);
+  --st-wishlist:   oklch(0.585 0.030 250);
+  --st-applied:    oklch(0.520 0.140 250);
+  --st-ghosted:    oklch(0.600 0.110 70);
+  --st-cancelled:  oklch(0.560 0.012 260);
+  --st-withdrew:   oklch(0.555 0.022 85);
+  --st-rejected:   oklch(0.535 0.175 25);
+  --st-interviews: oklch(0.510 0.155 295);
+  --st-no_offer:   oklch(0.555 0.170 15);
+  --st-offer:      oklch(0.545 0.115 152);
+  --st-accepted:   oklch(0.560 0.110 165);
+  --st-declined:   oklch(0.620 0.105 85);
   --badge-mix: 13%;
   --badge-text-mix: 0%;
+  /* headings use the OS serif — no webfont to download */
+  --font-serif-stack: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+  /* soft two-layer lift, tinted with the ink rather than pure black */
+  --sh-soft:  0 1px 2px oklch(0.245 0.014 68 / 0.05), 0 4px 16px oklch(0.245 0.014 68 / 0.06);
+  --sh-panel: 0 12px 40px oklch(0.245 0.014 68 / 0.16);
 }
 
 .dark {
-  --bg:        oklch(0.175 0.012 255);
-  --surface:   oklch(0.212 0.014 255);
-  --surface-2: oklch(0.246 0.015 255);
-  --surface-3: oklch(0.275 0.016 255);
-  --border:    oklch(0.305 0.014 255);
-  --border-2:  oklch(0.375 0.016 255);
-  --text:   oklch(0.955 0.005 255);
-  --text-2: oklch(0.74 0.012 255);
-  --text-3: oklch(0.595 0.012 255);
-  --accent:        oklch(0.74 0.105 184);
-  --accent-strong: oklch(0.80 0.10 184);
-  --accent-ink:    oklch(0.17 0.02 255);
-  --accent-soft:   oklch(0.30 0.045 188);
-  --accent-line:   oklch(0.42 0.06 188);
-  --st-wishlist:   oklch(0.70 0.04 255);
-  --st-applied:    oklch(0.70 0.13 240);
-  --st-ghosted:    oklch(0.78 0.13 72);
-  --st-cancelled:  oklch(0.70 0.012 260);
-  --st-withdrew:   oklch(0.70 0.02 80);
-  --st-rejected:   oklch(0.70 0.16 25);
-  --st-interviews: oklch(0.72 0.14 295);
-  --st-no_offer:   oklch(0.72 0.15 12);
-  --st-offer:      oklch(0.75 0.14 152);
-  --st-accepted:   oklch(0.78 0.13 165);
-  --st-declined:   oklch(0.80 0.12 88);
+  --bg:        oklch(0.194 0.009 72);
+  --surface:   oklch(0.244 0.010 74);
+  --surface-2: oklch(0.290 0.011 76);
+  --surface-3: oklch(0.330 0.012 76);
+  --border:    oklch(0.346 0.012 76);
+  --border-2:  oklch(0.412 0.014 76);
+  --text:   oklch(0.932 0.008 88);
+  --text-2: oklch(0.744 0.011 82);
+  --text-3: oklch(0.618 0.012 78);
+  --accent:        oklch(0.742 0.078 246);
+  --accent-strong: oklch(0.815 0.070 246);
+  --accent-ink:    oklch(0.190 0.012 72);
+  --accent-soft:   oklch(0.310 0.036 246);
+  --accent-line:   oklch(0.420 0.048 246);
+  --st-wishlist:   oklch(0.700 0.032 250);
+  --st-applied:    oklch(0.720 0.120 250);
+  --st-ghosted:    oklch(0.780 0.115 72);
+  --st-cancelled:  oklch(0.700 0.012 260);
+  --st-withdrew:   oklch(0.700 0.022 85);
+  --st-rejected:   oklch(0.700 0.155 25);
+  --st-interviews: oklch(0.715 0.135 295);
+  --st-no_offer:   oklch(0.715 0.150 15);
+  --st-offer:      oklch(0.745 0.120 152);
+  --st-accepted:   oklch(0.770 0.115 165);
+  --st-declined:   oklch(0.795 0.110 85);
   --badge-mix: 22%;
   --badge-text-mix: 55%;
+  --sh-soft:  0 1px 2px oklch(0.09 0.005 72 / 0.30), 0 4px 16px oklch(0.09 0.005 72 / 0.26);
+  --sh-panel: 0 12px 40px oklch(0.09 0.005 72 / 0.50);
 }
 
 @theme inline {
@@ -89,13 +100,17 @@
   --color-accent-strong: var(--accent-strong);
   --color-accent-ink: var(--accent-ink);
   --color-accent-soft: var(--accent-soft);
-  --font-sans: var(--font-hanken);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-serif-stack);
+  /* only the sign-in code field still wants monospace — system stack is enough */
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --shadow-soft: var(--sh-soft);
+  --shadow-panel: var(--sh-panel);
 }
 
-/* Logo brand fill — dark mode swaps to the lighter teal per the dark theme */
-.logo-fill { fill: oklch(0.55 0.085 188); }
-.dark .logo-fill { fill: oklch(0.74 0.105 184); }
+/* Logo brand fill — dark mode swaps to the lighter slate per the dark theme */
+.logo-fill { fill: oklch(0.448 0.072 246); }
+.dark .logo-fill { fill: oklch(0.742 0.078 246); }
 
 html {
   scrollbar-gutter: stable;
@@ -104,8 +119,16 @@ html {
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font-hanken), system-ui, sans-serif;
+  font-family: var(--font-inter), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Page titles take the system serif. Card headings (h2, 17px) deliberately
+   stay in Inter — a bold serif that small reads muddy next to dense rows. */
+h1 {
+  font-family: var(--font-serif-stack);
+  font-weight: 600;
+  letter-spacing: -0.012em;
 }
 
 *:focus-visible {
@@ -121,7 +144,7 @@ body {
   outline: none;
 }
 
-/* react-day-picker: teal palette + compact cells */
+/* react-day-picker: slate palette + compact cells */
 .rdp-root {
   --rdp-accent-color: var(--accent);
   --rdp-accent-background-color: var(--accent-soft);

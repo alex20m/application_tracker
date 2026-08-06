@@ -17,10 +17,10 @@ export default function AnalyticsLoading() {
           ))}
         </div>
         {/* Chart placeholders */}
-        <div className="rounded-2xl border border-border-base bg-surface p-5">
+        <div className="rounded-3xl border border-border-base bg-surface p-5">
           <div className="h-48 rounded-xl bg-surface-2" />
         </div>
-        <div className="rounded-2xl border border-border-base bg-surface p-5">
+        <div className="rounded-3xl border border-border-base bg-surface p-5">
           <div className="h-64 rounded-xl bg-surface-2" />
         </div>
       </div>

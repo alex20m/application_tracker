@@ -44,7 +44,7 @@ export function ForgotPasswordForm({ action }: ForgotPasswordFormProps) {
       <div className="pt-1 text-center">
         <Link
           href="/login"
-          className="text-xs text-gray-500 dark:text-gray-500 transition hover:text-gray-700 dark:hover:text-gray-300"
+          className="text-xs text-ink-3 transition hover:text-ink-2"
         >
           Back to sign in
         </Link>

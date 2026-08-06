@@ -189,7 +189,7 @@ function NeedsAttentionCard({
 }) {
   if (items.length === 0) {
     return (
-      <div className="rounded-2xl border border-border-base bg-surface p-[22px] shadow-sm flex flex-col">
+      <div className="rounded-3xl border border-border-base bg-surface p-[22px] shadow-soft flex flex-col">
         <div className="flex items-center justify-between mb-4">
           <span className="text-[15px] font-semibold text-ink">Needs attention</span>
         </div>
@@ -208,7 +208,7 @@ function NeedsAttentionCard({
   }
 
   return (
-    <div className="rounded-2xl border border-border-base bg-surface p-[22px] shadow-sm flex flex-col gap-3">
+    <div className="rounded-3xl border border-border-base bg-surface p-[22px] shadow-soft flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <span className="text-[15px] font-semibold text-ink">Needs attention</span>
         <Link
@@ -256,7 +256,7 @@ function PipelineCard({ analytics }: { analytics: ReturnType<typeof computeAnaly
   const max = analytics.totalApplications || 1;
 
   return (
-    <div className="rounded-2xl border border-border-base bg-surface p-[22px] shadow-sm flex flex-col gap-4">
+    <div className="rounded-3xl border border-border-base bg-surface p-[22px] shadow-soft flex flex-col gap-4">
       <p className="text-[15px] font-semibold text-ink">Pipeline</p>
       <div className="space-y-2.5">
         {stages.map((stage) => (

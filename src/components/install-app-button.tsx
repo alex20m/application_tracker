@@ -143,7 +143,7 @@ export function InstallAppButton({ variant }: Props) {
     <>
       <div className={CARD}>
         <h2 className={`${TEXT_H3} mb-1`}>Install App</h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+        <p className="text-sm text-ink-2 mb-4">
           Add AppTrack to your device for quick access — works like a native
           app, no App Store required.
         </p>
