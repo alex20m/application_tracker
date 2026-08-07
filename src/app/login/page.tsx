@@ -15,20 +15,20 @@ export default async function LoginPage({ searchParams }: Props) {
       <aside
         className="hidden lg:flex w-[420px] flex-shrink-0 flex-col justify-between p-10"
         style={{
-          background: "linear-gradient(160deg, oklch(0.42 0.078 246) 0%, oklch(0.27 0.055 252) 100%)",
+          background: "linear-gradient(160deg, oklch(0.46 0.130 250) 0%, oklch(0.29 0.090 254) 100%)",
         }}
       >
         {/* Brand mark */}
         <div className="flex items-center gap-2.5">
           <svg width="36" height="36" viewBox="0 0 32 32" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-            <rect width="32" height="32" rx="8" fill="oklch(0.448 0.072 246)" />
+            <rect width="32" height="32" rx="8" fill="oklch(0.525 0.130 250)" />
             <rect x="0" y="0" width="32" height="14" rx="8" fill="white" fillOpacity="0.07" />
             <path d="M7 23 C12 23 12 15 16 15 C20 15 20 9 25 9" stroke="white" strokeWidth="3" strokeLinecap="round" fill="none" strokeOpacity="0.8" />
-            <circle cx="7" cy="23" r="2.5" fill="oklch(0.448 0.072 246)" stroke="white" strokeWidth="2" strokeOpacity="0.6" />
-            <circle cx="16" cy="15" r="2.5" fill="oklch(0.448 0.072 246)" stroke="white" strokeWidth="2" strokeOpacity="0.9" />
+            <circle cx="7" cy="23" r="2.5" fill="oklch(0.525 0.130 250)" stroke="white" strokeWidth="2" strokeOpacity="0.6" />
+            <circle cx="16" cy="15" r="2.5" fill="oklch(0.525 0.130 250)" stroke="white" strokeWidth="2" strokeOpacity="0.9" />
             <circle cx="16" cy="15" r="1.1" fill="white" fillOpacity="0.65" />
             <circle cx="25" cy="9" r="3.5" fill="white" />
-            <circle cx="25" cy="9" r="1.7" fill="oklch(0.448 0.072 246)" />
+            <circle cx="25" cy="9" r="1.7" fill="oklch(0.525 0.130 250)" />
           </svg>
           <span className="text-white font-bold text-[17px] tracking-[-0.02em]">AppTrack</span>
         </div>
@@ -68,14 +68,14 @@ export default async function LoginPage({ searchParams }: Props) {
           {/* Mobile brand (shown when aside is hidden) */}
           <div className="flex items-center gap-2.5 mb-8 lg:hidden">
             <svg width="36" height="36" viewBox="0 0 32 32" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-              <rect className="logo-fill" width="32" height="32" rx="8" fill="oklch(0.448 0.072 246)" />
+              <rect className="logo-fill" width="32" height="32" rx="8" fill="oklch(0.525 0.130 250)" />
               <rect x="0" y="0" width="32" height="14" rx="8" fill="white" fillOpacity="0.07" />
               <path d="M7 23 C12 23 12 15 16 15 C20 15 20 9 25 9" stroke="white" strokeWidth="3" strokeLinecap="round" fill="none" strokeOpacity="0.8" />
-              <circle className="logo-fill" cx="7" cy="23" r="2.5" fill="oklch(0.448 0.072 246)" stroke="white" strokeWidth="2" strokeOpacity="0.6" />
-              <circle className="logo-fill" cx="16" cy="15" r="2.5" fill="oklch(0.448 0.072 246)" stroke="white" strokeWidth="2" strokeOpacity="0.9" />
+              <circle className="logo-fill" cx="7" cy="23" r="2.5" fill="oklch(0.525 0.130 250)" stroke="white" strokeWidth="2" strokeOpacity="0.6" />
+              <circle className="logo-fill" cx="16" cy="15" r="2.5" fill="oklch(0.525 0.130 250)" stroke="white" strokeWidth="2" strokeOpacity="0.9" />
               <circle cx="16" cy="15" r="1.1" fill="white" fillOpacity="0.65" />
               <circle cx="25" cy="9" r="3.5" fill="white" />
-              <circle className="logo-fill" cx="25" cy="9" r="1.7" fill="oklch(0.448 0.072 246)" />
+              <circle className="logo-fill" cx="25" cy="9" r="1.7" fill="oklch(0.525 0.130 250)" />
             </svg>
             <span className="font-bold text-[17px] tracking-[-0.02em] text-ink">AppTrack</span>
           </div>
