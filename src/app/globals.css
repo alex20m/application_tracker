@@ -12,9 +12,9 @@
 }
 
 /* ── Slate ────────────────────────────────────────────────────────────────
-   Linen paper, cooled espresso ink, one desaturated slate-blue accent.
-   The accent is deliberately low-chroma so it reads as chrome rather than
-   competing with the status hues, which are the only saturated colour here. */
+   Linen paper, cooled espresso ink, one deep sapphire accent.
+   --accent is the same value in both themes: the logo, buttons and every
+   filled shape are literally the same colour whichever theme you are in. */
 :root {
   /* surfaces */
   --bg:        oklch(0.971 0.005 96);
@@ -27,15 +27,18 @@
   --text:   oklch(0.245 0.014 68);
   --text-2: oklch(0.474 0.014 72);
   --text-3: oklch(0.518 0.013 76);
-  /* accent (slate blue) */
-  --accent:        oklch(0.448 0.072 246);
-  --accent-strong: oklch(0.385 0.078 246);
-  --accent-ink:    oklch(0.994 0.003 96);
-  --accent-soft:   oklch(0.945 0.018 246);
-  --accent-line:   oklch(0.855 0.035 246);
+  /* accent (deep sapphire) — --accent is byte-identical in both themes, so the
+     logo, buttons and every filled shape are literally the same colour either side.
+     Only --accent-strong differs, and only because blue text cannot be legible on
+     both near-white paper and a near-black ground. */
+  --accent:        oklch(0.525 0.130 250);
+  --accent-strong: oklch(0.466 0.132 250);
+  --accent-ink:    oklch(0.995 0.002 250);
+  --accent-soft:   oklch(0.945 0.030 250);
+  --accent-line:   oklch(0.850 0.058 250);
   /* status hues */
   --st-wishlist:   oklch(0.585 0.030 250);
-  --st-applied:    oklch(0.520 0.140 250);
+  --st-applied:    oklch(0.515 0.140 222);
   --st-ghosted:    oklch(0.600 0.110 70);
   --st-cancelled:  oklch(0.560 0.012 260);
   --st-withdrew:   oklch(0.555 0.022 85);
@@ -64,13 +67,14 @@
   --text:   oklch(0.932 0.008 88);
   --text-2: oklch(0.744 0.011 82);
   --text-3: oklch(0.675 0.012 78);
-  --accent:        oklch(0.742 0.078 246);
-  --accent-strong: oklch(0.815 0.070 246);
-  --accent-ink:    oklch(0.190 0.012 72);
-  --accent-soft:   oklch(0.310 0.036 246);
-  --accent-line:   oklch(0.420 0.048 246);
+  /* identical to the light theme — see the note above */
+  --accent:        oklch(0.525 0.130 250);
+  --accent-strong: oklch(0.662 0.130 250);
+  --accent-ink:    oklch(0.995 0.002 250);
+  --accent-soft:   oklch(0.305 0.058 250);
+  --accent-line:   oklch(0.420 0.080 250);
   --st-wishlist:   oklch(0.700 0.032 250);
-  --st-applied:    oklch(0.720 0.120 250);
+  --st-applied:    oklch(0.720 0.120 222);
   --st-ghosted:    oklch(0.780 0.115 72);
   --st-cancelled:  oklch(0.700 0.012 260);
   --st-withdrew:   oklch(0.700 0.022 85);
@@ -108,9 +112,8 @@
   --shadow-panel: var(--sh-panel);
 }
 
-/* Logo brand fill — dark mode swaps to the lighter slate per the dark theme */
-.logo-fill { fill: oklch(0.448 0.072 246); }
-.dark .logo-fill { fill: oklch(0.742 0.078 246); }
+/* Logo brand fill — one value, both themes. No dark override by design. */
+.logo-fill { fill: oklch(0.525 0.130 250); }
 
 html {
   scrollbar-gutter: stable;
