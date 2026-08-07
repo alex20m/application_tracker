@@ -4,7 +4,7 @@ export function ApplicationRowsSkeleton({ rows = 5 }: { rows?: number }) {
       {Array.from({ length: rows }).map((_, i) => (
         <div
           key={i}
-          className="flex overflow-hidden rounded-[13px] border border-border-base bg-surface shadow-sm"
+          className="flex overflow-hidden rounded-2xl border border-border-base bg-surface shadow-soft"
         >
           <div className="w-[3px] flex-shrink-0 bg-border-base" />
           <div className="flex flex-1 items-center gap-3 px-4 py-3">

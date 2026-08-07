@@ -77,7 +77,7 @@ export function AvgStageTime({ applications }: Props) {
           </div>
 
           {/* Arrow — decorative */}
-          <div className="pb-2 text-gray-400 dark:text-gray-500 text-lg select-none mobile:hidden">
+          <div className="pb-2 text-ink-3 text-lg select-none mobile:hidden">
             →
           </div>
 
@@ -100,15 +100,15 @@ export function AvgStageTime({ applications }: Props) {
         </div>
 
         {/* Result display */}
-        <div className="rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700/60 px-6 py-5 flex flex-col items-center gap-1">
+        <div className="rounded-xl bg-surface-2/50 border border-border-base/60 px-6 py-5 flex flex-col items-center gap-1">
           {result.avg !== null ? (
             <>
               {/* Main number */}
               <div className="flex items-baseline gap-1.5">
-                <span className="text-4xl font-bold text-gray-900 dark:text-gray-100 tabular-nums mobile:text-3xl">
+                <span className="text-4xl font-bold text-ink tabular-nums mobile:text-3xl">
                   {result.avg}
                 </span>
-                <span className="text-base text-gray-500 dark:text-gray-400 font-normal">
+                <span className="text-base text-ink-3 font-normal">
                   {result.avg === 1 ? "day" : "days"}
                 </span>
               </div>

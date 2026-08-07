@@ -152,14 +152,14 @@ export function AppShell({ email, children }: AppShellProps) {
             aria-label="AppTrack home"
           >
             <svg width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-              <rect className="logo-fill" width="32" height="32" rx="8" fill="oklch(0.55 0.085 188)" />
+              <rect className="logo-fill" width="32" height="32" rx="8" fill="oklch(0.448 0.072 246)" />
               <rect x="0" y="0" width="32" height="14" rx="8" fill="white" fillOpacity="0.07" />
               <path d="M7 23 C12 23 12 15 16 15 C20 15 20 9 25 9" stroke="white" strokeWidth="3" strokeLinecap="round" fill="none" strokeOpacity="0.8" />
-              <circle className="logo-fill" cx="7" cy="23" r="2.5" fill="oklch(0.55 0.085 188)" stroke="white" strokeWidth="2" strokeOpacity="0.6" />
-              <circle className="logo-fill" cx="16" cy="15" r="2.5" fill="oklch(0.55 0.085 188)" stroke="white" strokeWidth="2" strokeOpacity="0.9" />
+              <circle className="logo-fill" cx="7" cy="23" r="2.5" fill="oklch(0.448 0.072 246)" stroke="white" strokeWidth="2" strokeOpacity="0.6" />
+              <circle className="logo-fill" cx="16" cy="15" r="2.5" fill="oklch(0.448 0.072 246)" stroke="white" strokeWidth="2" strokeOpacity="0.9" />
               <circle cx="16" cy="15" r="1.1" fill="white" fillOpacity="0.65" />
               <circle cx="25" cy="9" r="3.5" fill="white" />
-              <circle className="logo-fill" cx="25" cy="9" r="1.7" fill="oklch(0.55 0.085 188)" />
+              <circle className="logo-fill" cx="25" cy="9" r="1.7" fill="oklch(0.448 0.072 246)" />
             </svg>
             <span className="text-[14px] font-bold tracking-tight text-ink mobile:hidden">AppTrack</span>
           </Link>
@@ -190,7 +190,7 @@ export function AppShell({ email, children }: AppShellProps) {
           <div className="flex items-center gap-1.5 ml-auto mobile:hidden">
             <Link
               href={ROUTES.newApplication}
-              className="inline-flex items-center gap-1 rounded-[10px] border border-border-strong bg-surface px-3 py-1.5 text-[13px] font-semibold text-ink shadow-sm transition hover:bg-surface-2 mr-1"
+              className="inline-flex items-center gap-1 rounded-full border border-border-strong bg-surface px-3 py-1.5 text-[13px] font-semibold text-ink shadow-soft transition hover:bg-surface-2 mr-1"
             >
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                 <path d="M6 1v10M1 6h10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
@@ -215,7 +215,7 @@ export function AppShell({ email, children }: AppShellProps) {
               </button>
 
               {profileOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-border-base bg-surface shadow-lg z-50 overflow-hidden">
+                <div className="absolute right-0 top-full mt-2 w-48 rounded-2xl border border-border-base bg-surface shadow-panel z-50 overflow-hidden">
                   <div className="px-3 py-2.5 border-b border-border-base">
                     <p className="text-xs text-ink-3 truncate">{email}</p>
                   </div>
@@ -276,7 +276,7 @@ export function AppShell({ email, children }: AppShellProps) {
             role="dialog"
             aria-modal="true"
             aria-label="Navigation menu"
-            className="absolute right-0 top-0 flex h-dvh max-h-dvh w-72 max-w-[85vw] flex-col bg-surface shadow-xl"
+            className="absolute right-0 top-0 flex h-dvh max-h-dvh w-72 max-w-[85vw] flex-col bg-surface shadow-panel"
           >
             <div className="flex flex-shrink-0 items-center justify-between border-b border-border-base px-4 py-3">
               <span className="text-sm font-bold text-ink">Menu</span>

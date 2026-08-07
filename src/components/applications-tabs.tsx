@@ -5,7 +5,7 @@ type ApplicationsTabsProps = {
 };
 
 const PILL_ACTIVE =
-  "px-3 py-1.5 text-[13px] font-semibold rounded-[8px] bg-surface shadow-sm text-ink";
+  "px-3 py-1.5 text-[13px] font-semibold rounded-full bg-surface shadow-soft text-ink";
 const PILL_INACTIVE =
   "px-3 py-1.5 text-[13px] font-medium text-ink-3 hover:text-ink-2 transition-colors";
 

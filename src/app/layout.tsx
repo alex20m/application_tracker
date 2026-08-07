@@ -1,17 +1,16 @@
 import type { Metadata } from "next";
-import { Hanken_Grotesk, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Analytics } from "@vercel/analytics/next";
 
-const hanken = Hanken_Grotesk({
+const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-hanken",
+  variable: "--font-inter",
   display: "swap",
 });
-const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", display: "swap" });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
@@ -55,12 +54,12 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${hanken.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${inter.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <head>
-        <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fbfaf8" />
-        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1c1e2d" />
+        <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f5f2" />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#171410" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="AppTrack" />

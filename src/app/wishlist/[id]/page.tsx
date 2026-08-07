@@ -63,7 +63,7 @@ export default async function WishlistDetailPage({ params, searchParams }: Wishl
 
         {/* Header: monogram + company/role */}
         <div className="flex items-center gap-4 mobile:gap-3">
-          <div className="flex h-[60px] w-[60px] flex-shrink-0 items-center justify-center rounded-2xl border border-border-base bg-surface-2 text-[17px] font-bold tracking-tight text-ink-2 shadow-sm mobile:h-12 mobile:w-12 mobile:text-[14px]">
+          <div className="flex h-[60px] w-[60px] flex-shrink-0 items-center justify-center rounded-2xl border border-border-base bg-surface-2 text-[17px] font-bold tracking-tight text-ink-2 shadow-soft mobile:h-12 mobile:w-12 mobile:text-[14px]">
             {getCompanyInitials(application.company)}
           </div>
           <div className="min-w-0 flex-1">

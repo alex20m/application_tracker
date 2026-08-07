@@ -49,14 +49,14 @@ export function ApplicationsFilterView({
                 className={[
                   "cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-[13px] transition-all",
                   isActive
-                    ? "bg-surface shadow-sm font-semibold text-ink"
+                    ? "bg-surface shadow-soft font-semibold text-ink"
                     : "font-medium text-ink-3 hover:text-ink-2",
                 ].join(" ")}
               >
                 {label}
                 {count !== undefined && (
                   <span className={[
-                    "font-mono text-[11px] leading-none",
+                    "tabular-nums text-[11px] font-medium leading-none",
                     isActive ? "text-accent-strong" : "text-ink-3",
                   ].join(" ")}>
                     {count}

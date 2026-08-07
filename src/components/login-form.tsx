@@ -85,7 +85,7 @@ export function LoginForm({ action, verifyAction }: LoginFormProps) {
               setAuthMode("password");
               setPassword("");
             }}
-            className="cursor-pointer text-xs text-gray-500 dark:text-gray-500 transition hover:text-gray-700 dark:hover:text-gray-300"
+            className="cursor-pointer text-xs text-ink-3 transition hover:text-ink-2"
           >
             Use a different email or password
           </button>
@@ -135,7 +135,7 @@ export function LoginForm({ action, verifyAction }: LoginFormProps) {
             {authIntent === "signin" && (
               <Link
                 href={ROUTES.forgotPassword}
-                className="text-xs text-gray-500 dark:text-gray-500 transition hover:text-gray-700 dark:hover:text-gray-300"
+                className="text-xs text-ink-3 transition hover:text-ink-2"
               >
                 Forgot password?
               </Link>
@@ -173,7 +173,7 @@ export function LoginForm({ action, verifyAction }: LoginFormProps) {
             setAuthMode(authMode === "password" ? "otp" : "password");
             setPassword("");
           }}
-          className="cursor-pointer text-xs text-gray-500 dark:text-gray-500 transition hover:text-gray-700 dark:hover:text-gray-300"
+          className="cursor-pointer text-xs text-ink-3 transition hover:text-ink-2"
         >
           Use {authMode === "password" ? "email code" : "password"}
         </button>
@@ -183,7 +183,7 @@ export function LoginForm({ action, verifyAction }: LoginFormProps) {
             setAuthIntent(authIntent === "signin" ? "signup" : "signin");
             setPassword("");
           }}
-          className="cursor-pointer text-xs text-gray-500 dark:text-gray-500 transition hover:text-gray-700 dark:hover:text-gray-300"
+          className="cursor-pointer text-xs text-ink-3 transition hover:text-ink-2"
         >
           {authIntent === "signin" ? "Create account" : "Sign in instead"}
         </button>

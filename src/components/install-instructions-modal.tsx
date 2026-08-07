@@ -21,7 +21,7 @@ function IosShareIcon() {
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
-      className="inline-block align-middle text-indigo-500"
+      className="inline-block align-middle text-accent"
     >
       <path d="M12 2v12M8 6l4-4 4 4" />
       <path d="M20 13v7a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-7" />
@@ -41,7 +41,7 @@ function PlusIcon() {
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
-      className="inline-block align-middle text-indigo-500"
+      className="inline-block align-middle text-accent"
     >
       <path d="M12 5v14M5 12h14" />
     </svg>
@@ -57,10 +57,10 @@ function Step({
 }) {
   return (
     <div className="flex gap-3 items-start">
-      <span className="flex-shrink-0 mt-0.5 w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 text-xs font-bold flex items-center justify-center">
+      <span className="flex-shrink-0 mt-0.5 w-6 h-6 rounded-full bg-accent-soft text-accent text-xs font-bold flex items-center justify-center">
         {number}
       </span>
-      <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+      <p className="text-sm text-ink-2 leading-relaxed">
         {children}
       </p>
     </div>
@@ -76,19 +76,19 @@ function IosSteps() {
       </Step>
       <Step number={2}>
         Scroll down and tap{" "}
-        <span className="font-medium text-gray-900 dark:text-gray-100">
+        <span className="font-medium text-ink">
           Add to Home Screen
         </span>{" "}
         <PlusIcon />.
       </Step>
       <Step number={3}>
         Tap{" "}
-        <span className="font-medium text-gray-900 dark:text-gray-100">
+        <span className="font-medium text-ink">
           Add
         </span>{" "}
         in the top-right corner.
       </Step>
-      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+      <p className="text-xs text-ink-3 mt-2">
         Only available in <strong>Safari</strong>. If you&apos;re using Chrome
         or another browser, open this page in Safari first.
       </p>
@@ -101,26 +101,26 @@ function SafariMacSteps() {
     <div className="space-y-4">
       <Step number={1}>
         In the Safari menu bar, click{" "}
-        <span className="font-medium text-gray-900 dark:text-gray-100">
+        <span className="font-medium text-ink">
           File
         </span>
         .
       </Step>
       <Step number={2}>
         Click{" "}
-        <span className="font-medium text-gray-900 dark:text-gray-100">
+        <span className="font-medium text-ink">
           Add to Dock…
         </span>
         .
       </Step>
       <Step number={3}>
         Click{" "}
-        <span className="font-medium text-gray-900 dark:text-gray-100">
+        <span className="font-medium text-ink">
           Add
         </span>{" "}
         to confirm.
       </Step>
-      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+      <p className="text-xs text-ink-3 mt-2">
         Requires <strong>Safari 17 or later</strong> on macOS Sonoma or newer.
       </p>
     </div>
@@ -132,7 +132,7 @@ function ChromeDesktopSteps() {
     <div className="space-y-4">
       <Step number={1}>
         Look for the{" "}
-        <span className="font-medium text-gray-900 dark:text-gray-100">
+        <span className="font-medium text-ink">
           install icon
         </span>{" "}
         at the right end of the address bar — it looks like a monitor with a
@@ -147,25 +147,25 @@ function ChromeDesktopSteps() {
           strokeLinecap="round"
           strokeLinejoin="round"
           aria-hidden="true"
-          className="inline-block align-middle text-indigo-500"
+          className="inline-block align-middle text-accent"
         >
           <rect x="2" y="3" width="20" height="14" rx="2" />
           <path d="M8 21h8M12 17v4" />
           <path d="M12 7v6M9 10l3 3 3-3" />
         </svg>
         ). Click it, then click{" "}
-        <span className="font-medium text-gray-900 dark:text-gray-100">
+        <span className="font-medium text-ink">
           Install
         </span>
         .
       </Step>
       <Step number={2}>
         Don&apos;t see the icon? Click the{" "}
-        <span className="font-medium text-gray-900 dark:text-gray-100">
+        <span className="font-medium text-ink">
           three-dot menu
         </span>{" "}
         (⋮) in the top-right corner, then choose{" "}
-        <span className="font-medium text-gray-900 dark:text-gray-100">
+        <span className="font-medium text-ink">
           Save and share → Install AppTrack
         </span>
         .
@@ -179,18 +179,18 @@ function AndroidSteps() {
     <div className="space-y-4">
       <Step number={1}>
         Tap the{" "}
-        <span className="font-medium text-gray-900 dark:text-gray-100">
+        <span className="font-medium text-ink">
           three-dot menu
         </span>{" "}
         (⋮) in the top-right corner of Chrome.
       </Step>
       <Step number={2}>
         Tap{" "}
-        <span className="font-medium text-gray-900 dark:text-gray-100">
+        <span className="font-medium text-ink">
           Add to Home screen
         </span>
         , then tap{" "}
-        <span className="font-medium text-gray-900 dark:text-gray-100">
+        <span className="font-medium text-ink">
           Add
         </span>
         .
@@ -202,7 +202,7 @@ function AndroidSteps() {
 function FallbackSteps() {
   return (
     <div className="space-y-4">
-      <p className="text-sm text-gray-700 dark:text-gray-300">
+      <p className="text-sm text-ink-2">
         Use your browser&apos;s built-in install or &ldquo;Add to Home
         Screen&rdquo; option — usually found in the browser menu (
         <span className="font-medium">⋮</span> or{" "}
@@ -260,17 +260,17 @@ export function InstallInstructionsModal({ platform, onClose }: Props) {
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="relative z-10 w-full max-w-sm rounded-2xl bg-white dark:bg-slate-900 shadow-2xl p-6 space-y-5"
+        className="relative z-10 w-full max-w-sm rounded-3xl bg-surface shadow-panel p-6 space-y-5"
       >
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+          <h2 className="text-base font-semibold text-ink">
             {title}
           </h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="flex cursor-pointer items-center justify-center min-h-9 min-w-9 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="flex cursor-pointer items-center justify-center min-h-9 min-w-9 rounded-full text-ink-3 hover:bg-surface-2 hover:text-ink transition-colors"
           >
             <svg
               width="16"
@@ -298,7 +298,7 @@ export function InstallInstructionsModal({ platform, onClose }: Props) {
         <button
           type="button"
           onClick={onClose}
-          className="w-full cursor-pointer rounded-lg border border-gray-200 dark:border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          className="w-full cursor-pointer rounded-full border border-border-strong px-4 py-2.5 text-sm font-semibold text-ink transition-colors hover:bg-surface-2"
         >
           Got it
         </button>

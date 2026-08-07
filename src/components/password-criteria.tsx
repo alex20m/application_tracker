@@ -16,8 +16,8 @@ export function PasswordCriteria({ value }: PasswordCriteriaProps) {
             key={rule.id}
             className={`flex items-center gap-1.5 text-xs ${
               met
-                ? "text-emerald-600 dark:text-emerald-400"
-                : "text-gray-500 dark:text-gray-400"
+                ? "[color:var(--st-offer)]"
+                : "text-ink-3"
             }`}
           >
             <span className="w-3 text-center">{met ? "✓" : "•"}</span>

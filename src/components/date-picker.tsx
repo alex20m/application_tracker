@@ -45,7 +45,7 @@ const CalendarIcon = () => (
     strokeWidth={2}
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="h-4 w-4 shrink-0 text-gray-400 dark:text-gray-500"
+    className="h-4 w-4 shrink-0 text-ink-3"
   >
     <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
     <line x1="16" x2="16" y1="2" y2="6" />
@@ -126,7 +126,7 @@ export function DatePicker({
         aria-haspopup="dialog"
         aria-expanded={open}
       >
-        <span className={selected ? "" : "text-gray-400 dark:text-gray-500 italic"}>
+        <span className={selected ? "" : "text-ink-3 italic"}>
           {displayLabel || "Select date"}
         </span>
         <CalendarIcon />
@@ -145,7 +145,7 @@ export function DatePicker({
             aria-hidden="true"
             onClick={close}
           />
-          <div className="relative z-10 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 shadow-xl w-[min(20rem,calc(100vw-2rem))]">
+          <div className="relative z-10 rounded-2xl border border-border-base bg-surface p-4 shadow-panel w-[min(20rem,calc(100vw-2rem))]">
             <DayPicker
               mode="single"
               selected={selected}
@@ -154,7 +154,7 @@ export function DatePicker({
               showOutsideDays
               disabled={disabled.length > 0 ? disabled : undefined}
             />
-            <div className="flex gap-2 pt-3 border-t border-gray-100 dark:border-gray-800">
+            <div className="flex gap-2 pt-3 border-t border-border-base">
               <button
                 type="button"
                 onClick={() => handleSelect(new Date())}

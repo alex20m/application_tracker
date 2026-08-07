@@ -70,8 +70,8 @@ export function PipelineStepper({ applicationId, status }: Props) {
   };
 
   return (
-    <div className="rounded-2xl border border-border-base bg-surface p-[22px] shadow-sm mobile:p-4">
-      <p className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-3 mb-4">Pipeline Stage</p>
+    <div className="rounded-3xl border border-border-base bg-surface p-[22px] shadow-soft mobile:p-4">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-ink-3 mb-4">Pipeline Stage</p>
 
       {/* Desktop: horizontal left-to-right stepper */}
       <div className="flex items-center mobile:hidden">

@@ -88,7 +88,7 @@ export default async function ApplicationDetailPage({
   if (!application) {
     return (
       <AppShell email={user.email || ""}>
-        <div className="rounded-2xl border border-border-base bg-surface p-12 text-center shadow-sm mobile:p-8">
+        <div className="rounded-3xl border border-border-base bg-surface p-12 text-center shadow-soft mobile:p-8">
           <p className="text-sm text-[var(--st-rejected)]">Application not found.</p>
           <Link
             href="/applications"
@@ -127,7 +127,7 @@ export default async function ApplicationDetailPage({
 
         {/* Header: monogram + company/role + badge */}
         <div className="flex items-center gap-4 mobile:gap-3">
-          <div className="flex h-[60px] w-[60px] flex-shrink-0 items-center justify-center rounded-2xl border border-border-base bg-surface-2 text-[17px] font-bold tracking-tight text-ink-2 shadow-sm mobile:h-12 mobile:w-12 mobile:text-[14px]">
+          <div className="flex h-[60px] w-[60px] flex-shrink-0 items-center justify-center rounded-2xl border border-border-base bg-surface-2 text-[17px] font-bold tracking-tight text-ink-2 shadow-soft mobile:h-12 mobile:w-12 mobile:text-[14px]">
             {getCompanyInitials(application.company)}
           </div>
           <div className="min-w-0 flex-1">

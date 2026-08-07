@@ -42,7 +42,7 @@ export function WishlistList({ applications }: WishlistListProps) {
       {applications.map((app) => (
         <div
           key={app.id}
-          className="group relative flex overflow-hidden rounded-[13px] border border-border-base bg-surface shadow-sm transition hover:-translate-y-px hover:shadow-md hover:border-border-strong"
+          className="group relative flex overflow-hidden rounded-2xl border border-border-base bg-surface shadow-soft transition hover:-translate-y-px hover:shadow-panel hover:border-border-strong"
         >
           <Link href={`/wishlist/${app.id}`} className="absolute inset-0" aria-label={`${app.company} – ${app.role}`} />
 

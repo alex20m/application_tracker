@@ -46,7 +46,7 @@ export function WishlistApplyAction({ applicationId }: WishlistApplyActionProps)
 
       <dialog
         ref={dialogRef}
-        className="m-auto rounded-2xl border border-border-base bg-surface p-6 shadow-xl backdrop:bg-black/40 w-full max-w-sm"
+        className="m-auto rounded-3xl border border-border-base bg-surface p-6 shadow-panel backdrop:bg-black/40 w-full max-w-sm"
       >
         <h2 className={`${TEXT_H3} mb-4`}>
           Mark as Applied

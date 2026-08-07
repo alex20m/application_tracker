@@ -90,7 +90,7 @@ function FiltersDropdown({
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-20 mt-1.5 min-w-[240px] rounded-[12px] border border-border-base bg-surface shadow-lg overflow-hidden">
+        <div className="absolute right-0 top-full z-20 mt-1.5 min-w-[240px] rounded-2xl border border-border-base bg-surface shadow-panel overflow-hidden">
           {isActive && (
             <div className="border-b border-border-base px-3 py-2">
               <button
