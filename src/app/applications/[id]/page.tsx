@@ -157,8 +157,8 @@ export default async function ApplicationDetailPage({
             <div
               className="rounded-2xl border p-5 mobile:p-4"
               style={{
-                borderColor: "color-mix(in oklch, var(--st-rejected) 28%, transparent)",
-                background: "color-mix(in oklch, var(--st-rejected) 6%, var(--surface))",
+                borderColor: "color-mix(in oklab, var(--st-rejected) 28%, transparent)",
+                background: "color-mix(in oklab, var(--st-rejected) 6%, var(--surface))",
               }}
             >
               <div className="flex items-center justify-between gap-4 mobile:flex-col mobile:items-stretch mobile:gap-3">

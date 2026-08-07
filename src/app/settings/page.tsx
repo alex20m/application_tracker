@@ -38,8 +38,8 @@ export default async function SettingsPage() {
           <div
             className="rounded-3xl border p-[22px] shadow-soft mobile:p-4"
             style={{
-              borderColor: "color-mix(in oklch, var(--st-rejected) 40%, var(--border))",
-              background: "color-mix(in oklch, var(--st-rejected) 6%, var(--surface))",
+              borderColor: "color-mix(in oklab, var(--st-rejected) 40%, var(--border))",
+              background: "color-mix(in oklab, var(--st-rejected) 6%, var(--surface))",
             }}
           >
             <div className="flex items-start justify-between gap-4 flex-wrap">

@@ -29,16 +29,16 @@ function pillProps(outcome: InterviewRoundOutcome): {
       return {
         className: `${base} text-[var(--st-offer)]`,
         style: {
-          background: "color-mix(in oklch, var(--st-offer) 14%, var(--surface))",
-          boxShadow: "inset 0 0 0 1px color-mix(in oklch, var(--st-offer) 28%, transparent)",
+          background: "color-mix(in oklab, var(--st-offer) 14%, var(--surface))",
+          boxShadow: "inset 0 0 0 1px color-mix(in oklab, var(--st-offer) 28%, transparent)",
         },
       };
     case "failed":
       return {
         className: `${base} text-[var(--st-rejected)]`,
         style: {
-          background: "color-mix(in oklch, var(--st-rejected) 14%, var(--surface))",
-          boxShadow: "inset 0 0 0 1px color-mix(in oklch, var(--st-rejected) 28%, transparent)",
+          background: "color-mix(in oklab, var(--st-rejected) 14%, var(--surface))",
+          boxShadow: "inset 0 0 0 1px color-mix(in oklab, var(--st-rejected) 28%, transparent)",
         },
       };
     case "pending":
@@ -304,7 +304,7 @@ export function InterviewRoundsCard({ application, existingRoundTypes }: Props) 
                       <button
                         type="button"
                         onClick={handleDelete}
-                        className={`${BTN_SMALL} border-[color-mix(in_oklch,var(--st-rejected)_30%,transparent)] text-[var(--st-rejected)] hover:bg-[color-mix(in_oklch,var(--st-rejected)_8%,var(--surface))]`}
+                        className={`${BTN_SMALL} border-[color-mix(in_oklab,var(--st-rejected)_30%,transparent)] text-[var(--st-rejected)] hover:bg-[color-mix(in_oklab,var(--st-rejected)_8%,var(--surface))]`}
                         disabled={isPending}
                       >
                         Delete
@@ -351,7 +351,7 @@ export function InterviewRoundsCard({ application, existingRoundTypes }: Props) 
                         <button
                           type="button"
                           onClick={handleDelete}
-                          className={`${BTN_SMALL} border-[color-mix(in_oklch,var(--st-rejected)_30%,transparent)] text-[var(--st-rejected)] hover:bg-[color-mix(in_oklch,var(--st-rejected)_8%,var(--surface))]`}
+                          className={`${BTN_SMALL} border-[color-mix(in_oklab,var(--st-rejected)_30%,transparent)] text-[var(--st-rejected)] hover:bg-[color-mix(in_oklab,var(--st-rejected)_8%,var(--surface))]`}
                           disabled={isPending}
                         >
                           Delete
