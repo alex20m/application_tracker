@@ -45,6 +45,14 @@ describe("AppShell mobile drawer", () => {
     expect(drawer.className).toContain("max-h-dvh");
   });
 
+  it("pins the shell to the viewport width so wide cards cannot stretch the page", () => {
+    const { container } = render(<AppShell email="jane.doe@example.com">content</AppShell>);
+    // The shell is a flex item of the <body> column, so without w-full it is
+    // sized by its widest content and a horizontally scrolling card drags the
+    // whole page sideways.
+    expect((container.firstElementChild as HTMLElement).className).toContain("w-full");
+  });
+
   it("makes the nav the internal scroll region while header and footer stay pinned", () => {
     const drawer = openDrawer();
     const nav = within(drawer).getByRole("navigation");
