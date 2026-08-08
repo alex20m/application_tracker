@@ -29,7 +29,7 @@ const ROUND_ID = "b1b2c3d4-e5f6-4000-a000-000000000011";
 const OTHER_ROUND_ID = "c1b2c3d4-e5f6-4000-a000-000000000012";
 
 /** Points the actions at a client whose select returns `stored`, and returns that client. */
-function useStoredApplication(stored: unknown) {
+function givenStoredApplication(stored: unknown) {
   mockSupabase = buildSupabaseMock({ user: mockUser, selectData: stored });
   requireUserMock.mockResolvedValue({ supabase: mockSupabase as never, user: mockUser as never });
   return mockSupabase;
@@ -63,7 +63,7 @@ function roundFormData(overrides: Record<string, string> = {}): FormData {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  useStoredApplication(interviewingApp([]));
+  givenStoredApplication(interviewingApp([]));
 });
 
 describe("addInterviewRoundAction", () => {
@@ -88,7 +88,7 @@ describe("addInterviewRoundAction", () => {
 
   it("keeps the existing rounds when appending a new one", async () => {
     const closed = makeInterviewRound({ id: ROUND_ID, type: "Recruiter", outcome: "passed" });
-    useStoredApplication(interviewingApp([closed]));
+    givenStoredApplication(interviewingApp([closed]));
 
     await addInterviewRoundAction(APP_ID, null, roundFormData({ type: "Technical" }));
 
@@ -108,7 +108,7 @@ describe("addInterviewRoundAction", () => {
     ["pending", "pending"],
     ["failed", "failed"],
   ])("refuses a new round while the previous one is still %s", async (_label, outcome) => {
-    useStoredApplication(
+    givenStoredApplication(
       interviewingApp([makeInterviewRound({ id: ROUND_ID, outcome: outcome as "pending" })])
     );
 
@@ -122,7 +122,7 @@ describe("addInterviewRoundAction", () => {
     ["passed", "passed"],
     ["cancelled", "cancelled"],
   ])("allows a new round once the previous one is %s", async (_label, outcome) => {
-    useStoredApplication(
+    givenStoredApplication(
       interviewingApp([makeInterviewRound({ id: ROUND_ID, outcome: outcome as "passed" })])
     );
 
@@ -133,7 +133,7 @@ describe("addInterviewRoundAction", () => {
   });
 
   it("refuses to add a round to an application that is not in the interviews stage", async () => {
-    useStoredApplication(
+    givenStoredApplication(
       makeApplication({ id: APP_ID, user_id: mockUser.id, status: STATUS.applied })
     );
 
@@ -144,7 +144,7 @@ describe("addInterviewRoundAction", () => {
   });
 
   it("refuses when the application is not found (another user's row)", async () => {
-    useStoredApplication(null);
+    givenStoredApplication(null);
 
     const result = await addInterviewRoundAction(APP_ID, null, roundFormData());
 
@@ -189,7 +189,7 @@ describe("updateInterviewRoundAction", () => {
   const pendingRound = () => makeInterviewRound({ id: ROUND_ID, type: "Onsite", outcome: "pending" });
 
   it("updates the latest round in place on the user's own application", async () => {
-    useStoredApplication(interviewingApp([pendingRound()]));
+    givenStoredApplication(interviewingApp([pendingRound()]));
 
     const result = await updateInterviewRoundAction(
       APP_ID,
@@ -214,7 +214,7 @@ describe("updateInterviewRoundAction", () => {
 
   it("leaves earlier rounds untouched", async () => {
     const earlier = makeInterviewRound({ id: OTHER_ROUND_ID, type: "Recruiter", outcome: "passed" });
-    useStoredApplication(interviewingApp([earlier, pendingRound()]));
+    givenStoredApplication(interviewingApp([earlier, pendingRound()]));
 
     await updateInterviewRoundAction(
       APP_ID,
@@ -232,7 +232,7 @@ describe("updateInterviewRoundAction", () => {
     // Only the newest round is editable — rewriting history would change
     // outcomes the pipeline already acted on.
     const earlier = makeInterviewRound({ id: OTHER_ROUND_ID, outcome: "passed" });
-    useStoredApplication(interviewingApp([earlier, pendingRound()]));
+    givenStoredApplication(interviewingApp([earlier, pendingRound()]));
 
     const result = await updateInterviewRoundAction(
       APP_ID,
@@ -245,7 +245,7 @@ describe("updateInterviewRoundAction", () => {
   });
 
   it("refuses to edit a round on an application outside the interviews stage", async () => {
-    useStoredApplication(
+    givenStoredApplication(
       makeApplication({
         id: APP_ID,
         user_id: mockUser.id,
@@ -265,7 +265,7 @@ describe("updateInterviewRoundAction", () => {
   });
 
   it("refuses a round id that is not a UUID", async () => {
-    useStoredApplication(interviewingApp([pendingRound()]));
+    givenStoredApplication(interviewingApp([pendingRound()]));
 
     const result = await updateInterviewRoundAction(
       APP_ID,
@@ -278,7 +278,7 @@ describe("updateInterviewRoundAction", () => {
   });
 
   it("refuses when the application is not found (another user's row)", async () => {
-    useStoredApplication(null);
+    givenStoredApplication(null);
 
     const result = await updateInterviewRoundAction(
       APP_ID,
@@ -295,7 +295,7 @@ describe("deleteInterviewRoundAction", () => {
   it("removes the latest round from the user's own application", async () => {
     const earlier = makeInterviewRound({ id: OTHER_ROUND_ID, outcome: "passed" });
     const latest = makeInterviewRound({ id: ROUND_ID, outcome: "pending" });
-    useStoredApplication(interviewingApp([earlier, latest]));
+    givenStoredApplication(interviewingApp([earlier, latest]));
 
     const result = await deleteInterviewRoundAction(APP_ID, ROUND_ID);
 
@@ -308,7 +308,7 @@ describe("deleteInterviewRoundAction", () => {
   });
 
   it("empties the list when the only round is deleted", async () => {
-    useStoredApplication(interviewingApp([makeInterviewRound({ id: ROUND_ID })]));
+    givenStoredApplication(interviewingApp([makeInterviewRound({ id: ROUND_ID })]));
 
     const result = await deleteInterviewRoundAction(APP_ID, ROUND_ID);
 
@@ -318,7 +318,7 @@ describe("deleteInterviewRoundAction", () => {
 
   it("refuses to delete a round that is not the latest one", async () => {
     const earlier = makeInterviewRound({ id: OTHER_ROUND_ID, outcome: "passed" });
-    useStoredApplication(interviewingApp([earlier, makeInterviewRound({ id: ROUND_ID })]));
+    givenStoredApplication(interviewingApp([earlier, makeInterviewRound({ id: ROUND_ID })]));
 
     const result = await deleteInterviewRoundAction(APP_ID, OTHER_ROUND_ID);
 
@@ -327,7 +327,7 @@ describe("deleteInterviewRoundAction", () => {
   });
 
   it("refuses to delete a round outside the interviews stage", async () => {
-    useStoredApplication(
+    givenStoredApplication(
       makeApplication({
         id: APP_ID,
         user_id: mockUser.id,

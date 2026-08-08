@@ -39,7 +39,7 @@ function makeCreateFormData(overrides: Record<string, string> = {}): FormData {
 }
 
 /** Points the actions at a client whose select returns `stored`, and returns that client. */
-function useStoredApplication(stored: unknown) {
+function givenStoredApplication(stored: unknown) {
   mockSupabase = buildSupabaseMock({ user: mockUser, selectData: stored });
   requireUserMock.mockResolvedValue({ supabase: mockSupabase as never, user: mockUser as never });
   return mockSupabase;
@@ -129,7 +129,7 @@ describe("createWishlistAction", () => {
 
 describe("applyWishlistAction", () => {
   it("moves the entry to applied with the chosen date and a fresh status history", async () => {
-    useStoredApplication({ status: STATUS.wishlist });
+    givenStoredApplication({ status: STATUS.wishlist });
 
     const fd = new FormData();
     fd.set("application_id", VALID_APP_ID);
@@ -152,7 +152,7 @@ describe("applyWishlistAction", () => {
   });
 
   it("reads the current row scoped to the signed-in user before writing", async () => {
-    useStoredApplication({ status: STATUS.wishlist });
+    givenStoredApplication({ status: STATUS.wishlist });
 
     const fd = new FormData();
     fd.set("application_id", VALID_APP_ID);
@@ -166,7 +166,7 @@ describe("applyWishlistAction", () => {
   });
 
   it("stores a null applied date when none was chosen", async () => {
-    useStoredApplication({ status: STATUS.wishlist });
+    givenStoredApplication({ status: STATUS.wishlist });
 
     const fd = new FormData();
     fd.set("application_id", VALID_APP_ID);
@@ -180,7 +180,7 @@ describe("applyWishlistAction", () => {
   it("refuses to re-apply an entry that has already left the wishlist", async () => {
     // Otherwise a stale tab could reset a live application's history back to
     // "just applied", wiping its interview and offer events.
-    useStoredApplication({ status: STATUS.interviews });
+    givenStoredApplication({ status: STATUS.interviews });
 
     const fd = new FormData();
     fd.set("application_id", VALID_APP_ID);
@@ -194,7 +194,7 @@ describe("applyWishlistAction", () => {
   });
 
   it("refuses when the row is not found (another user's entry)", async () => {
-    useStoredApplication(null);
+    givenStoredApplication(null);
 
     const fd = new FormData();
     fd.set("application_id", VALID_APP_ID);

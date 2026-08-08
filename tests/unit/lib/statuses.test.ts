@@ -17,6 +17,44 @@ import {
 const ALL_STATUSES = Object.values(STATUS) as ApplicationStatus[];
 
 describe("STATUS_NEXT", () => {
+  // The pipeline's rulebook, written out literally rather than derived from the
+  // source. Every other assertion about transitions is structural (no
+  // self-loops, no duplicates, terminal statuses are empty) and stays true if
+  // an illegal edge is added — e.g. letting an application jump from applied
+  // straight to offer, skipping interviews. Only an explicit table catches that.
+  const EXPECTED_TRANSITIONS: Record<ApplicationStatus, ApplicationStatus[]> = {
+    wishlist: ["applied"],
+    applied: ["cancelled", "rejected", "interviews", "ghosted"],
+    ghosted: ["cancelled", "rejected", "interviews"],
+    cancelled: [],
+    withdrew: [],
+    rejected: [],
+    interviews: ["withdrew", "no_offer", "offer"],
+    no_offer: [],
+    offer: ["accepted", "declined"],
+    accepted: [],
+    declined: [],
+  };
+
+  it.each(Object.keys(EXPECTED_TRANSITIONS) as ApplicationStatus[])(
+    "allows exactly the documented moves out of %s",
+    (status) => {
+      expect(STATUS_NEXT[status]).toEqual(EXPECTED_TRANSITIONS[status]);
+    }
+  );
+
+  it("cannot reach an offer without going through interviews", () => {
+    // The single most consequential rule in the graph: an offer that skipped
+    // interviews would corrupt every interview-to-offer conversion metric.
+    for (const [from, targets] of Object.entries(STATUS_NEXT) as [
+      ApplicationStatus,
+      ApplicationStatus[],
+    ][]) {
+      if (from === STATUS.interviews) continue;
+      expect(targets, `${from} must not lead straight to an offer`).not.toContain(STATUS.offer);
+    }
+  });
+
   it("declares a transition list for every status", () => {
     // A missing key means the app crashes when a user reaches that status and
     // the UI asks what it can move to next.

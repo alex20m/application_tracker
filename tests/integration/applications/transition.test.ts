@@ -24,7 +24,7 @@ const VALID_APP_ID = "a1b2c3d4-e5f6-4000-a000-000000000001";
 const OTHER_USER_APP_ID = "a1b2c3d4-e5f6-4000-a000-0000000000ff";
 
 /** Points the action at a client whose select returns `stored`, and returns that client. */
-function useStoredApplication(stored: unknown) {
+function givenStoredApplication(stored: unknown) {
   mockSupabase = buildSupabaseMock({ user: mockUser, selectData: stored });
   requireUserMock.mockResolvedValue({ supabase: mockSupabase as never, user: mockUser as never });
   return mockSupabase;
@@ -32,7 +32,7 @@ function useStoredApplication(stored: unknown) {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  useStoredApplication(
+  givenStoredApplication(
     makeApplication({ id: VALID_APP_ID, user_id: mockUser.id, status: STATUS.applied })
   );
 });
@@ -59,7 +59,7 @@ describe("transitionApplicationStatusAction", () => {
       to_status: STATUS.applied,
       changed_at: "2026-01-01T00:00:00.000Z",
     });
-    useStoredApplication(
+    givenStoredApplication(
       makeApplication({
         id: VALID_APP_ID,
         user_id: mockUser.id,
@@ -95,7 +95,7 @@ describe("transitionApplicationStatusAction", () => {
   });
 
   it("writes nothing when the id belongs to another user (row not found)", async () => {
-    useStoredApplication(null);
+    givenStoredApplication(null);
 
     await transitionApplicationStatusAction(makeFormData(OTHER_USER_APP_ID, STATUS.interviews));
 
@@ -105,7 +105,7 @@ describe("transitionApplicationStatusAction", () => {
   it("refuses a transition that is not allowed from the stored status", async () => {
     // The *stored* status governs, not anything the client sends: cancelled is
     // terminal, so no next status may be applied to it.
-    useStoredApplication(
+    givenStoredApplication(
       makeApplication({ id: VALID_APP_ID, user_id: mockUser.id, status: STATUS.cancelled })
     );
 
@@ -122,7 +122,7 @@ describe("transitionApplicationStatusAction", () => {
     expect(forbidden.length).toBeGreaterThan(0);
 
     for (const target of forbidden) {
-      const supabase = useStoredApplication(
+      const supabase = givenStoredApplication(
         makeApplication({ id: VALID_APP_ID, user_id: mockUser.id, status: STATUS.applied })
       );
       await transitionApplicationStatusAction(makeFormData(VALID_APP_ID, target));
@@ -131,7 +131,7 @@ describe("transitionApplicationStatusAction", () => {
   });
 
   it("refuses to leave interviews while a round is still pending, and explains why", async () => {
-    useStoredApplication(
+    givenStoredApplication(
       makeApplication({
         id: VALID_APP_ID,
         user_id: mockUser.id,
@@ -154,7 +154,7 @@ describe("transitionApplicationStatusAction", () => {
   });
 
   it("allows leaving interviews once every round is closed", async () => {
-    useStoredApplication(
+    givenStoredApplication(
       makeApplication({
         id: VALID_APP_ID,
         user_id: mockUser.id,

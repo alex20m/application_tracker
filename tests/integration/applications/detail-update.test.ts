@@ -35,7 +35,7 @@ function makeFormData(overrides: Record<string, string> = {}): FormData {
 }
 
 /** Points the action at a client whose select returns `stored`, and returns that client. */
-function useStoredApplication(stored: unknown) {
+function givenStoredApplication(stored: unknown) {
   mockSupabase = buildSupabaseMock({ user: mockUser, selectData: stored });
   requireUserMock.mockResolvedValue({ supabase: mockSupabase as never, user: mockUser as never });
   return mockSupabase;
@@ -54,7 +54,7 @@ const SEED_EVENT = makeStatusEvent({
 
 beforeEach(() => {
   vi.clearAllMocks();
-  useStoredApplication(
+  givenStoredApplication(
     makeApplication({
       id: VALID_APP_ID,
       user_id: mockUser.id,
@@ -110,7 +110,7 @@ describe("updateApplicationAction", () => {
   });
 
   it("records the previous status when moving on from a status that had a response", async () => {
-    useStoredApplication(
+    givenStoredApplication(
       makeApplication({
         id: VALID_APP_ID,
         user_id: mockUser.id,
@@ -213,7 +213,7 @@ describe("updateApplicationAction", () => {
   });
 
   it("writes nothing when the row is not found (another user's application)", async () => {
-    useStoredApplication(null);
+    givenStoredApplication(null);
 
     const result = await updateApplicationAction(VALID_APP_ID, null, makeFormData());
 

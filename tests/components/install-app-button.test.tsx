@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { act } from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { InstallAppButton } from "@/components/install-app-button";
