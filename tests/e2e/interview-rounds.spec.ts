@@ -2,23 +2,77 @@ import type { Page } from "@playwright/test";
 import { test, expect } from "./fixtures";
 import { STATUS_NAMES } from "@/lib/statuses";
 
+/**
+ * Waits for a server action to reach the server and the page to re-render.
+ *
+ * The stage stepper and the round outcome are both optimistic, so the UI
+ * reflects a change before it is stored. Every action here is validated against
+ * *stored* state — adding a round requires the application to already be in the
+ * interviews stage, and leaving that stage requires every round to already be
+ * closed — so continuing on an optimistic render lets the next action run
+ * against state the server has not committed yet.
+ */
+async function settle(page: Page) {
+  await page.waitForLoadState("networkidle");
+}
+
 /** Moves the open detail page to the interviews stage and waits for the round controls. */
 async function enterInterviews(page: Page) {
   await page.getByRole("button", { name: STATUS_NAMES.interviews, exact: true }).click();
+  await settle(page);
   await expect(page.getByRole("button", { name: /\+ Add round/i })).toBeVisible();
 }
 
-/** Fills and submits the add-round form. */
+/**
+ * Picks today in the round form's date field.
+ *
+ * The picker stores its value in a hidden input, and `required` on a hidden
+ * input is not enforced by the browser — so if the calendar has not opened when
+ * "Today" is clicked, the form submits with no date, the server rejects it, and
+ * the only symptom is a round that never appears. Each step is therefore
+ * confirmed before the next.
+ */
+async function pickToday(page: Page) {
+  await page.getByLabel(/date/i).click();
+  const calendar = page.getByRole("dialog", { name: /date picker/i });
+  await expect(calendar).toBeVisible();
+  await calendar.getByRole("button", { name: "Today", exact: true }).click();
+  await expect(calendar).toHaveCount(0);
+  // The trigger shows "Select date" until a date is chosen.
+  await expect(page.getByLabel(/date/i)).not.toContainText(/select date/i);
+}
+
+/** Fills and submits the add-round form, and waits for the round to be stored. */
 async function addRound(page: Page, type: string, notes?: string) {
   await page.getByRole("button", { name: /\+ Add round/i }).click();
-  await page.getByLabel(/type/i).fill(type);
-  await page.getByLabel(/date/i).click();
-  await page.getByRole("button", { name: "Today", exact: true }).click();
+  const typeField = page.getByLabel(/type/i);
+  await expect(typeField).toBeVisible();
+  await typeField.fill(type);
+  await pickToday(page);
   if (notes) await page.getByLabel(/notes/i).fill(notes);
-  await page.getByRole("button", { name: /Add round/i }).click();
-  // The pill appears only once the server action has revalidated, which on a
-  // cold CI runner regularly exceeds the 5s default.
-  await expect(page.getByText(type).first()).toBeVisible({ timeout: 15000 });
+
+  await page.getByRole("button", { name: /^Add round$/i }).click();
+  await settle(page);
+
+  // The form unmounts only on success, so a form still on screen means the
+  // submit was rejected — surface that instead of timing out on the pill.
+  await expect(
+    page.getByRole("button", { name: /^Add round$/i }),
+    "the add-round form did not close, so the submission was rejected"
+  ).toHaveCount(0);
+  await expect(page.getByText(type).first()).toBeVisible();
+}
+
+/** Closes the latest round with an outcome and waits for the write to be stored. */
+async function setOutcome(page: Page, outcome: "Passed" | "Failed" | "Cancelled") {
+  await page.getByRole("button", { name: outcome, exact: true }).click();
+  await settle(page);
+}
+
+/** Moves the application to another stage and waits for the write to be stored. */
+async function moveToStage(page: Page, status: string) {
+  await page.getByRole("button", { name: status, exact: true }).click();
+  await settle(page);
 }
 
 test.describe("Interview rounds", () => {
@@ -40,12 +94,13 @@ test.describe("Interview rounds", () => {
     await page.reload();
     await expect(page.getByText("Phone screen").first()).toBeVisible();
 
-    await page.getByRole("button", { name: "Passed" }).click();
+    await setOutcome(page, "Passed");
     await expect(page.getByText("Set outcome:")).not.toBeVisible();
 
     await page.getByRole("button", { name: /^Delete$/i }).click();
-    await expect(page.getByText("Phone screen").first()).not.toBeVisible({ timeout: 15000 });
-    await expect(page.getByText("No rounds yet")).toBeVisible({ timeout: 15000 });
+    await settle(page);
+    await expect(page.getByText("Phone screen").first()).not.toBeVisible();
+    await expect(page.getByText("No rounds yet")).toBeVisible();
   });
 
   test("refuses to leave the interviews stage while a round is still open", async ({
@@ -59,11 +114,9 @@ test.describe("Interview rounds", () => {
     await addRound(page, "Phone screen");
 
     // The round is pending, so the stage must not advance.
-    await page.getByRole("button", { name: STATUS_NAMES.offer, exact: true }).click();
+    await moveToStage(page, STATUS_NAMES.offer);
 
-    await expect(
-      page.getByText(/close the ongoing interview round/i)
-    ).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText(/close the ongoing interview round/i)).toBeVisible();
     // Still in interviews. "Set outcome:" is the proof: it renders only in that
     // stage and only while the latest round is open — which is exactly the
     // state the gate is protecting. ("+ Add round" is the wrong signal here; it
@@ -71,14 +124,14 @@ test.describe("Interview rounds", () => {
     await expect(page.getByText("Set outcome:")).toBeVisible();
 
     // Closing the round releases the gate.
-    await page.getByRole("button", { name: "Passed" }).click();
-    await expect(page.getByText("Set outcome:")).not.toBeVisible({ timeout: 15000 });
-    await page.getByRole("button", { name: STATUS_NAMES.offer, exact: true }).click();
+    await setOutcome(page, "Passed");
+    await expect(page.getByText("Set outcome:")).not.toBeVisible();
+    await moveToStage(page, STATUS_NAMES.offer);
 
     // Now in the offer stage: its own onward moves are what the stepper offers.
     await expect(
       page.getByRole("button", { name: STATUS_NAMES.accepted, exact: true })
-    ).toBeVisible({ timeout: 15000 });
+    ).toBeVisible();
     await expect(page.getByRole("button", { name: /\+ Add round/i })).toHaveCount(0);
   });
 
@@ -96,7 +149,7 @@ test.describe("Interview rounds", () => {
     await expect(page.getByRole("button", { name: /\+ Add round/i })).toHaveCount(0);
 
     // A failed round is terminal for the application, so it does not reopen it either.
-    await page.getByRole("button", { name: "Failed" }).click();
+    await setOutcome(page, "Failed");
     await expect(page.getByRole("button", { name: /\+ Add round/i })).toHaveCount(0);
   });
 
@@ -110,7 +163,7 @@ test.describe("Interview rounds", () => {
     await enterInterviews(page);
     await addRound(page, "Phone screen");
 
-    await page.getByRole("button", { name: "Passed" }).click();
+    await setOutcome(page, "Passed");
 
     await expect(page.getByRole("button", { name: /\+ Add round/i })).toBeVisible();
     await addRound(page, "Technical");
@@ -125,8 +178,8 @@ test.describe("Interview rounds", () => {
     await addRound(page, "Phone screen");
 
     // Mark first round as Passed so a second round can be added
-    await page.getByRole("button", { name: "Passed" }).click();
-    await expect(page.getByText("Set outcome:")).not.toBeVisible({ timeout: 15000 });
+    await setOutcome(page, "Passed");
+    await expect(page.getByText("Set outcome:")).not.toBeVisible();
 
     await addRound(page, "Technical");
 
@@ -136,6 +189,7 @@ test.describe("Interview rounds", () => {
 
     // Delete the latest round — Edit/Delete should move to the new latest (Phone screen)
     await page.getByRole("button", { name: /^Delete$/i }).click();
+    await settle(page);
     await expect(page.getByText("Technical").first()).not.toBeVisible();
     await expect(page.getByText("Phone screen").first()).toBeVisible();
     await expect(page.getByRole("button", { name: /^Edit$/i })).toHaveCount(1);
@@ -154,10 +208,10 @@ test.describe("Interview rounds", () => {
     await expect(page.getByText("Prep note visible in interviews")).toBeVisible();
 
     // Close the round — a pending round blocks leaving the stage.
-    await page.getByRole("button", { name: "Passed" }).click();
+    await setOutcome(page, "Passed");
     await expect(page.getByText("Set outcome:")).not.toBeVisible();
 
-    await page.getByRole("button", { name: STATUS_NAMES.offer, exact: true }).click();
+    await moveToStage(page, STATUS_NAMES.offer);
     await expect(page.getByRole("button", { name: /\+ Add round/i })).not.toBeVisible();
 
     // Card and round pill are still visible — only notes are hidden
