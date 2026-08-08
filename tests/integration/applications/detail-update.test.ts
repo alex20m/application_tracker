@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { buildSupabaseMock } from "../../helpers/supabase-mock";
-import { makeUser, makeApplication } from "../../helpers/factories";
+import { buildSupabaseMock, expectScopedToUserRow } from "../../helpers/supabase-mock";
+import { makeUser, makeApplication, makeStatusEvent } from "../../helpers/factories";
 import { STATUS } from "@/lib/statuses";
+import type { StatusEvent } from "@/lib/types";
 
 const mockUser = makeUser();
 let mockSupabase = buildSupabaseMock({ user: mockUser });
@@ -27,71 +28,213 @@ function makeFormData(overrides: Record<string, string> = {}): FormData {
   fd.set("location", overrides.location ?? "Remote");
   fd.set("status", overrides.status ?? STATUS.applied);
   fd.set("applied_on", overrides.applied_on ?? "2026-05-01");
-  if (overrides.notes !== undefined) fd.set("notes", overrides.notes);
+  for (const key of ["notes", "source", "return_path"]) {
+    if (overrides[key] !== undefined) fd.set(key, overrides[key]);
+  }
   return fd;
 }
 
+/** Points the action at a client whose select returns `stored`, and returns that client. */
+function useStoredApplication(stored: unknown) {
+  mockSupabase = buildSupabaseMock({ user: mockUser, selectData: stored });
+  requireUserMock.mockResolvedValue({ supabase: mockSupabase as never, user: mockUser as never });
+  return mockSupabase;
+}
+
+/** The events array the action wrote back. */
+function writtenEvents(): StatusEvent[] {
+  return (mockSupabase.onlyQuery("update").payload as { events: StatusEvent[] }).events;
+}
+
+const SEED_EVENT = makeStatusEvent({
+  from_status: null,
+  to_status: STATUS.applied,
+  changed_at: "2026-01-01T00:00:00.000Z",
+});
+
 beforeEach(() => {
   vi.clearAllMocks();
-  mockSupabase = buildSupabaseMock({
-    user: mockUser,
-    selectData: makeApplication({
+  useStoredApplication(
+    makeApplication({
       id: VALID_APP_ID,
       user_id: mockUser.id,
       status: STATUS.applied,
-    }),
-  });
-  requireUserMock.mockResolvedValue({ supabase: mockSupabase as never, user: mockUser as never });
+      events: [SEED_EVENT],
+    })
+  );
 });
 
 describe("updateApplicationAction", () => {
-  it("redirects to /applications on success", async () => {
-    const fd = makeFormData({ status: STATUS.applied });
+  it("saves the edited fields on the signed-in user's own row", async () => {
+    const fd = makeFormData({ company: "New Corp", role: "Staff Engineer", source: "Referral" });
+
     await expect(updateApplicationAction(VALID_APP_ID, null, fd)).rejects.toMatchObject({
       type: "redirect",
-      url: "/applications",
+    });
+
+    const update = mockSupabase.onlyQuery("update");
+    expect(update.payload).toMatchObject({
+      company: "New Corp",
+      role: "Staff Engineer",
+      location: "Remote",
+      source: "Referral",
+      applied_on: "2026-05-01",
+      status: STATUS.applied,
+    });
+    expectScopedToUserRow(update, { userId: mockUser.id, applicationId: VALID_APP_ID });
+  });
+
+  it("reads the current row scoped to the signed-in user before writing", async () => {
+    await expect(
+      updateApplicationAction(VALID_APP_ID, null, makeFormData())
+    ).rejects.toMatchObject({ type: "redirect" });
+
+    expectScopedToUserRow(mockSupabase.onlyQuery("select"), {
+      userId: mockUser.id,
+      applicationId: VALID_APP_ID,
     });
   });
 
-  it("returns error for non-UUID applicationId", async () => {
-    const fd = makeFormData();
-    const result = await updateApplicationAction("not-a-uuid", null, fd);
-    expect(result.success).toBe(false);
-  });
+  it("appends a status event when the status changes", async () => {
+    const fd = makeFormData({ status: STATUS.interviews });
 
-  it("returns error when company is empty", async () => {
-    const fd = makeFormData({ company: "" });
-    const result = await updateApplicationAction(VALID_APP_ID, null, fd);
-    expect(result.success).toBe(false);
-  });
-
-  it("does not call update when application is not found", async () => {
-    const notFoundSupabase = buildSupabaseMock({ user: mockUser, selectData: null });
-    requireUserMock.mockResolvedValue({
-      supabase: notFoundSupabase as never,
-      user: mockUser as never,
+    await expect(updateApplicationAction(VALID_APP_ID, null, fd)).rejects.toMatchObject({
+      type: "redirect",
     });
-    const fd = makeFormData();
-    const result = await updateApplicationAction(VALID_APP_ID, null, fd);
+
+    // applied is a "no response yet" status, so its null-seeded event is
+    // rewritten to point at the new status rather than a second one appended.
+    const events = writtenEvents();
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject({ from_status: null, to_status: STATUS.interviews });
+  });
+
+  it("records the previous status when moving on from a status that had a response", async () => {
+    useStoredApplication(
+      makeApplication({
+        id: VALID_APP_ID,
+        user_id: mockUser.id,
+        status: STATUS.interviews,
+        events: [SEED_EVENT],
+      })
+    );
+
+    const fd = makeFormData({ status: STATUS.offer });
+    await expect(updateApplicationAction(VALID_APP_ID, null, fd)).rejects.toMatchObject({
+      type: "redirect",
+    });
+
+    const events = writtenEvents();
+    expect(events).toHaveLength(2);
+    expect(events[0]).toEqual(SEED_EVENT);
+    expect(events[1]).toMatchObject({
+      from_status: STATUS.interviews,
+      to_status: STATUS.offer,
+    });
+  });
+
+  it("leaves the status history untouched when the status is unchanged", async () => {
+    const fd = makeFormData({ status: STATUS.applied, company: "Renamed Co" });
+
+    await expect(updateApplicationAction(VALID_APP_ID, null, fd)).rejects.toMatchObject({
+      type: "redirect",
+    });
+
+    // Editing the company must not manufacture a status event — that would
+    // corrupt every time-to-response metric on the analytics page.
+    expect(writtenEvents()).toEqual([SEED_EVENT]);
+  });
+
+  it("stores blank source and notes as null rather than empty strings", async () => {
+    const fd = makeFormData({ source: "", notes: "" });
+
+    await expect(updateApplicationAction(VALID_APP_ID, null, fd)).rejects.toMatchObject({
+      type: "redirect",
+    });
+
+    const payload = mockSupabase.onlyQuery("update").payload as Record<string, unknown>;
+    expect(payload.source).toBeNull();
+    expect(payload.notes).toBeNull();
+  });
+
+  it("redirects to the applications list on success", async () => {
+    await expect(
+      updateApplicationAction(VALID_APP_ID, null, makeFormData())
+    ).rejects.toMatchObject({ type: "redirect", url: "/applications" });
+  });
+
+  it("returns to the application's own detail page when asked", async () => {
+    const returnPath = `/applications/${VALID_APP_ID}?from=closed`;
+
+    await expect(
+      updateApplicationAction(VALID_APP_ID, null, makeFormData({ return_path: returnPath }))
+    ).rejects.toMatchObject({ type: "redirect", url: returnPath });
+  });
+
+  it.each([
+    ["an off-site URL", "https://evil.example.com/phish"],
+    ["a protocol-relative URL", "//evil.example.com"],
+    ["an unrelated in-app path", "/settings"],
+  ])("ignores %s as a return path", async (_label, returnPath) => {
+    // return_path arrives from the submitted form, so an unchecked value is an
+    // open redirect out of a signed-in session.
+    await expect(
+      updateApplicationAction(VALID_APP_ID, null, makeFormData({ return_path: returnPath }))
+    ).rejects.toMatchObject({ type: "redirect", url: "/applications" });
+  });
+
+  it("writes nothing and reports failure for a non-UUID application id", async () => {
+    const result = await updateApplicationAction("not-a-uuid", null, makeFormData());
+
+    expect(result.success).toBe(false);
+    expect(mockSupabase.queries).toHaveLength(0);
+  });
+
+  it.each([
+    ["company", { company: "" }],
+    ["role", { role: "" }],
+    ["location", { location: "" }],
+  ])("writes nothing when %s is empty", async (_label, overrides) => {
+    const result = await updateApplicationAction(VALID_APP_ID, null, makeFormData(overrides));
+
+    expect(result.success).toBe(false);
+    expect(mockSupabase.queriesOf("update")).toHaveLength(0);
+  });
+
+  it("rejects a status that is not a known status", async () => {
+    const result = await updateApplicationAction(
+      VALID_APP_ID,
+      null,
+      makeFormData({ status: "president" })
+    );
+
+    expect(result.success).toBe(false);
+    expect(mockSupabase.queriesOf("update")).toHaveLength(0);
+  });
+
+  it("writes nothing when the row is not found (another user's application)", async () => {
+    useStoredApplication(null);
+
+    const result = await updateApplicationAction(VALID_APP_ID, null, makeFormData());
+
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/not found/i);
+    expect(mockSupabase.queriesOf("update")).toHaveLength(0);
   });
 
-  it("appends a status event when status changes", async () => {
-    const fd = makeFormData({ status: STATUS.interviews });
-    // Should redirect (success), meaning the update path was taken
-    await expect(updateApplicationAction(VALID_APP_ID, null, fd)).rejects.toMatchObject({
-      type: "redirect",
+  it("reports a failed update without leaking the database error", async () => {
+    mockSupabase = buildSupabaseMock({
+      user: mockUser,
+      selectData: makeApplication({ id: VALID_APP_ID, user_id: mockUser.id }),
+      updateError: { message: "column \"applied_on\" violates not-null constraint" },
     });
-  });
+    requireUserMock.mockResolvedValue({ supabase: mockSupabase as never, user: mockUser as never });
+    vi.spyOn(console, "error").mockImplementation(() => {});
 
-  it("does not append an event when status is unchanged", async () => {
-    // status in form matches status in fetched app (both applied)
-    const fd = makeFormData({ status: STATUS.applied });
-    await expect(updateApplicationAction(VALID_APP_ID, null, fd)).rejects.toMatchObject({
-      type: "redirect",
-    });
-    // The update was still called (to persist other field edits), just without new events
-    expect(mockSupabase.from).toHaveBeenCalled();
+    const result = await updateApplicationAction(VALID_APP_ID, null, makeFormData());
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBe("Something went wrong. Please try again.");
+    expect(result.error).not.toContain("not-null");
   });
 });
