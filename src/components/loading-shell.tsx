@@ -4,7 +4,8 @@ const NAV_LABELS = ["Dashboard", "Applications", "Wishlist", "Analytics"];
 
 export function LoadingShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-bg">
+    // w-full for the same reason as AppShell — keep the shell viewport-width.
+    <div className="w-full min-h-screen bg-bg">
       <header className="sticky top-0 z-20 border-b border-border-base/80 bg-surface/82 backdrop-blur-md">
         <div className={`${PAGE_CONTAINER} flex h-[60px] items-center gap-4 mobile:h-[52px]`}>
           {/* Brand — matches AppShell exactly */}

@@ -142,7 +142,10 @@ export function AppShell({ email, children }: AppShellProps) {
   const initials = getInitials(email);
 
   return (
-    <div className="min-h-screen bg-bg">
+    // w-full pins the shell to the viewport: as a flex item of the <body>
+    // column it would otherwise be sized by its widest content, so any
+    // horizontally scrolling card would drag the whole page sideways.
+    <div className="w-full min-h-screen bg-bg">
       <header className="sticky top-0 z-20 border-b border-border-base/80 bg-surface/82 backdrop-blur-md">
         <div className={`${PAGE_CONTAINER} flex h-[60px] items-center gap-4 mobile:h-[52px]`}>
           {/* Brand mark */}
