@@ -1,4 +1,35 @@
-import { test as base, expect, type Dialog } from "@playwright/test";
+import { test as base, expect, type Dialog, type Locator, type Page } from "@playwright/test";
+
+/**
+ * Clicks something that triggers a server action and waits for that action's
+ * response, so the write has reached the server before the test continues.
+ *
+ * Status changes and interview-round outcomes are rendered optimistically, so
+ * the UI reflects a change before it is stored — while the actions themselves
+ * are validated against *stored* state. Continuing on an optimistic render lets
+ * the next step run against state the server has not committed yet.
+ *
+ * `waitForLoadState("networkidle")` cannot be used for this: it resolves
+ * immediately when the page is already idle, which right after a click it
+ * usually is, because the request has not been issued yet — so it silently
+ * becomes a no-op.
+ *
+ * A server action POSTs to the page's own URL, so the match is "a same-origin
+ * POST". Vercel's analytics beacon is excluded because it is also a
+ * same-origin POST and would otherwise satisfy the wait without the action
+ * having completed.
+ */
+export async function clickAndAwaitAction(page: Page, locator: Locator) {
+  const origin = new URL(page.url()).origin;
+  await Promise.all([
+    page.waitForResponse((r) => {
+      if (r.request().method() !== "POST") return false;
+      const url = new URL(r.url());
+      return url.origin === origin && !url.pathname.startsWith("/_vercel");
+    }),
+    locator.click(),
+  ]);
+}
 
 type Fixtures = {
   /** Creates an application via the UI and returns its detail URL, then deletes it after the test. */

@@ -1,25 +1,24 @@
 import type { Page } from "@playwright/test";
-import { test, expect } from "./fixtures";
+import { test, expect, clickAndAwaitAction } from "./fixtures";
 import { STATUS_NAMES } from "@/lib/statuses";
 
 /**
- * Waits for a server action to reach the server and the page to re-render.
+ * Re-reads the page from the server.
  *
- * The stage stepper and the round outcome are both optimistic, so the UI
- * reflects a change before it is stored. Every action here is validated against
- * *stored* state — adding a round requires the application to already be in the
- * interviews stage, and leaving that stage requires every round to already be
- * closed — so continuing on an optimistic render lets the next action run
- * against state the server has not committed yet.
+ * Assertions about rounds are assertions about stored state, and the detail
+ * page's own refresh after a mutation is not something these tests should have
+ * to race — reloading makes them read what was actually persisted.
  */
-async function settle(page: Page) {
-  await page.waitForLoadState("networkidle");
+async function reloadCard(page: Page) {
+  await page.reload();
 }
 
 /** Moves the open detail page to the interviews stage and waits for the round controls. */
 async function enterInterviews(page: Page) {
-  await page.getByRole("button", { name: STATUS_NAMES.interviews, exact: true }).click();
-  await settle(page);
+  await clickAndAwaitAction(
+    page,
+    page.getByRole("button", { name: STATUS_NAMES.interviews, exact: true })
+  );
   await expect(page.getByRole("button", { name: /\+ Add round/i })).toBeVisible();
 }
 
@@ -51,8 +50,7 @@ async function addRound(page: Page, type: string, notes?: string) {
   await pickToday(page);
   if (notes) await page.getByLabel(/notes/i).fill(notes);
 
-  await page.getByRole("button", { name: /^Add round$/i }).click();
-  await settle(page);
+  await clickAndAwaitAction(page, page.getByRole("button", { name: /^Add round$/i }));
 
   // The form unmounts only on success, so a form still on screen means the
   // submit was rejected — surface that instead of timing out on the pill.
@@ -60,19 +58,20 @@ async function addRound(page: Page, type: string, notes?: string) {
     page.getByRole("button", { name: /^Add round$/i }),
     "the add-round form did not close, so the submission was rejected"
   ).toHaveCount(0);
+
+  await reloadCard(page);
   await expect(page.getByText(type).first()).toBeVisible();
 }
 
 /** Closes the latest round with an outcome and waits for the write to be stored. */
 async function setOutcome(page: Page, outcome: "Passed" | "Failed" | "Cancelled") {
-  await page.getByRole("button", { name: outcome, exact: true }).click();
-  await settle(page);
+  await clickAndAwaitAction(page, page.getByRole("button", { name: outcome, exact: true }));
+  await reloadCard(page);
 }
 
 /** Moves the application to another stage and waits for the write to be stored. */
 async function moveToStage(page: Page, status: string) {
-  await page.getByRole("button", { name: status, exact: true }).click();
-  await settle(page);
+  await clickAndAwaitAction(page, page.getByRole("button", { name: status, exact: true }));
 }
 
 test.describe("Interview rounds", () => {
@@ -97,8 +96,8 @@ test.describe("Interview rounds", () => {
     await setOutcome(page, "Passed");
     await expect(page.getByText("Set outcome:")).not.toBeVisible();
 
-    await page.getByRole("button", { name: /^Delete$/i }).click();
-    await settle(page);
+    await clickAndAwaitAction(page, page.getByRole("button", { name: /^Delete$/i }));
+    await reloadCard(page);
     await expect(page.getByText("Phone screen").first()).not.toBeVisible();
     await expect(page.getByText("No rounds yet")).toBeVisible();
   });
@@ -127,6 +126,7 @@ test.describe("Interview rounds", () => {
     await setOutcome(page, "Passed");
     await expect(page.getByText("Set outcome:")).not.toBeVisible();
     await moveToStage(page, STATUS_NAMES.offer);
+    await reloadCard(page);
 
     // Now in the offer stage: its own onward moves are what the stepper offers.
     await expect(
@@ -188,8 +188,8 @@ test.describe("Interview rounds", () => {
     await expect(page.getByRole("button", { name: /^Delete$/i })).toHaveCount(1);
 
     // Delete the latest round — Edit/Delete should move to the new latest (Phone screen)
-    await page.getByRole("button", { name: /^Delete$/i }).click();
-    await settle(page);
+    await clickAndAwaitAction(page, page.getByRole("button", { name: /^Delete$/i }));
+    await reloadCard(page);
     await expect(page.getByText("Technical").first()).not.toBeVisible();
     await expect(page.getByText("Phone screen").first()).toBeVisible();
     await expect(page.getByRole("button", { name: /^Edit$/i })).toHaveCount(1);
@@ -212,6 +212,7 @@ test.describe("Interview rounds", () => {
     await expect(page.getByText("Set outcome:")).not.toBeVisible();
 
     await moveToStage(page, STATUS_NAMES.offer);
+    await reloadCard(page);
     await expect(page.getByRole("button", { name: /\+ Add round/i })).not.toBeVisible();
 
     // Card and round pill are still visible — only notes are hidden

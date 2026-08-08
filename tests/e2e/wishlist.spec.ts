@@ -1,4 +1,5 @@
-import { test, expect, type Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
+import { test, expect, clickAndAwaitAction } from "./fixtures";
 
 /** The wishlist row for one entry, anchored by its stretched link. */
 function row(page: Page, company: string) {
@@ -80,10 +81,9 @@ test.describe("Wishlist", () => {
     // Scoped to this entry: a bare .first() would apply whichever row happened
     // to come first, and the assertions below would then be about that one.
     await row(page, company).getByRole("button", { name: /^apply now/i }).click();
-    await page.getByRole("button", { name: /confirm/i }).click();
     // The apply action is a server write; the list only drops the row once it
     // has been stored.
-    await page.waitForLoadState("networkidle");
+    await clickAndAwaitAction(page, page.getByRole("button", { name: /confirm/i }));
 
     await expect(page.getByText(company)).toHaveCount(0);
 

@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test";
-import { test, expect } from "./fixtures";
+import { test, expect, clickAndAwaitAction } from "./fixtures";
 import { SANKEY_ROOT_LABEL, STATUS_NAMES } from "@/lib/statuses";
 
 /** The list row for one application, anchored by its stretched link. */
@@ -29,10 +29,12 @@ test.describe("Application flow chart", () => {
     // row happened to sort first and then assert against a chart built from
     // someone else's journey.
     await row(page, company).getByRole("button", { name: /^Move/i }).click();
-    await page.getByRole("menuitem", { name: STATUS_NAMES.interviews }).click();
     // The badge updates optimistically, so it is not evidence the event was
     // stored — and the chart is built from stored events.
-    await page.waitForLoadState("networkidle");
+    await clickAndAwaitAction(
+      page,
+      page.getByRole("menuitem", { name: STATUS_NAMES.interviews })
+    );
     await expect(row(page, company)).toContainText(STATUS_NAMES.interviews);
 
     await page.goto("/analytics");
