@@ -34,7 +34,11 @@ type LayoutLink = SankeyLink<NodeDatum, LinkDatum> & {
 type LayoutGraph = { nodes: LayoutNode[]; links: LayoutLink[] };
 
 const NODE_WIDTH = 16;
-const CHART_FRAME = `flex flex-col ${CARD} mobile:min-w-[640px]`;
+const CHART_FRAME = `flex flex-col ${CARD}`;
+// The diagram needs more horizontal room than a phone has. Only the diagram
+// itself gets that min-width (and the scroll container around it) so the card,
+// its edges and the heading stay fixed to the viewport on mobile.
+const DIAGRAM_MIN_WIDTH = "mobile:min-w-[640px]";
 
 // Module-level typed path generator — avoids an `any` cast in the render.
 type LinkForPath = SankeyLinkMinimal<SankeyNode<NodeDatum, LinkDatum>, LinkDatum>;
@@ -238,6 +242,10 @@ export function SankeyChart({ data }: SankeyChartProps) {
     return () => ro.disconnect();
   }, []);
 
+  // Known before measuring: only a real diagram needs the extra width. The
+  // empty / single-node states fit any phone, so they must not force a scroll.
+  const hasDiagram = data.nodes.length > 1 || data.links.length > 0;
+
   let content: React.ReactNode;
   if (!data.nodes.length) {
     content = <EmptyContent />;
@@ -250,10 +258,13 @@ export function SankeyChart({ data }: SankeyChartProps) {
   }
 
   return (
-    <div className="overflow-x-auto">
-      <div className={CHART_FRAME}>
-        <h2 className={`${TEXT_H2} mb-4 shrink-0`}>Application Flow</h2>
-        <div className="relative h-[452px] mobile:h-[408px]" ref={containerRef}>
+    <div className={CHART_FRAME}>
+      <h2 className={`${TEXT_H2} mb-4 shrink-0`}>Application Flow</h2>
+      <div className={hasDiagram ? "overflow-x-auto overscroll-x-contain" : undefined}>
+        <div
+          className={`relative h-[452px] mobile:h-[408px] ${hasDiagram ? DIAGRAM_MIN_WIDTH : ""}`}
+          ref={containerRef}
+        >
           {content}
         </div>
       </div>
