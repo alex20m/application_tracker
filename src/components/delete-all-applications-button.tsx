@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { deleteAllApplicationsAction } from "@/app/applications/actions";
-import { ERROR_BANNER } from "@/lib/ui";
+import { ERROR_BANNER, BTN_DANGER } from "@/lib/ui";
 
 type DeleteAllApplicationsButtonProps = {
   hasApplications: boolean;
@@ -34,7 +34,7 @@ export function DeleteAllApplicationsButton({
         type="button"
         onClick={handleDeleteAll}
         disabled={!hasApplications || isPending}
-        className="cursor-pointer rounded-full border border-border-strong bg-surface px-4 py-2.5 text-[13.5px] font-semibold text-ink-2 shadow-soft transition hover:border-red-200 dark:hover:border-red-500/40 hover:text-red-600 dark:hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-40"
+        className={BTN_DANGER}
       >
         {isPending ? "Deleting…" : "Delete all"}
       </button>

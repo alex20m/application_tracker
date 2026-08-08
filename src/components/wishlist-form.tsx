@@ -30,7 +30,7 @@ export function WishlistForm({ application, action, returnPath = ROUTES.wishlist
 
       <div className="grid gap-5 mobile:gap-4 grid-cols-2 mobile:grid-cols-1">
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="company" className={LABEL}>Company <span className="text-red-500">*</span></label>
+          <label htmlFor="company" className={LABEL}>Company <span className="[color:var(--st-rejected-ink)]">*</span></label>
           <input
             id="company"
             type="text"
@@ -43,7 +43,7 @@ export function WishlistForm({ application, action, returnPath = ROUTES.wishlist
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="role" className={LABEL}>Role <span className="text-red-500">*</span></label>
+          <label htmlFor="role" className={LABEL}>Role <span className="[color:var(--st-rejected-ink)]">*</span></label>
           <input
             id="role"
             type="text"
@@ -56,7 +56,7 @@ export function WishlistForm({ application, action, returnPath = ROUTES.wishlist
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="location" className={LABEL}>Location <span className="text-red-500">*</span></label>
+          <label htmlFor="location" className={LABEL}>Location <span className="[color:var(--st-rejected-ink)]">*</span></label>
           <input
             id="location"
             type="text"

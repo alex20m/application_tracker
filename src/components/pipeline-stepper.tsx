@@ -39,9 +39,9 @@ function pillClassName(isDone: boolean, isCurrent: boolean, isRed: boolean, isNe
 
 function pillStyle(isDone: boolean, isCurrent: boolean, isRed: boolean, isNegativeExit: boolean): React.CSSProperties {
   if (isDone || (isNegativeExit && isCurrent))
-    return { background: "color-mix(in oklch, var(--st-offer) 14%, var(--surface))", boxShadow: "inset 0 0 0 1px color-mix(in oklch, var(--st-offer) 28%, transparent)" };
+    return { background: "color-mix(in oklab, var(--st-offer) 14%, var(--surface))", boxShadow: "inset 0 0 0 1px color-mix(in oklab, var(--st-offer) 28%, transparent)" };
   if (isRed)
-    return { background: "color-mix(in oklch, var(--st-rejected) 14%, var(--surface))", boxShadow: "inset 0 0 0 1px color-mix(in oklch, var(--st-rejected) 28%, transparent)" };
+    return { background: "color-mix(in oklab, var(--st-rejected) 14%, var(--surface))", boxShadow: "inset 0 0 0 1px color-mix(in oklab, var(--st-rejected) 28%, transparent)" };
   if (isCurrent) return { background: "var(--accent)" };
   return { background: "var(--surface-2)" };
 }

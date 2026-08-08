@@ -47,7 +47,7 @@ export function WishlistList({ applications }: WishlistListProps) {
           <Link href={`/wishlist/${app.id}`} className="absolute inset-0" aria-label={`${app.company} – ${app.role}`} />
 
           {/* 3px status strip — wishlist */}
-          <div className="row-strip w-[3px] flex-shrink-0" data-status="wishlist" />
+          <div className="row-strip w-[4px] flex-shrink-0" data-status="wishlist" />
 
           <div className="flex flex-1 min-w-0 items-center gap-3 px-4 py-3 mobile:flex-wrap mobile:px-3 mobile:py-2.5">
             <Monogram company={app.company} />

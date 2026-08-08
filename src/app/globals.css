@@ -36,20 +36,32 @@
   --accent-ink:    oklch(0.995 0.002 250);
   --accent-soft:   oklch(0.945 0.030 250);
   --accent-line:   oklch(0.850 0.058 250);
-  /* status hues */
-  --st-wishlist:   oklch(0.585 0.030 250);
-  --st-applied:    oklch(0.515 0.140 222);
-  --st-ghosted:    oklch(0.600 0.110 70);
-  --st-cancelled:  oklch(0.560 0.012 260);
-  --st-withdrew:   oklch(0.555 0.022 85);
-  --st-rejected:   oklch(0.535 0.175 25);
-  --st-interviews: oklch(0.510 0.155 295);
-  --st-no_offer:   oklch(0.555 0.170 15);
-  --st-offer:      oklch(0.545 0.115 152);
-  --st-accepted:   oklch(0.560 0.110 165);
-  --st-declined:   oklch(0.620 0.105 85);
-  --badge-mix: 13%;
-  --badge-text-mix: 0%;
+  /* Status hues, grouped by meaning: blue = in flight, green = positive,
+     red = negative, grey = neutral. Within a family the colours are pulled
+     apart by lightness and chroma, not hue alone, so no two are confusable
+     (min pairwise oklab ΔE 0.102 light / 0.113 dark, up from 0.031 / 0.020).
+     The accent is included in that separation, so no status can be mistaken
+     for chrome. */
+  --st-wishlist:   oklch(0.581 0.045 232);     /* grey · neutral */
+  --st-applied:    oklch(0.445 0.085 226);     /* blue · in flight */
+  --st-ghosted:    oklch(0.508 0.142 46);      /* red · negative (warm) */
+  --st-cancelled:  oklch(0.587 0.060 33);      /* red · negative (muted) */
+  --st-withdrew:   oklch(0.457 0.039 81);      /* grey · neutral */
+  --st-rejected:   oklch(0.598 0.197 19);      /* red · negative */
+  --st-interviews: oklch(0.535 0.172 299);     /* blue · in flight */
+  --st-no_offer:   oklch(0.464 0.137 1);       /* red · negative */
+  --st-offer:      oklch(0.549 0.172 145);     /* green · positive */
+  --st-accepted:   oklch(0.459 0.102 160);     /* green · positive */
+  --st-declined:   oklch(0.554 0.076 124);     /* green · positive (muted — you closed it) */
+  /* Foreground variants. A status used as text — banners, the danger button,
+     required-field marks — must blend toward the ink the same way badge labels
+     do, or a light status fails AA on its own tint. */
+  --st-rejected-ink: color-mix(in oklab, var(--st-rejected) 78%, var(--text));
+  --st-offer-ink:    color-mix(in oklab, var(--st-offer)    78%, var(--text));
+  --badge-mix: 17%;
+  /* how much of the status hue survives in the label; the rest is ink,
+     which keeps a richer pill from costing contrast */
+  --badge-ink: 78%;
   /* headings use the OS serif — no webfont to download */
   --font-serif-stack: ui-serif, Georgia, Cambria, "Times New Roman", serif;
   /* soft two-layer lift, tinted with the ink rather than pure black */
@@ -73,19 +85,21 @@
   --accent-ink:    oklch(0.995 0.002 250);
   --accent-soft:   oklch(0.305 0.058 250);
   --accent-line:   oklch(0.420 0.080 250);
-  --st-wishlist:   oklch(0.700 0.032 250);
-  --st-applied:    oklch(0.720 0.120 222);
-  --st-ghosted:    oklch(0.780 0.115 72);
-  --st-cancelled:  oklch(0.700 0.012 260);
-  --st-withdrew:   oklch(0.700 0.022 85);
-  --st-rejected:   oklch(0.700 0.155 25);
-  --st-interviews: oklch(0.715 0.135 295);
-  --st-no_offer:   oklch(0.715 0.150 15);
-  --st-offer:      oklch(0.745 0.120 152);
-  --st-accepted:   oklch(0.770 0.115 165);
-  --st-declined:   oklch(0.795 0.110 85);
-  --badge-mix: 22%;
-  --badge-text-mix: 55%;
+  --st-wishlist:   oklch(0.768 0.052 232);     /* grey · neutral */
+  --st-applied:    oklch(0.669 0.106 226);     /* blue · in flight */
+  --st-ghosted:    oklch(0.765 0.148 46);      /* red · negative (warm) */
+  --st-cancelled:  oklch(0.681 0.057 33);      /* red · negative (muted) */
+  --st-withdrew:   oklch(0.838 0.040 81);      /* grey · neutral */
+  --st-rejected:   oklch(0.698 0.193 19);      /* red · negative */
+  --st-interviews: oklch(0.701 0.170 299);     /* blue · in flight */
+  --st-no_offer:   oklch(0.807 0.119 1);       /* red · negative */
+  --st-offer:      oklch(0.663 0.193 145);     /* green · positive */
+  --st-accepted:   oklch(0.835 0.130 160);     /* green · positive */
+  --st-declined:   oklch(0.741 0.084 124);     /* green · positive (muted — you closed it) */
+  --st-rejected-ink: color-mix(in oklab, var(--st-rejected) 78%, var(--text));
+  --st-offer-ink:    color-mix(in oklab, var(--st-offer)    78%, var(--text));
+  --badge-mix: 26%;
+  --badge-ink: 80%;
   --sh-soft:  0 1px 2px oklch(0.09 0.005 72 / 0.30), 0 4px 16px oklch(0.09 0.005 72 / 0.26);
   --sh-panel: 0 12px 40px oklch(0.09 0.005 72 / 0.50);
 }
@@ -189,17 +203,17 @@ h1 {
 }
 
 /* ── Status badge data-attribute styling ────────────────────────────────── */
-.badge[data-status="wishlist"]   { color: var(--st-wishlist);   background: color-mix(in oklch, var(--st-wishlist)   var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--st-wishlist)   28%, transparent); }
-.badge[data-status="applied"]    { color: var(--st-applied);    background: color-mix(in oklch, var(--st-applied)    var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--st-applied)    28%, transparent); }
-.badge[data-status="ghosted"]    { color: var(--st-ghosted);    background: color-mix(in oklch, var(--st-ghosted)    var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--st-ghosted)    28%, transparent); }
-.badge[data-status="cancelled"]  { color: var(--st-cancelled);  background: color-mix(in oklch, var(--st-cancelled)  var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--st-cancelled)  28%, transparent); }
-.badge[data-status="withdrew"]   { color: var(--st-withdrew);   background: color-mix(in oklch, var(--st-withdrew)   var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--st-withdrew)   28%, transparent); }
-.badge[data-status="rejected"]   { color: var(--st-rejected);   background: color-mix(in oklch, var(--st-rejected)   var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--st-rejected)   28%, transparent); }
-.badge[data-status="interviews"] { color: var(--st-interviews); background: color-mix(in oklch, var(--st-interviews) var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--st-interviews) 28%, transparent); }
-.badge[data-status="no_offer"]   { color: var(--st-no_offer);   background: color-mix(in oklch, var(--st-no_offer)   var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--st-no_offer)   28%, transparent); }
-.badge[data-status="offer"]      { color: var(--st-offer);      background: color-mix(in oklch, var(--st-offer)      var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--st-offer)      28%, transparent); }
-.badge[data-status="accepted"]   { color: var(--st-accepted);   background: color-mix(in oklch, var(--st-accepted)   var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--st-accepted)   28%, transparent); }
-.badge[data-status="declined"]   { color: var(--st-declined);   background: color-mix(in oklch, var(--st-declined)   var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--st-declined)   28%, transparent); }
+.badge[data-status="wishlist"]   { color: color-mix(in oklab, var(--st-wishlist) var(--badge-ink), var(--text));   background: color-mix(in oklab, var(--st-wishlist)   var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--st-wishlist)   28%, transparent); }
+.badge[data-status="applied"]    { color: color-mix(in oklab, var(--st-applied) var(--badge-ink), var(--text));    background: color-mix(in oklab, var(--st-applied)    var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--st-applied)    28%, transparent); }
+.badge[data-status="ghosted"]    { color: color-mix(in oklab, var(--st-ghosted) var(--badge-ink), var(--text));    background: color-mix(in oklab, var(--st-ghosted)    var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--st-ghosted)    28%, transparent); }
+.badge[data-status="cancelled"]  { color: color-mix(in oklab, var(--st-cancelled) var(--badge-ink), var(--text));  background: color-mix(in oklab, var(--st-cancelled)  var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--st-cancelled)  28%, transparent); }
+.badge[data-status="withdrew"]   { color: color-mix(in oklab, var(--st-withdrew) var(--badge-ink), var(--text));   background: color-mix(in oklab, var(--st-withdrew)   var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--st-withdrew)   28%, transparent); }
+.badge[data-status="rejected"]   { color: color-mix(in oklab, var(--st-rejected) var(--badge-ink), var(--text));   background: color-mix(in oklab, var(--st-rejected)   var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--st-rejected)   28%, transparent); }
+.badge[data-status="interviews"] { color: color-mix(in oklab, var(--st-interviews) var(--badge-ink), var(--text)); background: color-mix(in oklab, var(--st-interviews) var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--st-interviews) 28%, transparent); }
+.badge[data-status="no_offer"]   { color: color-mix(in oklab, var(--st-no_offer) var(--badge-ink), var(--text));   background: color-mix(in oklab, var(--st-no_offer)   var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--st-no_offer)   28%, transparent); }
+.badge[data-status="offer"]      { color: color-mix(in oklab, var(--st-offer) var(--badge-ink), var(--text));      background: color-mix(in oklab, var(--st-offer)      var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--st-offer)      28%, transparent); }
+.badge[data-status="accepted"]   { color: color-mix(in oklab, var(--st-accepted) var(--badge-ink), var(--text));   background: color-mix(in oklab, var(--st-accepted)   var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--st-accepted)   28%, transparent); }
+.badge[data-status="declined"]   { color: color-mix(in oklab, var(--st-declined) var(--badge-ink), var(--text));   background: color-mix(in oklab, var(--st-declined)   var(--badge-mix), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--st-declined)   28%, transparent); }
 
 /* ── Row left strip ─────────────────────────────────────────────────────── */
 .row-strip[data-status="wishlist"]   { background: var(--st-wishlist);   }

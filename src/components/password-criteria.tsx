@@ -16,7 +16,7 @@ export function PasswordCriteria({ value }: PasswordCriteriaProps) {
             key={rule.id}
             className={`flex items-center gap-1.5 text-xs ${
               met
-                ? "[color:var(--st-offer)]"
+                ? "[color:var(--st-offer-ink)]"
                 : "text-ink-3"
             }`}
           >

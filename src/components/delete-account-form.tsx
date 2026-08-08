@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { ERROR_BANNER, INPUT_ON_GRAY, LABEL } from "@/lib/ui";
+import { ERROR_BANNER, INPUT_ON_GRAY, LABEL, BTN_DANGER } from "@/lib/ui";
 
 type DeleteAccountAction = (
   prevState: unknown,
@@ -47,7 +47,7 @@ export function DeleteAccountForm({ action }: DeleteAccountFormProps) {
       <button
         type="submit"
         disabled={isPending}
-        className="cursor-pointer rounded-lg border border-border-base bg-surface px-4 py-2 text-sm font-medium text-ink-3 transition hover:border-red-200 dark:hover:border-red-500/40 hover:text-red-600 dark:hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-40 mobile:min-h-11 mobile:text-base"
+        className={BTN_DANGER}
       >
         {isPending ? "Deleting…" : "Delete my account"}
       </button>

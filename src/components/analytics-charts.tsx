@@ -393,7 +393,7 @@ export function StatusSourceCharts({ statusCounts, sourceStats }: StatusSourcePr
                     <td className={`py-1.5 px-2 text-right font-medium ${s.interviewRate >= 20 ? "text-accent-strong" : "text-ink-2"}`}>
                       {s.interviewRate}%
                     </td>
-                    <td className={`py-1.5 px-2 text-right font-medium ${s.offerRate >= 10 ? "[color:var(--st-offer)]" : "text-ink-2"}`}>
+                    <td className={`py-1.5 px-2 text-right font-medium ${s.offerRate >= 10 ? "[color:var(--st-offer-ink)]" : "text-ink-2"}`}>
                       {s.offerRate}%
                     </td>
                   </tr>
@@ -492,12 +492,12 @@ export function InterviewRoundStats({ applications }: InterviewRoundStatsProps) 
             <div className="flex gap-3 mt-1 flex-wrap">
               {row.passed > 0 && (
                 <span className={TEXT_META}>
-                  <span className="font-medium" style={{ color: "var(--st-offer)" }}>{row.passed}</span> passed
+                  <span className="font-medium" style={{ color: "var(--st-offer-ink)" }}>{row.passed}</span> passed
                 </span>
               )}
               {row.failed > 0 && (
                 <span className={TEXT_META}>
-                  <span className="font-medium" style={{ color: "var(--st-rejected)" }}>{row.failed}</span> failed
+                  <span className="font-medium" style={{ color: "var(--st-rejected-ink)" }}>{row.failed}</span> failed
                 </span>
               )}
               {row.pending > 0 && (

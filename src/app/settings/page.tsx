@@ -38,13 +38,13 @@ export default async function SettingsPage() {
           <div
             className="rounded-3xl border p-[22px] shadow-soft mobile:p-4"
             style={{
-              borderColor: "color-mix(in oklch, var(--st-rejected) 40%, var(--border))",
-              background: "color-mix(in oklch, var(--st-rejected) 6%, var(--surface))",
+              borderColor: "color-mix(in oklab, var(--st-rejected) 40%, var(--border))",
+              background: "color-mix(in oklab, var(--st-rejected) 6%, var(--surface))",
             }}
           >
             <div className="flex items-start justify-between gap-4 flex-wrap">
               <div>
-                <h2 className="text-[17px] font-semibold tracking-[-0.015em] mb-1" style={{ color: "var(--st-rejected)" }}>
+                <h2 className="text-[17px] font-semibold tracking-[-0.015em] mb-1" style={{ color: "var(--st-rejected-ink)" }}>
                   Danger Zone
                 </h2>
                 <p className="text-[13px] text-ink-2 max-w-sm">

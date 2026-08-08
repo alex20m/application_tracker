@@ -142,18 +142,18 @@ function KpiCard({
 }) {
   const c: Record<KpiVariant, { bg: string; border: string; iconColor: string }> = {
     good: {
-      bg: "color-mix(in oklch, var(--st-offer) 8%, var(--surface))",
-      border: "color-mix(in oklch, var(--st-offer) 35%, transparent)",
-      iconColor: "color-mix(in oklch, var(--st-offer) 90%, white 10%)",
+      bg: "color-mix(in oklab, var(--st-offer) 8%, var(--surface))",
+      border: "color-mix(in oklab, var(--st-offer) 35%, transparent)",
+      iconColor: "color-mix(in oklab, var(--st-offer) 90%, white 10%)",
     },
     warn: {
-      bg: "color-mix(in oklch, var(--st-ghosted) 10%, var(--surface))",
-      border: "color-mix(in oklch, var(--st-ghosted) 40%, transparent)",
-      iconColor: "color-mix(in oklch, var(--st-ghosted) 90%, black 5%)",
+      bg: "color-mix(in oklab, var(--st-ghosted) 10%, var(--surface))",
+      border: "color-mix(in oklab, var(--st-ghosted) 40%, transparent)",
+      iconColor: "color-mix(in oklab, var(--st-ghosted) 90%, black 5%)",
     },
     info: {
-      bg: "color-mix(in oklch, var(--accent) 8%, var(--surface))",
-      border: "color-mix(in oklch, var(--accent) 30%, transparent)",
+      bg: "color-mix(in oklab, var(--accent) 8%, var(--surface))",
+      border: "color-mix(in oklab, var(--accent) 30%, transparent)",
       iconColor: "var(--accent)",
     },
     neutral: {
@@ -213,7 +213,7 @@ function NeedsAttentionCard({
         <span className="text-[15px] font-semibold text-ink">Needs attention</span>
         <Link
           href={ROUTES.applications}
-          className="text-[12.5px] font-medium text-accent hover:text-accent-strong transition"
+          className="text-[12.5px] font-medium text-accent-strong hover:text-accent transition"
         >
           View all
         </Link>
@@ -222,11 +222,14 @@ function NeedsAttentionCard({
         <Link
           key={item.id}
           href={`/applications/${item.id}`}
-          className="flex items-center gap-3 rounded-xl border border-border-base bg-surface-2 px-4 py-3 transition hover:bg-surface-3 hover:border-border-strong group"
+          className="group relative flex items-center gap-3 overflow-hidden rounded-2xl border border-border-base bg-surface-2 py-3 pl-5 pr-4 transition hover:bg-surface-3 hover:border-border-strong"
         >
-          <div
-            className="w-2 h-2 rounded-full flex-shrink-0"
+          {/* the reason colour as a strip rather than a dot — same information,
+              readable from across the row instead of needing to be hunted for */}
+          <span
+            className="absolute inset-y-0 left-0 w-1"
             style={{ background: item.reasonColor }}
+            aria-hidden="true"
           />
           <div className="flex-1 min-w-0">
             <p className="text-[13.5px] font-semibold text-ink truncate">
@@ -234,7 +237,7 @@ function NeedsAttentionCard({
             </p>
             <p className="text-[12px] text-ink-3 mt-px">{item.reason}</p>
           </div>
-          <span className="flex-shrink-0 text-[12px] font-medium px-3 py-1.5 rounded-lg border border-border-base bg-surface text-ink-2 transition group-hover:border-border-strong">
+          <span className="flex-shrink-0 text-[12px] font-medium px-3 py-1.5 rounded-full border border-border-base bg-surface text-ink-2 transition group-hover:border-border-strong group-hover:text-ink">
             Go to application
           </span>
         </Link>
@@ -247,10 +250,10 @@ type FunnelStage = { label: string; count: number; color: string };
 
 function PipelineCard({ analytics }: { analytics: ReturnType<typeof computeAnalytics> }) {
   const stages: FunnelStage[] = [
-    { label: "Applied", count: analytics.totalApplications, color: "color-mix(in oklch, var(--st-applied) 30%, var(--surface-2))" },
-    { label: "Interviews", count: analytics.interviewedCount, color: "color-mix(in oklch, var(--st-interviews) 30%, var(--surface-2))" },
-    { label: "Offers", count: analytics.offeredCount, color: "color-mix(in oklch, var(--st-offer) 35%, var(--surface-2))" },
-    { label: "Accepted", count: analytics.acceptedCount, color: "color-mix(in oklch, var(--st-accepted) 35%, var(--surface-2))" },
+    { label: "Applied", count: analytics.totalApplications, color: "var(--st-applied)" },
+    { label: "Interviews", count: analytics.interviewedCount, color: "var(--st-interviews)" },
+    { label: "Offers", count: analytics.offeredCount, color: "var(--st-offer)" },
+    { label: "Accepted", count: analytics.acceptedCount, color: "var(--st-accepted)" },
   ];
 
   const max = analytics.totalApplications || 1;
@@ -263,30 +266,37 @@ function PipelineCard({ analytics }: { analytics: ReturnType<typeof computeAnaly
           <div key={stage.label} className="flex items-center gap-3">
             <span className="w-[78px] flex-shrink-0 text-[12.5px] text-ink-2 text-right">{stage.label}</span>
             <div className="flex-1 h-8 rounded-lg bg-surface-2 overflow-hidden flex items-center">
-              {stage.count > 0 ? (
+              {stage.count > 0 && (
                 <div
-                  className="h-full rounded-lg flex items-center justify-end pr-2.5 transition-all"
+                  className="h-full rounded-lg transition-all"
                   style={{
-                    width: `${Math.max((stage.count / max) * 100, 10)}%`,
+                    width: `${Math.max((stage.count / max) * 100, 6)}%`,
                     background: stage.color,
-                    minWidth: "2rem",
+                    minWidth: "0.75rem",
                   }}
-                >
-                  <span className="text-[13px] font-bold leading-none text-ink">
-                    {stage.count}
-                  </span>
-                </div>
-              ) : (
-                <span className="pl-3 text-[13px] font-bold leading-none text-ink-3">0</span>
+                />
               )}
             </div>
+            <span
+              className="w-8 flex-shrink-0 text-[13px] font-bold leading-none tabular-nums text-right"
+              /* blended toward the foreground so the figure clears contrast on the
+                 card in both themes — toward ink on paper, toward cream on dark */
+              style={{
+                color:
+                  stage.count > 0
+                    ? `color-mix(in oklab, ${stage.color} 78%, var(--text))`
+                    : "var(--text-3)",
+              }}
+            >
+              {stage.count}
+            </span>
           </div>
         ))}
       </div>
       {analytics.interviewRate !== null && (
         <div className="flex items-center justify-between pt-2 border-t border-border-base">
           <span className="text-[12.5px] text-ink-2">Interview conversion</span>
-          <span className="text-[14px] font-bold text-accent">{pct(analytics.interviewRate)}</span>
+          <span className="text-[14px] font-bold text-accent-strong">{pct(analytics.interviewRate)}</span>
         </div>
       )}
     </div>
@@ -412,7 +422,7 @@ export default async function DashboardPage() {
               <p className="text-[15px] font-semibold text-ink">Recent activity</p>
               <Link
                 href={ROUTES.applications}
-                className="text-[13px] font-medium text-accent hover:text-accent-strong transition"
+                className="text-[13px] font-medium text-accent-strong hover:text-accent transition"
               >
                 All applications
               </Link>
@@ -426,8 +436,8 @@ export default async function DashboardPage() {
           <div className="rounded-2xl border border-dashed border-border-base bg-surface px-8 py-16 text-center mobile:px-4 mobile:py-10">
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-soft">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <rect x="3" y="4" width="18" height="16" rx="3" stroke="currentColor" strokeWidth="1.5" className="text-accent" />
-                <path d="M7 9h10M7 13h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-accent" />
+                <rect x="3" y="4" width="18" height="16" rx="3" stroke="currentColor" strokeWidth="1.5" className="text-accent-strong" />
+                <path d="M7 9h10M7 13h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-accent-strong" />
               </svg>
             </div>
             <p className="text-[15px] font-semibold text-ink mb-1">Start tracking your job search</p>
