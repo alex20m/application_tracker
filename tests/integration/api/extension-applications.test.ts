@@ -128,4 +128,104 @@ describe("POST /api/extension/applications", () => {
     const response = await POST(makePostRequest({ company: "Acme", role: "Engineer" }));
     expect(response.status).toBe(500);
   });
+
+  it("looks for duplicates only among the signed-in user's same-day applications", async () => {
+    const mock = useSupabase(buildSupabaseMock({ user: mockUser }));
+
+    await POST(
+      makePostRequest({ company: "Acme", role: "Engineer", applied_on: "2026-05-01" })
+    );
+
+    const dedupe = mock.onlyQuery("select");
+    expect(dedupe.eqValue("user_id")).toBe(mockUser.id);
+    expect(dedupe.eqValue("applied_on")).toBe("2026-05-01");
+  });
+
+  it.each([
+    ["a percent sign", "Acme %", "Acme \\%"],
+    ["an underscore", "Acme_Corp", "Acme\\_Corp"],
+    ["a backslash", "Acme\\Corp", "Acme\\\\Corp"],
+  ])("escapes %s in the company before matching duplicates", async (_label, company, expected) => {
+    // ilike treats % and _ as wildcards. Unescaped, "Acme %" matches every
+    // company starting with "Acme " — so a genuinely new application would be
+    // reported as a duplicate and silently never saved.
+    const mock = useSupabase(buildSupabaseMock({ user: mockUser }));
+
+    await POST(makePostRequest({ company, role: "Engineer" }));
+
+    const dedupe = mock.onlyQuery("select");
+    expect(dedupe.filters).toContainEqual({ op: "ilike", column: "company", value: expected });
+  });
+
+  it("escapes wildcards in the role as well as the company", async () => {
+    const mock = useSupabase(buildSupabaseMock({ user: mockUser }));
+
+    await POST(makePostRequest({ company: "Acme", role: "100% Remote_Engineer" }));
+
+    expect(mock.onlyQuery("select").filters).toContainEqual({
+      op: "ilike",
+      column: "role",
+      value: "100\\% Remote\\_Engineer",
+    });
+  });
+
+  it("saves a genuinely new application whose company contains a wildcard character", async () => {
+    const mock = useSupabase(buildSupabaseMock({ user: mockUser, selectData: [] }));
+
+    const response = await POST(makePostRequest({ company: "50% Ltd", role: "Engineer" }));
+
+    expect(response.status).toBe(201);
+    const rows = insertedRows(mock) as Array<Record<string, unknown>>;
+    expect(rows[0]).toMatchObject({ company: "50% Ltd" });
+  });
+
+  it("uses the submitted applied_on when the extension provides one", async () => {
+    const mock = useSupabase(buildSupabaseMock({ user: mockUser }));
+
+    await POST(
+      makePostRequest({ company: "Acme", role: "Engineer", applied_on: "2026-03-14" })
+    );
+
+    const rows = insertedRows(mock) as Array<Record<string, unknown>>;
+    expect(rows[0].applied_on).toBe("2026-03-14");
+  });
+
+  it("rejects a malformed applied_on rather than storing it", async () => {
+    const mock = useSupabase(buildSupabaseMock({ user: mockUser }));
+
+    const response = await POST(
+      makePostRequest({ company: "Acme", role: "Engineer", applied_on: "14/03/2026" })
+    );
+
+    expect(response.status).toBe(400);
+    expect(insertedRows(mock)).toHaveLength(0);
+  });
+
+  it("rejects a company longer than the 200-character column limit", async () => {
+    const mock = useSupabase(buildSupabaseMock({ user: mockUser }));
+
+    const response = await POST(
+      makePostRequest({ company: "a".repeat(201), role: "Engineer" })
+    );
+
+    expect(response.status).toBe(400);
+    expect(insertedRows(mock)).toHaveLength(0);
+  });
+
+  it("rejects a blank company rather than saving an unnamed application", async () => {
+    const mock = useSupabase(buildSupabaseMock({ user: mockUser }));
+
+    const response = await POST(makePostRequest({ company: "   ", role: "Engineer" }));
+
+    expect(response.status).toBe(400);
+    expect(insertedRows(mock)).toHaveLength(0);
+  });
+
+  it("does not save anything when the request is unauthenticated", async () => {
+    const mock = useSupabase(buildSupabaseMock({ user: null }));
+
+    await POST(makePostRequest({ company: "Acme", role: "Engineer" }));
+
+    expect(mock.queries).toHaveLength(0);
+  });
 });

@@ -15,23 +15,44 @@ describe("daysBetween", () => {
   });
 
   it("returns negative when end is before start", () => {
-    expect(daysBetween("2026-01-15", "2026-01-01T00:00:00.000Z")).toBeLessThan(0);
+    expect(daysBetween("2026-01-15", "2026-01-01T00:00:00.000Z")).toBe(-14);
+  });
+
+  it("counts whole elapsed days, not calendar boundaries crossed", () => {
+    // 23:59 on the following day is still less than one full day elapsed.
+    expect(daysBetween("2026-01-01", "2026-01-01T23:59:59.000Z")).toBe(0);
+    expect(daysBetween("2026-01-01", "2026-01-02T00:00:00.000Z")).toBe(1);
+  });
+
+  it("spans month and year boundaries", () => {
+    expect(daysBetween("2026-01-31", "2026-02-01T00:00:00.000Z")).toBe(1);
+    expect(daysBetween("2025-12-31", "2026-01-01T00:00:00.000Z")).toBe(1);
+  });
+
+  it("counts the leap day in a leap year February", () => {
+    expect(daysBetween("2028-02-28", "2028-03-01T00:00:00.000Z")).toBe(2);
   });
 });
 
 // ─── formatDayLabel ──────────────────────────────────────────────────────────
 
 describe("formatDayLabel", () => {
+  // The source pins the locale to "en", so these labels are exact, not
+  // machine-dependent.
   it("formats YYYY-MM-DD into a human-readable label", () => {
-    const label = formatDayLabel("2026-01-15");
-    expect(label).toMatch(/jan/i);
-    expect(label).toContain("15");
+    expect(formatDayLabel("2026-01-15")).toBe("Jan 15");
   });
 
   it("handles december", () => {
-    const label = formatDayLabel("2025-12-31");
-    expect(label).toMatch(/dec/i);
-    expect(label).toContain("31");
+    expect(formatDayLabel("2025-12-31")).toBe("Dec 31");
+  });
+
+  it("labels the first of the month without a leading zero", () => {
+    expect(formatDayLabel("2026-03-01")).toBe("Mar 1");
+  });
+
+  it("labels a leap day", () => {
+    expect(formatDayLabel("2028-02-29")).toBe("Feb 29");
   });
 });
 
@@ -323,16 +344,26 @@ describe("computeAnalytics", () => {
 
   // ── Conversion rows ────────────────────────────────────────────────────────
 
-  it("conversionRows contains all expected keys", () => {
-    const keys = computeAnalytics([]).conversionRows.map((r) => r.key);
-    expect(keys).toContain("waiting");
-    expect(keys).toContain("cancelled");
-    expect(keys).toContain("ghosted");
-    expect(keys).toContain("rejected_before");
-    expect(keys).toContain("interviews");
-    expect(keys).toContain("withdrew");
-    expect(keys).toContain("no_offer");
-    expect(keys).toContain("offer");
+  it("lists the conversion rows in funnel order", () => {
+    // The analytics table renders these in array order, so the order is part of
+    // the contract, not an accident of construction.
+    expect(computeAnalytics([]).conversionRows.map((r) => r.key)).toEqual([
+      "waiting",
+      "ghosted",
+      "cancelled",
+      "rejected_before",
+      "interviews",
+      "withdrew",
+      "no_offer",
+      "offer",
+    ]);
+  });
+
+  it("gives every conversion row a label and a colour to render with", () => {
+    for (const row of computeAnalytics([]).conversionRows) {
+      expect(row.label, `${row.key} has no label`).toBeTruthy();
+      expect(row.color, `${row.key} has no colour`).toBeTruthy();
+    }
   });
 
   it("rows with pctOfStage are the post-interview rows", () => {
@@ -343,9 +374,10 @@ describe("computeAnalytics", () => {
       makeApplication({ status: STATUS.applied }),
     ]);
     const postInterview = r.conversionRows.filter((row) => row.pctOfStage !== null);
-    expect(postInterview.map((r) => r.key)).toEqual(
-      expect.arrayContaining(["withdrew", "no_offer", "offer"])
-    );
+    // Exactly these three: a pre-interview row showing "% of interviewed" would
+    // be a nonsense denominator.
+    expect(postInterview.map((r) => r.key)).toEqual(["withdrew", "no_offer", "offer"]);
+    expect(postInterview.every((r) => r.stageLabel === "of interviewed")).toBe(true);
   });
 
   it("pctOfApplied for interview row is correct", () => {

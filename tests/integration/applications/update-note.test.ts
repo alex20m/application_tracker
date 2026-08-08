@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { buildSupabaseMock } from "../../helpers/supabase-mock";
+import { buildSupabaseMock, expectScopedToUserRow } from "../../helpers/supabase-mock";
 import { makeUser } from "../../helpers/factories";
 
 const mockUser = makeUser();
@@ -33,29 +33,65 @@ function makeFormData(applicationId: string, notes: string): FormData {
 }
 
 describe("updateApplicationNoteAction", () => {
-  it("calls supabase update for a valid note", async () => {
-    const fd = makeFormData(VALID_APP_ID, "Great company");
-    await updateApplicationNoteAction(fd);
-    expect(mockSupabase.from).toHaveBeenCalledWith("applications");
+  it("saves the submitted note on the signed-in user's own row", async () => {
+    await updateApplicationNoteAction(makeFormData(VALID_APP_ID, "Great company"));
+
+    const update = mockSupabase.onlyQuery("update");
+    expect(update.table).toBe("applications");
+    expect(update.payload).toMatchObject({ notes: "Great company" });
+    expectScopedToUserRow(update, { userId: mockUser.id, applicationId: VALID_APP_ID });
   });
 
-  it("does nothing when applicationId is not a UUID", async () => {
-    const fd = makeFormData("bad-id", "Some note");
-    await updateApplicationNoteAction(fd);
-    expect(mockSupabase.from).not.toHaveBeenCalled();
+  it("clears the note to null when submitted empty", async () => {
+    await updateApplicationNoteAction(makeFormData(VALID_APP_ID, ""));
+
+    expect(mockSupabase.onlyQuery("update").payload).toMatchObject({ notes: null });
   });
 
-  it("does nothing when notes exceed 5000 chars", async () => {
-    const fd = makeFormData(VALID_APP_ID, "a".repeat(5001));
-    await updateApplicationNoteAction(fd);
-    // Schema validation fails → no DB call
-    expect(mockSupabase.from).not.toHaveBeenCalled();
+  it("touches updated_at so the row reflects the edit", async () => {
+    await updateApplicationNoteAction(makeFormData(VALID_APP_ID, "note"));
+
+    const { updated_at: updatedAt } = mockSupabase.onlyQuery("update").payload as {
+      updated_at: string;
+    };
+    expect(updatedAt).toMatch(/^\d{4}-\d{2}-\d{2}T[\d:.]+Z$/);
   });
 
-  it("does nothing when applicationId is missing", async () => {
+  it("does not overwrite any field other than the note and its timestamp", async () => {
+    await updateApplicationNoteAction(makeFormData(VALID_APP_ID, "note"));
+
+    // A note edit that also wrote status/company/events would silently revert
+    // whatever the detail form last saved.
+    const payload = mockSupabase.onlyQuery("update").payload as Record<string, unknown>;
+    expect(Object.keys(payload).sort()).toEqual(["notes", "updated_at"]);
+  });
+
+  it("keeps a note of exactly the 5000-character limit", async () => {
+    const atLimit = "a".repeat(5000);
+
+    await updateApplicationNoteAction(makeFormData(VALID_APP_ID, atLimit));
+
+    expect(mockSupabase.onlyQuery("update").payload).toMatchObject({ notes: atLimit });
+  });
+
+  it("writes nothing when the note exceeds the 5000-character limit", async () => {
+    await updateApplicationNoteAction(makeFormData(VALID_APP_ID, "a".repeat(5001)));
+
+    expect(mockSupabase.queries).toHaveLength(0);
+  });
+
+  it("writes nothing when the application id is not a UUID", async () => {
+    await updateApplicationNoteAction(makeFormData("bad-id", "Some note"));
+
+    expect(mockSupabase.queries).toHaveLength(0);
+  });
+
+  it("writes nothing when the application id is missing", async () => {
     const fd = new FormData();
     fd.set("notes", "hello");
+
     await updateApplicationNoteAction(fd);
-    expect(mockSupabase.from).not.toHaveBeenCalled();
+
+    expect(mockSupabase.queries).toHaveLength(0);
   });
 });

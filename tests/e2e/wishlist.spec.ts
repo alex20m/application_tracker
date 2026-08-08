@@ -1,120 +1,115 @@
-import { test, expect } from "./fixtures";
+import { test, expect, type Page } from "@playwright/test";
 
-const COMPANY = `Wishlist Corp ${Date.now()}`;
-const ROLE = "Wishlist Engineer";
-const LOCATION = "Oslo";
+/** Today in the browser's local timezone, as the app formats stored dates. */
+function localToday(): { iso: string; display: string } {
+  const d = new Date();
+  const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+    d.getDate()
+  ).padStart(2, "0")}`;
+  return { iso, display: d.toLocaleDateString() };
+}
+
+async function createWishlistEntry(page: Page, company: string, role = "Wishlist Engineer") {
+  await page.goto("/wishlist/new");
+  await page.getByLabel(/company/i).fill(company);
+  await page.getByLabel(/role/i).fill(role);
+  await page.getByLabel(/location/i).fill("Oslo");
+  await page.getByRole("button", { name: /add to wishlist/i }).click();
+  await expect(page).toHaveURL("/wishlist");
+  await expect(page.getByText(company)).toBeVisible();
+}
+
+/** Removes a wishlist entry through its detail page. */
+async function removeWishlistEntry(page: Page, company: string) {
+  await page.goto("/wishlist");
+  await page.getByRole("link", { name: new RegExp(company, "i") }).click();
+  await expect(page).toHaveURL(/\/wishlist\//);
+  await page.getByRole("link", { name: /^Edit$/i }).click();
+  page.once("dialog", (d) => d.accept());
+  await page.getByRole("button", { name: /remove/i }).click();
+  await expect(page).toHaveURL("/wishlist", { timeout: 10000 });
+}
 
 test.describe("Wishlist", () => {
-  test("create a wishlist entry — appears on /wishlist, not on /applications", async ({
-    page,
-  }) => {
-    await page.goto("/wishlist/new");
-    await page.getByLabel(/company/i).fill(COMPANY);
-    await page.getByLabel(/role/i).fill(ROLE);
-    await page.getByLabel(/location/i).fill(LOCATION);
-    await page.getByRole("button", { name: /add to wishlist/i }).click();
+  test("a wishlist entry is not counted as an application", async ({ page }) => {
+    const company = `Wishlist Corp ${Date.now()}`;
+    await createWishlistEntry(page, company);
 
-    await expect(page).toHaveURL("/wishlist");
-    await expect(page.getByText(COMPANY)).toBeVisible();
-
-    // Should NOT appear on /applications
+    // A wishlist entry has not been applied to, so it must not appear among
+    // applications — where it would distort every pipeline metric.
     await page.goto("/applications");
-    await expect(page.getByText(COMPANY)).not.toBeVisible();
+    await expect(page.getByText(company)).toHaveCount(0);
 
-    // Cleanup — detail page opens in view mode; click Edit first to reach remove button
-    await page.goto("/wishlist");
-    await page.getByRole("link", { name: new RegExp(COMPANY, "i") }).click();
-    await expect(page).toHaveURL(/\/wishlist\//);
-    await page.getByRole("link", { name: /^Edit$/i }).click();
-    page.once("dialog", (d) => d.accept());
-    await page.getByRole("button", { name: /remove/i }).click();
-    await expect(page).toHaveURL("/wishlist", { timeout: 10000 });
+    await page.goto("/applications?filter=all");
+    await expect(page.getByText(company)).toHaveCount(0);
+
+    await removeWishlistEntry(page, company);
   });
 
-  test("clicking 'Apply now →' opens a modal with today's date", async ({ page }) => {
-    // Create a wishlist entry first
-    await page.goto("/wishlist/new");
+  test("the apply dialog offers today as the applied date", async ({ page }) => {
     const company = `ApplyModal Corp ${Date.now()}`;
-    await page.getByLabel(/company/i).fill(company);
-    await page.getByLabel(/role/i).fill("Test Role");
-    await page.getByLabel(/location/i).fill("Remote");
-    await page.getByRole("button", { name: /add to wishlist/i }).click();
-    await expect(page).toHaveURL("/wishlist");
+    await createWishlistEntry(page, company);
 
-    // Click Apply
     await page.getByRole("button", { name: /^apply now/i }).first().click();
 
-    // Modal should be visible with a date input
     await expect(page.getByRole("heading", { name: /mark as applied/i })).toBeVisible();
-    await expect(page.getByLabel(/applied on/i)).toBeVisible();
+    // The date field is prefilled, so confirming straight away records today
+    // rather than an empty date. The label points at the picker's trigger,
+    // which displays the chosen date as locale text.
+    await expect(page.getByLabel(/applied on/i)).toContainText(localToday().display);
 
-    // Close modal
     await page.getByRole("button", { name: /cancel/i }).click();
+    await expect(page.getByRole("heading", { name: /mark as applied/i })).toHaveCount(0);
 
-    // Cleanup — click Edit first to reach remove button
-    await page.goto("/wishlist");
-    await page.getByRole("link", { name: new RegExp(company, "i") }).click();
-    await page.getByRole("link", { name: /^Edit$/i }).click();
-    page.once("dialog", (d) => d.accept());
-    await page.getByRole("button", { name: /remove/i }).click();
-    await expect(page).toHaveURL("/wishlist", { timeout: 10000 });
+    await removeWishlistEntry(page, company);
   });
 
-  test("applying moves row from wishlist to /applications with chosen date", async ({
-    page,
-  }) => {
+  test("applying moves the entry to applications and records the date", async ({ page }) => {
     const company = `Applied From Wishlist ${Date.now()}`;
-    await page.goto("/wishlist/new");
-    await page.getByLabel(/company/i).fill(company);
-    await page.getByLabel(/role/i).fill("Applied Role");
-    await page.getByLabel(/location/i).fill("Remote");
-    await page.getByRole("button", { name: /add to wishlist/i }).click();
-    await expect(page).toHaveURL("/wishlist");
+    await createWishlistEntry(page, company, "Applied Role");
 
-    // Apply — today's date is pre-filled in the custom picker, just confirm
     await page.getByRole("button", { name: /^apply now/i }).first().click();
     await page.getByRole("button", { name: /confirm/i }).click();
 
-    // Row should no longer be on /wishlist
-    await expect(page.getByText(company)).not.toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(company)).toHaveCount(0, { timeout: 10000 });
 
-    // Row should appear on /applications
     await page.goto("/applications");
-    await expect(page.getByText(company)).toBeVisible();
+    const row = page
+      .getByRole("link", { name: new RegExp(`^${company} – `) })
+      .first()
+      .locator("..");
+    await expect(row).toBeVisible();
+    // The applied date is what the whole analytics timeline is measured from.
+    await expect(row).toContainText(localToday().display);
 
-    // Cleanup — detail page opens in view mode; click Edit first to reach delete button
+    // Cleanup — it is a real application now, so delete it as one.
     await page.getByRole("link", { name: new RegExp(company, "i") }).click();
     await expect(page).toHaveURL(/\/applications\//);
     await page.getByRole("link", { name: /^Edit$/i }).click();
     page.once("dialog", (d) => d.accept());
-    await page.getByRole("button", { name: /delete/i }).click();
-    await expect(page).toHaveURL("/applications", { timeout: 10000 });
+    await page.getByRole("button", { name: /^delete$/i }).click();
+    await expect(page).toHaveURL(/\/applications/, { timeout: 10000 });
   });
 
-  test("editing a wishlist entry persists changes", async ({ page }) => {
+  test("an edited wishlist entry keeps its changes after a reload", async ({ page }) => {
     const company = `EditWishlist Corp ${Date.now()}`;
-    await page.goto("/wishlist/new");
-    await page.getByLabel(/company/i).fill(company);
-    await page.getByLabel(/role/i).fill("Original Role");
-    await page.getByLabel(/location/i).fill("Remote");
-    await page.getByRole("button", { name: /add to wishlist/i }).click();
-    await expect(page).toHaveURL("/wishlist");
+    await createWishlistEntry(page, company, "Original Role");
 
-    // Navigate to detail (view mode), then click Edit
     await page.getByRole("link", { name: new RegExp(company, "i") }).click();
     await expect(page).toHaveURL(/\/wishlist\//);
+    const detailUrl = page.url();
     await page.getByRole("link", { name: /^Edit$/i }).click();
 
     await page.getByLabel(/role/i).fill("Updated Role");
     await page.getByRole("button", { name: /save/i }).click();
-
     await expect(page).toHaveURL(/\/wishlist\//);
-    await expect(page.getByText("Updated Role").first()).toBeVisible();
 
-    // Cleanup — already on the view page, click Edit to get to remove button
-    await page.getByRole("link", { name: /^Edit$/i }).click();
-    page.once("dialog", (d) => d.accept());
-    await page.getByRole("button", { name: /remove/i }).click();
-    await expect(page).toHaveURL("/wishlist", { timeout: 10000 });
+    // Reloading is the point: without it this only proves the page re-rendered
+    // its own form state, not that anything was stored.
+    await page.goto(detailUrl);
+    await expect(page.getByText("Updated Role").first()).toBeVisible();
+    await expect(page.getByText("Original Role")).toHaveCount(0);
+
+    await removeWishlistEntry(page, company);
   });
 });

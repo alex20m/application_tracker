@@ -1,32 +1,33 @@
 import { test, expect } from "./fixtures";
-import { SANKEY_ROOT_LABEL } from "@/lib/statuses";
+import { SANKEY_ROOT_LABEL, STATUS_NAMES } from "@/lib/statuses";
 
-test.describe("Sankey chart", () => {
-  test("renders the Analytics page heading", async ({ page }) => {
-    await page.goto("/analytics");
-    await expect(page.getByRole("heading", { name: /^analytics$/i })).toBeVisible();
-  });
-
-  test("shows SVG chart after creating and transitioning an application", async ({
+// The analytics view returns a "No data yet" placeholder when the account has
+// no applications and never renders the flow card at all, so there is no
+// page-level empty state for this chart to assert without depending on the
+// whole account being empty — an ordering dependency between spec files.
+// SankeyChart's own empty-data rendering is covered by its component test.
+test.describe("Application flow chart", () => {
+  test("draws the applied-to-interviews journey after a transition", async ({
     page,
     withApplication,
   }) => {
-    await withApplication({ company: "SankeyTest Co" });
+    const company = `SankeyTest Co ${Date.now()}`;
+    await withApplication({ company });
 
-    // Transition to interviews so there's a real flow to render
     await page.goto("/applications");
     await page.getByRole("button", { name: /^Move/i }).first().click();
-    await page.getByRole("menuitem", { name: /interviews/i }).click();
-    await expect(page.getByText(/interviews/i).first()).toBeVisible({ timeout: 10000 });
+    await page.getByRole("menuitem", { name: STATUS_NAMES.interviews }).click();
+    await expect(page.getByText(STATUS_NAMES.interviews).first()).toBeVisible({ timeout: 10000 });
 
-    // Navigate to analytics page where the sankey chart now lives
     await page.goto("/analytics");
-    // Filter to the chart SVG specifically — the page also contains small icon SVGs
+
     const chart = page.locator("svg").filter({ hasText: SANKEY_ROOT_LABEL });
     await expect(chart).toBeVisible({ timeout: 10000 });
 
-    // The root "Applications" node label should be in the SVG
-    const svgText = await chart.textContent();
-    expect(svgText).toContain(SANKEY_ROOT_LABEL);
+    // The chart must actually name the stages it is flowing between, not merely
+    // render an SVG element.
+    const chartText = await chart.textContent();
+    expect(chartText).toContain(SANKEY_ROOT_LABEL);
+    expect(chartText).toContain(STATUS_NAMES.interviews);
   });
 });

@@ -1,30 +1,83 @@
 import { describe, it, expect } from "vitest";
 import {
   STATUS,
+  STATUS_NAMES,
   STATUS_NEXT,
+  STATUS_THEME,
   FINAL_STATUSES,
   CLOSED_STATUSES,
   ACTIVE_STATUSES,
   isClosedStatus,
   isActiveStatus,
   getStatusRank,
+  statusStageIndex,
   type ApplicationStatus,
 } from "@/lib/statuses";
 
+const ALL_STATUSES = Object.values(STATUS) as ApplicationStatus[];
+
 describe("STATUS_NEXT", () => {
-  it("every key is a valid STATUS value", () => {
-    const validValues = new Set(Object.values(STATUS));
-    for (const key of Object.keys(STATUS_NEXT)) {
-      expect(validValues.has(key as ApplicationStatus)).toBe(true);
+  // The pipeline's rulebook, written out literally rather than derived from the
+  // source. Every other assertion about transitions is structural (no
+  // self-loops, no duplicates, terminal statuses are empty) and stays true if
+  // an illegal edge is added — e.g. letting an application jump from applied
+  // straight to offer, skipping interviews. Only an explicit table catches that.
+  const EXPECTED_TRANSITIONS: Record<ApplicationStatus, ApplicationStatus[]> = {
+    wishlist: ["applied"],
+    applied: ["cancelled", "rejected", "interviews", "ghosted"],
+    ghosted: ["cancelled", "rejected", "interviews"],
+    cancelled: [],
+    withdrew: [],
+    rejected: [],
+    interviews: ["withdrew", "no_offer", "offer"],
+    no_offer: [],
+    offer: ["accepted", "declined"],
+    accepted: [],
+    declined: [],
+  };
+
+  it.each(Object.keys(EXPECTED_TRANSITIONS) as ApplicationStatus[])(
+    "allows exactly the documented moves out of %s",
+    (status) => {
+      expect(STATUS_NEXT[status]).toEqual(EXPECTED_TRANSITIONS[status]);
+    }
+  );
+
+  it("cannot reach an offer without going through interviews", () => {
+    // The single most consequential rule in the graph: an offer that skipped
+    // interviews would corrupt every interview-to-offer conversion metric.
+    for (const [from, targets] of Object.entries(STATUS_NEXT) as [
+      ApplicationStatus,
+      ApplicationStatus[],
+    ][]) {
+      if (from === STATUS.interviews) continue;
+      expect(targets, `${from} must not lead straight to an offer`).not.toContain(STATUS.offer);
     }
   });
 
-  it("every transition target is a valid STATUS value", () => {
-    const validValues = new Set(Object.values(STATUS));
-    for (const targets of Object.values(STATUS_NEXT)) {
-      for (const target of targets) {
-        expect(validValues.has(target)).toBe(true);
-      }
+  it("declares a transition list for every status", () => {
+    // A missing key means the app crashes when a user reaches that status and
+    // the UI asks what it can move to next.
+    expect(Object.keys(STATUS_NEXT).sort()).toEqual([...ALL_STATUSES].sort());
+  });
+
+  it("never offers a transition into the wishlist", () => {
+    // The wishlist is where an application starts, not somewhere it returns to.
+    for (const [from, targets] of Object.entries(STATUS_NEXT)) {
+      expect(targets, `${from} must not lead back to the wishlist`).not.toContain(STATUS.wishlist);
+    }
+  });
+
+  it("never offers a status as its own next step", () => {
+    for (const status of ALL_STATUSES) {
+      expect(STATUS_NEXT[status], `${status} must not lead to itself`).not.toContain(status);
+    }
+  });
+
+  it("lists no status twice within one transition list", () => {
+    for (const status of ALL_STATUSES) {
+      const targets = STATUS_NEXT[status];
+      expect(new Set(targets).size, `${status} has duplicate targets`).toBe(targets.length);
     }
   });
 
@@ -145,6 +198,25 @@ describe("isActiveStatus / isClosedStatus", () => {
       expect(isActiveStatus(s) && isClosedStatus(s)).toBe(false);
     }
   });
+
+  it("classifies every status as active, closed, or wishlist — none unaccounted for", () => {
+    // An unclassified status would vanish from both the Open and Closed tabs,
+    // leaving the application unreachable in the UI.
+    const unclassified = ALL_STATUSES.filter(
+      (s) => !isActiveStatus(s) && !isClosedStatus(s) && s !== STATUS.wishlist
+    );
+    expect(unclassified).toEqual([]);
+  });
+
+  it("treats a status with onward transitions as open, and one without as closed", () => {
+    for (const status of ALL_STATUSES) {
+      if (status === STATUS.wishlist) continue;
+      const hasOnwardMoves = STATUS_NEXT[status].length > 0;
+      expect(isActiveStatus(status), `${status} is open iff it can still move on`).toBe(
+        hasOnwardMoves && status !== STATUS.ghosted
+      );
+    }
+  });
 });
 
 describe("getStatusRank", () => {
@@ -166,9 +238,75 @@ describe("getStatusRank", () => {
     expect(getStatusRank(STATUS.accepted)).toBeLessThan(getStatusRank(STATUS.declined));
   });
 
-  it("returns a value independent of d3-sankey depth (no depth argument)", () => {
-    const rank = getStatusRank(STATUS.rejected);
-    expect(typeof rank).toBe("number");
-    expect(rank).toBeLessThan(9999);
+  it("gives every status a distinct rank so ordering is never ambiguous", () => {
+    const ranks = ALL_STATUSES.map(getStatusRank);
+    expect(new Set(ranks).size).toBe(ALL_STATUSES.length);
+  });
+
+  it("ranks the wishlist ahead of every status in the pipeline", () => {
+    for (const status of ALL_STATUSES) {
+      if (status === STATUS.wishlist) continue;
+      expect(getStatusRank(STATUS.wishlist)).toBeLessThan(getStatusRank(status));
+    }
+  });
+});
+
+// ─── statusStageIndex ────────────────────────────────────────────────────────
+
+describe("statusStageIndex", () => {
+  it.each([
+    [STATUS.applied, 0],
+    [STATUS.interviews, 1],
+    [STATUS.offer, 2],
+    [STATUS.accepted, 3],
+    [STATUS.declined, 3],
+  ])("puts %s at stepper stage %i", (status, expected) => {
+    expect(statusStageIndex(status)).toBe(expected);
+  });
+
+  it.each([
+    [STATUS.wishlist],
+    [STATUS.ghosted],
+    [STATUS.cancelled],
+    [STATUS.withdrew],
+    [STATUS.rejected],
+    [STATUS.no_offer],
+  ])("highlights no stage for %s", (status) => {
+    // These are exits from the pipeline, not positions in it — highlighting a
+    // stage would tell the user they are still progressing through it.
+    expect(statusStageIndex(status)).toBe(-1);
+  });
+
+  it("advances the stage as an application progresses through the pipeline", () => {
+    expect(statusStageIndex(STATUS.applied)).toBeLessThan(statusStageIndex(STATUS.interviews));
+    expect(statusStageIndex(STATUS.interviews)).toBeLessThan(statusStageIndex(STATUS.offer));
+    expect(statusStageIndex(STATUS.offer)).toBeLessThan(statusStageIndex(STATUS.accepted));
+  });
+
+  it("returns a stage index for every status without throwing", () => {
+    for (const status of ALL_STATUSES) {
+      const index = statusStageIndex(status);
+      expect(Number.isInteger(index), `${status} produced ${index}`).toBe(true);
+      expect(index).toBeGreaterThanOrEqual(-1);
+      expect(index).toBeLessThanOrEqual(3);
+    }
+  });
+});
+
+// ─── Presentation tables ─────────────────────────────────────────────────────
+
+describe("STATUS_NAMES and STATUS_THEME", () => {
+  it("names every status", () => {
+    // A missing name renders as blank text in the badge and the analytics legend.
+    for (const status of ALL_STATUSES) {
+      expect(STATUS_NAMES[status], `${status} has no display name`).toBeTruthy();
+    }
+  });
+
+  it("gives every status its own sankey colour", () => {
+    const colours = ALL_STATUSES.map((s) => STATUS_THEME[s].sankey);
+    expect(colours.every(Boolean)).toBe(true);
+    // Two statuses sharing a colour makes the flow chart unreadable.
+    expect(new Set(colours).size).toBe(ALL_STATUSES.length);
   });
 });
