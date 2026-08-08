@@ -1,4 +1,14 @@
-import { test, expect, type Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
+import { test, expect, clickAndAwaitAction } from "./fixtures";
+
+/** The wishlist row for one entry, anchored by its stretched link. */
+function row(page: Page, company: string) {
+  const escaped = company.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return page
+    .getByRole("link", { name: new RegExp(`^${escaped} – `) })
+    .first()
+    .locator("..");
+}
 
 /** Today in the browser's local timezone, as the app formats stored dates. */
 function localToday(): { iso: string; display: string } {
@@ -50,7 +60,7 @@ test.describe("Wishlist", () => {
     const company = `ApplyModal Corp ${Date.now()}`;
     await createWishlistEntry(page, company);
 
-    await page.getByRole("button", { name: /^apply now/i }).first().click();
+    await row(page, company).getByRole("button", { name: /^apply now/i }).click();
 
     await expect(page.getByRole("heading", { name: /mark as applied/i })).toBeVisible();
     // The date field is prefilled, so confirming straight away records today
@@ -68,19 +78,20 @@ test.describe("Wishlist", () => {
     const company = `Applied From Wishlist ${Date.now()}`;
     await createWishlistEntry(page, company, "Applied Role");
 
-    await page.getByRole("button", { name: /^apply now/i }).first().click();
-    await page.getByRole("button", { name: /confirm/i }).click();
+    // Scoped to this entry: a bare .first() would apply whichever row happened
+    // to come first, and the assertions below would then be about that one.
+    await row(page, company).getByRole("button", { name: /^apply now/i }).click();
+    // The apply action is a server write; the list only drops the row once it
+    // has been stored.
+    await clickAndAwaitAction(page, page.getByRole("button", { name: /confirm/i }));
 
-    await expect(page.getByText(company)).toHaveCount(0, { timeout: 10000 });
+    await expect(page.getByText(company)).toHaveCount(0);
 
     await page.goto("/applications");
-    const row = page
-      .getByRole("link", { name: new RegExp(`^${company} – `) })
-      .first()
-      .locator("..");
-    await expect(row).toBeVisible();
+    const appRow = row(page, company);
+    await expect(appRow).toBeVisible();
     // The applied date is what the whole analytics timeline is measured from.
-    await expect(row).toContainText(localToday().display);
+    await expect(appRow).toContainText(localToday().display);
 
     // Cleanup — it is a real application now, so delete it as one.
     await page.getByRole("link", { name: new RegExp(company, "i") }).click();

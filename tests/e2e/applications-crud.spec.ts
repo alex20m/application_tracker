@@ -1,11 +1,14 @@
 import { test, expect } from "./fixtures";
 
-const COMPANY = `E2E Corp ${Date.now()}`;
 const ROLE = "QA Engineer";
 const LOCATION = "Helsinki";
 
 test.describe("Application CRUD", () => {
   test("create a new application — appears in the list", async ({ page }) => {
+    // Generated per attempt, not at module scope: a retry would otherwise reuse
+    // the name of a row the failed attempt had already created, and the
+    // assertions below would match two rows.
+    const COMPANY = `E2E Corp ${Date.now()}`;
     await page.goto("/applications/new");
     await page.getByLabel(/company/i).fill(COMPANY);
     await page.getByLabel(/role/i).fill(ROLE);
@@ -25,7 +28,7 @@ test.describe("Application CRUD", () => {
   });
 
   test("edit company and role from the detail page", async ({ page, withApplication }) => {
-    const { url } = await withApplication({ company: "EditMe Co", role: "Junior Dev" });
+    const { url } = await withApplication({ company: `EditMe Co ${Date.now()}`, role: "Junior Dev" });
 
     await page.goto(url);
     // Detail page opens in view mode; click Edit to enter edit mode
@@ -40,7 +43,7 @@ test.describe("Application CRUD", () => {
   });
 
   test("add a note and verify it persists after reload", async ({ page, withApplication }) => {
-    const { url } = await withApplication({ company: "NoteTest Co" });
+    const { url } = await withApplication({ company: `NoteTest Co ${Date.now()}` });
 
     await page.goto(url);
     // Enter edit mode to access the form
@@ -75,6 +78,6 @@ test.describe("Application CRUD", () => {
     await page.getByRole("button", { name: /^delete$/i }).click();
 
     await expect(page).toHaveURL("/applications", { timeout: 10000 });
-    await expect(page.getByText(company)).not.toBeVisible();
+    await expect(page.getByText(company)).toHaveCount(0);
   });
 });

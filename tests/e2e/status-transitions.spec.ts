@@ -1,5 +1,5 @@
 import type { Locator, Page } from "@playwright/test";
-import { test, expect } from "./fixtures";
+import { test, expect, clickAndAwaitAction } from "./fixtures";
 import { STATUS_NAMES } from "@/lib/statuses";
 
 /**
@@ -24,17 +24,15 @@ function moveButton(page: Page, company: string): Locator {
 }
 
 /**
- * Moves one application to `status` and waits for the write to settle.
+ * Moves one application to `status` and waits for the write to be stored.
  *
  * The badge flips optimistically, so it is not evidence the server action
- * committed. Whether the row then leaves this list depends on revalidation
- * landing — a race that shows up as an intermittent failure. Waiting for the
- * network to go idle pins the assertion to committed state instead.
+ * committed; whether the row then leaves this list depends on the write
+ * landing first.
  */
 async function moveTo(page: Page, company: string, status: string) {
   await moveButton(page, company).click();
-  await page.getByRole("menuitem", { name: status }).click();
-  await page.waitForLoadState("networkidle");
+  await clickAndAwaitAction(page, page.getByRole("menuitem", { name: status }));
 }
 
 test.describe("Status transitions", () => {
