@@ -16,7 +16,9 @@ async function addRound(page: Page, type: string, notes?: string) {
   await page.getByRole("button", { name: "Today", exact: true }).click();
   if (notes) await page.getByLabel(/notes/i).fill(notes);
   await page.getByRole("button", { name: /Add round/i }).click();
-  await expect(page.getByText(type).first()).toBeVisible();
+  // The pill appears only once the server action has revalidated, which on a
+  // cold CI runner regularly exceeds the 5s default.
+  await expect(page.getByText(type).first()).toBeVisible({ timeout: 15000 });
 }
 
 test.describe("Interview rounds", () => {
@@ -42,8 +44,8 @@ test.describe("Interview rounds", () => {
     await expect(page.getByText("Set outcome:")).not.toBeVisible();
 
     await page.getByRole("button", { name: /^Delete$/i }).click();
-    await expect(page.getByText("Phone screen").first()).not.toBeVisible();
-    await expect(page.getByText("No rounds yet")).toBeVisible();
+    await expect(page.getByText("Phone screen").first()).not.toBeVisible({ timeout: 15000 });
+    await expect(page.getByText("No rounds yet")).toBeVisible({ timeout: 15000 });
   });
 
   test("refuses to leave the interviews stage while a round is still open", async ({
@@ -61,17 +63,23 @@ test.describe("Interview rounds", () => {
 
     await expect(
       page.getByText(/close the ongoing interview round/i)
-    ).toBeVisible({ timeout: 10000 });
-    // Still in interviews: the round controls are the proof, since they only
-    // render in that stage.
-    await expect(page.getByRole("button", { name: /\+ Add round/i })).toBeVisible();
+    ).toBeVisible({ timeout: 15000 });
+    // Still in interviews. "Set outcome:" is the proof: it renders only in that
+    // stage and only while the latest round is open — which is exactly the
+    // state the gate is protecting. ("+ Add round" is the wrong signal here; it
+    // is hidden precisely because a round is pending.)
+    await expect(page.getByText("Set outcome:")).toBeVisible();
 
     // Closing the round releases the gate.
     await page.getByRole("button", { name: "Passed" }).click();
+    await expect(page.getByText("Set outcome:")).not.toBeVisible({ timeout: 15000 });
     await page.getByRole("button", { name: STATUS_NAMES.offer, exact: true }).click();
-    await expect(page.getByRole("button", { name: /\+ Add round/i })).not.toBeVisible({
-      timeout: 10000,
-    });
+
+    // Now in the offer stage: its own onward moves are what the stepper offers.
+    await expect(
+      page.getByRole("button", { name: STATUS_NAMES.accepted, exact: true })
+    ).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("button", { name: /\+ Add round/i })).toHaveCount(0);
   });
 
   test("does not offer a second round until the previous one is closed", async ({
@@ -118,7 +126,7 @@ test.describe("Interview rounds", () => {
 
     // Mark first round as Passed so a second round can be added
     await page.getByRole("button", { name: "Passed" }).click();
-    await expect(page.getByText("Set outcome:")).not.toBeVisible();
+    await expect(page.getByText("Set outcome:")).not.toBeVisible({ timeout: 15000 });
 
     await addRound(page, "Technical");
 

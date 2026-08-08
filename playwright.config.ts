@@ -12,6 +12,12 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
+  // Most assertions here follow a server action that revalidates before the UI
+  // reflects the change. On a cold CI runner that round trip regularly exceeds
+  // Playwright's 5s default, which shows up as flakiness rather than as a real
+  // failure — so the budget is raised rather than each assertion being retried.
+  timeout: 60_000,
+  expect: { timeout: 10_000 },
   reporter: [["html", { open: "never" }], ["list"]],
   use: {
     baseURL: "http://localhost:3000",

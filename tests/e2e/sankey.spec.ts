@@ -1,14 +1,12 @@
 import { test, expect } from "./fixtures";
 import { SANKEY_ROOT_LABEL, STATUS_NAMES } from "@/lib/statuses";
 
+// The analytics view returns a "No data yet" placeholder when the account has
+// no applications and never renders the flow card at all, so there is no
+// page-level empty state for this chart to assert without depending on the
+// whole account being empty — an ordering dependency between spec files.
+// SankeyChart's own empty-data rendering is covered by its component test.
 test.describe("Application flow chart", () => {
-  test("shows an empty state until there is a journey to draw", async ({ page }) => {
-    await page.goto("/analytics");
-
-    // The card is always present; only its contents depend on the data.
-    await expect(page.getByRole("heading", { name: /application flow/i })).toBeVisible();
-  });
-
   test("draws the applied-to-interviews journey after a transition", async ({
     page,
     withApplication,
