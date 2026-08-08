@@ -23,6 +23,20 @@ function moveButton(page: Page, company: string): Locator {
   return row(page, company).getByRole("button", { name: /^Move/i });
 }
 
+/**
+ * Moves one application to `status` and waits for the write to settle.
+ *
+ * The badge flips optimistically, so it is not evidence the server action
+ * committed. Whether the row then leaves this list depends on revalidation
+ * landing — a race that shows up as an intermittent failure. Waiting for the
+ * network to go idle pins the assertion to committed state instead.
+ */
+async function moveTo(page: Page, company: string, status: string) {
+  await moveButton(page, company).click();
+  await page.getByRole("menuitem", { name: status }).click();
+  await page.waitForLoadState("networkidle");
+}
+
 test.describe("Status transitions", () => {
   test("a new application starts at Applied", async ({ page, withApplication }) => {
     const company = `StatusTest Co ${Date.now()}`;
@@ -64,10 +78,9 @@ test.describe("Status transitions", () => {
     await withApplication({ company: untouched });
     await page.goto("/applications");
 
-    await moveButton(page, moved).click();
-    await page.getByRole("menuitem", { name: STATUS_NAMES.interviews }).click();
+    await moveTo(page, moved, STATUS_NAMES.interviews);
 
-    await expect(row(page, moved)).toContainText(STATUS_NAMES.interviews, { timeout: 10000 });
+    await expect(row(page, moved)).toContainText(STATUS_NAMES.interviews);
     await expect(row(page, untouched)).toContainText(STATUS_NAMES.applied);
   });
 
@@ -76,12 +89,11 @@ test.describe("Status transitions", () => {
     await withApplication({ company });
     await page.goto("/applications");
 
-    await moveButton(page, company).click();
-    await page.getByRole("menuitem", { name: STATUS_NAMES.rejected }).click();
+    await moveTo(page, company, STATUS_NAMES.rejected);
 
     // Rejected is terminal, so the row moves to Closed and loses its Move control.
     await page.goto("/applications?filter=closed");
-    await expect(row(page, company)).toContainText(STATUS_NAMES.rejected, { timeout: 10000 });
+    await expect(row(page, company)).toContainText(STATUS_NAMES.rejected);
     await expect(moveButton(page, company)).toHaveCount(0);
   });
 
@@ -107,9 +119,12 @@ test.describe("Status transitions", () => {
     await withApplication({ company });
 
     await page.goto("/applications");
-    await moveButton(page, company).click();
-    await page.getByRole("menuitem", { name: STATUS_NAMES.rejected }).click();
-    await expect(page.getByText(company)).toHaveCount(0, { timeout: 10000 });
+    await moveTo(page, company, STATUS_NAMES.rejected);
+
+    // Re-read the Open list rather than waiting for the current render to drop
+    // the row, so the assertion reflects stored state.
+    await page.goto("/applications");
+    await expect(page.getByText(company)).toHaveCount(0);
 
     await page.goto("/applications?filter=closed");
     await expect(row(page, company)).toContainText(STATUS_NAMES.rejected);
