@@ -92,7 +92,7 @@ export function ApplicationStatusCell({
           type="button"
           onClick={openDropdown}
           disabled={isPending}
-          className="cursor-pointer rounded-lg border border-border-base bg-surface px-2.5 py-1 text-[11.5px] font-medium text-ink-2 transition hover:border-accent hover:text-accent disabled:opacity-40"
+          className="cursor-pointer rounded-lg border border-border-base bg-surface px-2.5 py-1 text-[11.5px] font-medium text-ink-2 transition hover:border-accent hover:text-accent-strong disabled:opacity-40"
         >
           Move →
         </button>

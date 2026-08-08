@@ -92,7 +92,7 @@ export default async function ApplicationDetailPage({
           <p className="text-sm text-[var(--st-rejected)]">Application not found.</p>
           <Link
             href="/applications"
-            className="mt-4 inline-block text-sm text-accent transition hover:text-accent-strong"
+            className="mt-4 inline-block text-sm text-accent-strong transition hover:text-accent-strong"
           >
             Back to Applications
           </Link>

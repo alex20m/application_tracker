@@ -21,7 +21,7 @@ function IosShareIcon() {
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
-      className="inline-block align-middle text-accent"
+      className="inline-block align-middle text-accent-strong"
     >
       <path d="M12 2v12M8 6l4-4 4 4" />
       <path d="M20 13v7a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-7" />
@@ -41,7 +41,7 @@ function PlusIcon() {
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
-      className="inline-block align-middle text-accent"
+      className="inline-block align-middle text-accent-strong"
     >
       <path d="M12 5v14M5 12h14" />
     </svg>
@@ -57,7 +57,7 @@ function Step({
 }) {
   return (
     <div className="flex gap-3 items-start">
-      <span className="flex-shrink-0 mt-0.5 w-6 h-6 rounded-full bg-accent-soft text-accent text-xs font-bold flex items-center justify-center">
+      <span className="flex-shrink-0 mt-0.5 w-6 h-6 rounded-full bg-accent-soft text-accent-strong text-xs font-bold flex items-center justify-center">
         {number}
       </span>
       <p className="text-sm text-ink-2 leading-relaxed">
@@ -147,7 +147,7 @@ function ChromeDesktopSteps() {
           strokeLinecap="round"
           strokeLinejoin="round"
           aria-hidden="true"
-          className="inline-block align-middle text-accent"
+          className="inline-block align-middle text-accent-strong"
         >
           <rect x="2" y="3" width="20" height="14" rx="2" />
           <path d="M8 21h8M12 17v4" />

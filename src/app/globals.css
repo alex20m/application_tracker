@@ -53,6 +53,11 @@
   --st-offer:      oklch(0.549 0.172 145);     /* green · positive */
   --st-accepted:   oklch(0.459 0.102 160);     /* green · positive */
   --st-declined:   oklch(0.554 0.076 124);     /* green · positive (muted — you closed it) */
+  /* Foreground variants. A status used as text — banners, the danger button,
+     required-field marks — must blend toward the ink the same way badge labels
+     do, or a light status fails AA on its own tint. */
+  --st-rejected-ink: color-mix(in oklab, var(--st-rejected) 78%, var(--text));
+  --st-offer-ink:    color-mix(in oklab, var(--st-offer)    78%, var(--text));
   --badge-mix: 17%;
   /* how much of the status hue survives in the label; the rest is ink,
      which keeps a richer pill from costing contrast */
@@ -91,6 +96,8 @@
   --st-offer:      oklch(0.663 0.193 145);     /* green · positive */
   --st-accepted:   oklch(0.835 0.130 160);     /* green · positive */
   --st-declined:   oklch(0.741 0.084 124);     /* green · positive (muted — you closed it) */
+  --st-rejected-ink: color-mix(in oklab, var(--st-rejected) 78%, var(--text));
+  --st-offer-ink:    color-mix(in oklab, var(--st-offer)    78%, var(--text));
   --badge-mix: 26%;
   --badge-ink: 80%;
   --sh-soft:  0 1px 2px oklch(0.09 0.005 72 / 0.30), 0 4px 16px oklch(0.09 0.005 72 / 0.26);

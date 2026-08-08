@@ -213,7 +213,7 @@ function NeedsAttentionCard({
         <span className="text-[15px] font-semibold text-ink">Needs attention</span>
         <Link
           href={ROUTES.applications}
-          className="text-[12.5px] font-medium text-accent hover:text-accent-strong transition"
+          className="text-[12.5px] font-medium text-accent-strong hover:text-accent transition"
         >
           View all
         </Link>
@@ -296,7 +296,7 @@ function PipelineCard({ analytics }: { analytics: ReturnType<typeof computeAnaly
       {analytics.interviewRate !== null && (
         <div className="flex items-center justify-between pt-2 border-t border-border-base">
           <span className="text-[12.5px] text-ink-2">Interview conversion</span>
-          <span className="text-[14px] font-bold text-accent">{pct(analytics.interviewRate)}</span>
+          <span className="text-[14px] font-bold text-accent-strong">{pct(analytics.interviewRate)}</span>
         </div>
       )}
     </div>
@@ -422,7 +422,7 @@ export default async function DashboardPage() {
               <p className="text-[15px] font-semibold text-ink">Recent activity</p>
               <Link
                 href={ROUTES.applications}
-                className="text-[13px] font-medium text-accent hover:text-accent-strong transition"
+                className="text-[13px] font-medium text-accent-strong hover:text-accent transition"
               >
                 All applications
               </Link>
@@ -436,8 +436,8 @@ export default async function DashboardPage() {
           <div className="rounded-2xl border border-dashed border-border-base bg-surface px-8 py-16 text-center mobile:px-4 mobile:py-10">
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-soft">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <rect x="3" y="4" width="18" height="16" rx="3" stroke="currentColor" strokeWidth="1.5" className="text-accent" />
-                <path d="M7 9h10M7 13h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-accent" />
+                <rect x="3" y="4" width="18" height="16" rx="3" stroke="currentColor" strokeWidth="1.5" className="text-accent-strong" />
+                <path d="M7 9h10M7 13h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-accent-strong" />
               </svg>
             </div>
             <p className="text-[15px] font-semibold text-ink mb-1">Start tracking your job search</p>

@@ -39,7 +39,7 @@ export const BTN_SECONDARY =
 // Destructive actions read red at rest, not only on hover — deleting is worth
 // signalling before the click, not after the cursor arrives.
 export const BTN_DANGER =
-  "inline-flex items-center justify-center gap-1.5 cursor-pointer rounded-full px-5 py-2.5 text-[13.5px] font-semibold transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45 [border:1px_solid_color-mix(in_oklab,var(--st-rejected)_38%,transparent)] [background:color-mix(in_oklab,var(--st-rejected)_9%,var(--surface))] [color:var(--st-rejected)] hover:[background:var(--st-rejected)] hover:[color:var(--accent-ink)] hover:[border-color:var(--st-rejected)]";
+  "inline-flex items-center justify-center gap-1.5 cursor-pointer rounded-full px-5 py-2.5 text-[13.5px] font-semibold transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45 [border:1px_solid_color-mix(in_oklab,var(--st-rejected)_38%,transparent)] [background:color-mix(in_oklab,var(--st-rejected)_9%,var(--surface))] [color:var(--st-rejected-ink)] hover:[background:color-mix(in_oklab,var(--st-rejected)_20%,var(--surface))] hover:[border-color:var(--st-rejected)]";
 
 // Full-width variant for the destructive action inside a detail panel
 export const BTN_DANGER_BLOCK = BTN_DANGER + " w-full mobile:min-h-11";
@@ -55,10 +55,10 @@ export const CARD = "rounded-3xl border border-border-base bg-surface p-[22px] s
 // ─── Banners ─────────────────────────────────────────────────────────────────
 
 export const ERROR_BANNER =
-  "rounded-2xl border-l-4 px-4 py-3 text-sm [border-left-color:var(--st-rejected)] [background:color-mix(in_oklab,var(--st-rejected)_8%,var(--surface))] [color:var(--st-rejected)]";
+  "rounded-2xl border-l-4 px-4 py-3 text-sm [border-left-color:var(--st-rejected)] [background:color-mix(in_oklab,var(--st-rejected)_8%,var(--surface))] [color:var(--st-rejected-ink)]";
 
 export const SUCCESS_BANNER =
-  "rounded-2xl border-l-4 px-4 py-3 text-sm [border-left-color:var(--st-offer)] [background:color-mix(in_oklab,var(--st-offer)_8%,var(--surface))] [color:var(--st-offer)]";
+  "rounded-2xl border-l-4 px-4 py-3 text-sm [border-left-color:var(--st-offer)] [background:color-mix(in_oklab,var(--st-offer)_8%,var(--surface))] [color:var(--st-offer-ink)]";
 
 // ─── Form inputs ──────────────────────────────────────────────────────────────
 
