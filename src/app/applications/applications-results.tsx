@@ -37,13 +37,13 @@ export async function ApplicationsResults({ filter }: Props) {
 
   const actions = (
     <>
-      <CsvExportButton filter={filter} />
       <Link
         href={filter === "open" ? "/applications/new" : `/applications/new?from=${filter}`}
         className={BTN_PRIMARY_LINK}
       >
         + Add<span className="mobile:hidden"> Application</span>
       </Link>
+      <CsvExportButton filter={filter} />
       <DeleteAllApplicationsButton hasApplications={filtered.length > 0} scope={filter} />
     </>
   );
