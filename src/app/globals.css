@@ -36,18 +36,23 @@
   --accent-ink:    oklch(0.995 0.002 250);
   --accent-soft:   oklch(0.945 0.030 250);
   --accent-line:   oklch(0.850 0.058 250);
-  /* status hues */
-  --st-wishlist:   oklch(0.585 0.030 250);
-  --st-applied:    oklch(0.515 0.152 222);
-  --st-ghosted:    oklch(0.600 0.126 70);
-  --st-cancelled:  oklch(0.560 0.012 260);
-  --st-withdrew:   oklch(0.555 0.022 85);
-  --st-rejected:   oklch(0.535 0.175 25);
-  --st-interviews: oklch(0.510 0.168 295);
-  --st-no_offer:   oklch(0.555 0.170 15);
-  --st-offer:      oklch(0.545 0.142 152);
-  --st-accepted:   oklch(0.560 0.136 165);
-  --st-declined:   oklch(0.592 0.120 85);
+  /* Status hues, grouped by meaning: blue = in flight, green = positive,
+     red = negative, grey = neutral. Within a family the colours are pulled
+     apart by lightness and chroma, not hue alone, so no two are confusable
+     (min pairwise oklab ΔE 0.102 light / 0.113 dark, up from 0.031 / 0.020).
+     The accent is included in that separation, so no status can be mistaken
+     for chrome. */
+  --st-wishlist:   oklch(0.581 0.045 232);     /* grey · neutral */
+  --st-applied:    oklch(0.445 0.085 226);     /* blue · in flight */
+  --st-ghosted:    oklch(0.508 0.142 46);      /* red · negative (warm) */
+  --st-cancelled:  oklch(0.587 0.060 33);      /* red · negative (muted) */
+  --st-withdrew:   oklch(0.457 0.039 81);      /* grey · neutral */
+  --st-rejected:   oklch(0.598 0.197 19);      /* red · negative */
+  --st-interviews: oklch(0.535 0.172 299);     /* blue · in flight */
+  --st-no_offer:   oklch(0.464 0.137 1);       /* red · negative */
+  --st-offer:      oklch(0.549 0.172 145);     /* green · positive */
+  --st-accepted:   oklch(0.459 0.102 160);     /* green · positive */
+  --st-declined:   oklch(0.554 0.076 124);     /* green · positive (muted — you closed it) */
   --badge-mix: 17%;
   /* how much of the status hue survives in the label; the rest is ink,
      which keeps a richer pill from costing contrast */
@@ -75,17 +80,17 @@
   --accent-ink:    oklch(0.995 0.002 250);
   --accent-soft:   oklch(0.305 0.058 250);
   --accent-line:   oklch(0.420 0.080 250);
-  --st-wishlist:   oklch(0.700 0.032 250);
-  --st-applied:    oklch(0.720 0.132 222);
-  --st-ghosted:    oklch(0.780 0.128 72);
-  --st-cancelled:  oklch(0.700 0.012 260);
-  --st-withdrew:   oklch(0.700 0.022 85);
-  --st-rejected:   oklch(0.700 0.155 25);
-  --st-interviews: oklch(0.715 0.148 295);
-  --st-no_offer:   oklch(0.715 0.150 15);
-  --st-offer:      oklch(0.745 0.140 152);
-  --st-accepted:   oklch(0.770 0.132 165);
-  --st-declined:   oklch(0.795 0.124 85);
+  --st-wishlist:   oklch(0.768 0.052 232);     /* grey · neutral */
+  --st-applied:    oklch(0.669 0.106 226);     /* blue · in flight */
+  --st-ghosted:    oklch(0.765 0.148 46);      /* red · negative (warm) */
+  --st-cancelled:  oklch(0.681 0.057 33);      /* red · negative (muted) */
+  --st-withdrew:   oklch(0.838 0.040 81);      /* grey · neutral */
+  --st-rejected:   oklch(0.698 0.193 19);      /* red · negative */
+  --st-interviews: oklch(0.701 0.170 299);     /* blue · in flight */
+  --st-no_offer:   oklch(0.807 0.119 1);       /* red · negative */
+  --st-offer:      oklch(0.663 0.193 145);     /* green · positive */
+  --st-accepted:   oklch(0.835 0.130 160);     /* green · positive */
+  --st-declined:   oklch(0.741 0.084 124);     /* green · positive (muted — you closed it) */
   --badge-mix: 26%;
   --badge-ink: 80%;
   --sh-soft:  0 1px 2px oklch(0.09 0.005 72 / 0.30), 0 4px 16px oklch(0.09 0.005 72 / 0.26);
