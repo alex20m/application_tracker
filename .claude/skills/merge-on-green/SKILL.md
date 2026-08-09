@@ -143,8 +143,13 @@ push, before GitHub has created any, there is nothing for it to describe — so 
 not merge on a `clean` you obtained seconds after pushing, no matter how green it
 looks.
 
-The floor in step 2 already covers this: by three minutes in, a repo with CI has
-checks. Two cases still deserve an explicit decision rather than a silent merge:
+In practice the window tends to close within a second or two — GitHub queues a
+check suite as soon as it accepts the event, and integrations post a `pending`
+status almost immediately — but neither is guaranteed and a repo with no external
+integrations has less closing it. Do not bet a merge on it. The floor in step 2
+covers it for free: by three minutes in, a repo with CI has checks.
+
+Two cases still deserve an explicit decision rather than a silent merge:
 
 - **A `clean` PR with no checks at all**, minutes after the push. Either CI does
   not run on pull requests here, or nothing was triggered. Both are fine reasons
