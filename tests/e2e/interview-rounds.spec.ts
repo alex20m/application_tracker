@@ -5,9 +5,11 @@ import { STATUS_NAMES } from "@/lib/statuses";
 /**
  * Re-reads the page from the server.
  *
- * Assertions about rounds are assertions about stored state, and the detail
- * page's own refresh after a mutation is not something these tests should have
- * to race — reloading makes them read what was actually persisted.
+ * Used where the assertion is about what was *persisted* rather than what the
+ * screen currently shows — outcomes and stage changes both render optimistically,
+ * so reloading is the difference between checking the write and checking the
+ * animation. It is not a workaround: the page does refresh on its own, which the
+ * "a new round appears without reloading the page" test asserts directly.
  */
 async function reloadCard(page: Page) {
   await page.reload();
@@ -20,6 +22,13 @@ async function enterInterviews(page: Page) {
     page.getByRole("button", { name: STATUS_NAMES.interviews, exact: true })
   );
   await expect(page.getByRole("button", { name: /\+ Add round/i })).toBeVisible();
+  // Let any refresh triggered by the stage change finish before a form is
+  // opened on top of it. A refresh landing mid-fill re-renders the card and can
+  // reset the date picker, which then posts an empty date. Safe here, unlike
+  // straight after a click: the action response and the re-render have already
+  // been awaited above, so the network is genuinely quiet rather than not yet
+  // started.
+  await page.waitForLoadState("networkidle");
 }
 
 /**
@@ -50,16 +59,39 @@ async function addRound(page: Page, type: string, notes?: string) {
   await pickToday(page);
   if (notes) await page.getByLabel(/notes/i).fill(notes);
 
+  // Assert what will actually be posted, not what the widgets look like. A
+  // refresh arriving mid-fill can reset the picker's state, and the date lives
+  // in a hidden input whose `required` the browser does not enforce — so an
+  // empty date submits happily and is rejected server-side, surfacing only as a
+  // round that never appears.
+  await expect(typeField).toHaveValue(type);
+  await expect(page.locator('input[name="scheduled_at"]')).toHaveValue(/^\d{4}-\d{2}-\d{2}$/);
+
   await clickAndAwaitAction(page, page.getByRole("button", { name: /^Add round$/i }));
 
   // The form unmounts only on success, so a form still on screen means the
-  // submit was rejected — surface that instead of timing out on the pill.
-  await expect(
-    page.getByRole("button", { name: /^Add round$/i }),
-    "the add-round form did not close, so the submission was rejected"
-  ).toHaveCount(0);
+  // submit was rejected. Checked on the Type field, not the submit button: the
+  // button relabels to "Saving…" while the action runs, so a check for "Add
+  // round" being absent is satisfied mid-submit and reports success for a
+  // rejection.
+  try {
+    await expect(typeField).toHaveCount(0);
+  } catch {
+    // Name the server's own reason rather than leaving a bare timeout: the
+    // three rejections read differently ("check your input" is validation,
+    // "something went wrong" is the stage or previous-round gate).
+    const reason = await page
+      .getByText(/please check your input|something went wrong|not found/i)
+      .first()
+      .textContent()
+      .catch(() => null);
+    throw new Error(
+      `add-round was rejected by the server. Error shown: ${reason ?? "(no error banner rendered)"}`
+    );
+  }
 
-  await reloadCard(page);
+  // No reload: the round is expected to appear on its own. See the dedicated
+  // test below for why that is a real guarantee and not an accident.
   await expect(page.getByText(type).first()).toBeVisible();
 }
 
@@ -75,6 +107,31 @@ async function moveToStage(page: Page, status: string) {
 }
 
 test.describe("Interview rounds", () => {
+  test("a new round appears without reloading the page", async ({ page, withApplication }) => {
+    // The card is a server component, so a saved round only appears on its own
+    // because the action calls revalidateApplicationViews(). Without that call
+    // the round is stored but the user keeps looking at a card that does not
+    // contain it until they refresh.
+    //
+    // Verified against Next 16.2.6 with a standalone reproduction: an action
+    // that mutates and revalidates *any* path refreshes the page being viewed
+    // within ~100ms, while an action that mutates and revalidates nothing never
+    // updates it — the write only showed up after a manual reload. So this
+    // assertion fails if the revalidation call is dropped.
+    const { url } = await withApplication({ company: `Live Refresh Co ${Date.now()}` });
+
+    await page.goto(url);
+    await enterInterviews(page);
+
+    await page.getByRole("button", { name: /\+ Add round/i }).click();
+    await page.getByLabel(/type/i).fill("Systems design");
+    await pickToday(page);
+    await clickAndAwaitAction(page, page.getByRole("button", { name: /^Add round$/i }));
+
+    // Deliberately no reload anywhere above this line.
+    await expect(page.getByText("Systems design").first()).toBeVisible();
+  });
+
   test("add, update outcome, and delete a round", async ({ page, withApplication }) => {
     const { url } = await withApplication({ company: `Rounds Test Co ${Date.now()}` });
 
