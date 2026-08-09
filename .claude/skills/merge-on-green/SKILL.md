@@ -175,9 +175,16 @@ documentation omits — and tools built on it report it going briefly stale or
 inconsistent between consecutive calls. It is the best single signal available,
 not a contract.
 
-The floor in step 2 covers all of this for free: by three minutes in, a repo with
-CI has checks, and any transient disagreement has resolved. That floor is doing
-real work — do not drop it on the grounds that the field looks authoritative.
+What it does track well, measured with every externally-reported check already
+terminal so nothing else could explain the reading: an Actions job merely running
+is enough to hold the state at `unstable`. The field follows CI progress on its
+own — it is only the not-yet-created that it cannot see.
+
+That blind spot is narrow. From a PR opening to its first Actions check run
+existing was six seconds in one measurement and five in another. The floor in
+step 2 clears it by two orders of magnitude, and by three minutes in any
+transient disagreement has resolved too. That is the floor's job — do not drop it
+on the grounds that the field looks authoritative.
 
 Two cases still deserve an explicit decision rather than a silent merge:
 
