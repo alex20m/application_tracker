@@ -47,5 +47,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# claude
-/.claude
+# claude — local session state stays out, shared skills are checked in so
+# every session gets the same procedure
+/.claude/*
+!/.claude/skills/
