@@ -22,6 +22,13 @@ async function enterInterviews(page: Page) {
     page.getByRole("button", { name: STATUS_NAMES.interviews, exact: true })
   );
   await expect(page.getByRole("button", { name: /\+ Add round/i })).toBeVisible();
+  // Let any refresh triggered by the stage change finish before a form is
+  // opened on top of it. A refresh landing mid-fill re-renders the card and can
+  // reset the date picker, which then posts an empty date. Safe here, unlike
+  // straight after a click: the action response and the re-render have already
+  // been awaited above, so the network is genuinely quiet rather than not yet
+  // started.
+  await page.waitForLoadState("networkidle");
 }
 
 /**
@@ -52,18 +59,36 @@ async function addRound(page: Page, type: string, notes?: string) {
   await pickToday(page);
   if (notes) await page.getByLabel(/notes/i).fill(notes);
 
+  // Assert what will actually be posted, not what the widgets look like. A
+  // refresh arriving mid-fill can reset the picker's state, and the date lives
+  // in a hidden input whose `required` the browser does not enforce — so an
+  // empty date submits happily and is rejected server-side, surfacing only as a
+  // round that never appears.
+  await expect(typeField).toHaveValue(type);
+  await expect(page.locator('input[name="scheduled_at"]')).toHaveValue(/^\d{4}-\d{2}-\d{2}$/);
+
   await clickAndAwaitAction(page, page.getByRole("button", { name: /^Add round$/i }));
 
   // The form unmounts only on success, so a form still on screen means the
-  // submit was rejected — surface that instead of timing out on the pill.
-  //
-  // Checked on the Type field, not the submit button: the button's label
-  // becomes "Saving…" while the action runs, so a check for "Add round" being
-  // absent is satisfied mid-submit and would report success for a rejection.
-  await expect(
-    typeField,
-    "the add-round form did not close, so the submission was rejected"
-  ).toHaveCount(0);
+  // submit was rejected. Checked on the Type field, not the submit button: the
+  // button relabels to "Saving…" while the action runs, so a check for "Add
+  // round" being absent is satisfied mid-submit and reports success for a
+  // rejection.
+  try {
+    await expect(typeField).toHaveCount(0);
+  } catch {
+    // Name the server's own reason rather than leaving a bare timeout: the
+    // three rejections read differently ("check your input" is validation,
+    // "something went wrong" is the stage or previous-round gate).
+    const reason = await page
+      .getByText(/please check your input|something went wrong|not found/i)
+      .first()
+      .textContent()
+      .catch(() => null);
+    throw new Error(
+      `add-round was rejected by the server. Error shown: ${reason ?? "(no error banner rendered)"}`
+    );
+  }
 
   // No reload: the round is expected to appear on its own. See the dedicated
   // test below for why that is a real guarantee and not an accident.
