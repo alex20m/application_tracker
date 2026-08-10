@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { sanitizeActionError, GENERIC_ACTION_ERROR } from "@/lib/ui";
+import * as ui from "@/lib/ui";
+import { sanitizeActionError, GENERIC_ACTION_ERROR, ERROR_BANNER, SUCCESS_BANNER } from "@/lib/ui";
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -61,5 +62,48 @@ describe("sanitizeActionError", () => {
 
   it("offers the user something to do next", () => {
     expect(GENERIC_ACTION_ERROR).toMatch(/try again/i);
+  });
+});
+
+describe("status banners", () => {
+  const banners = [
+    ["ERROR_BANNER", ERROR_BANNER],
+    ["SUCCESS_BANNER", SUCCESS_BANNER],
+  ] as const;
+
+  it.each(banners)("%s is outlined on every side, not tagged with a left rule", (_label, banner) => {
+    // A thick coloured bar down one edge is a stock look the rest of this UI
+    // does not use — cards, inputs and badges all carry an even hairline.
+    expect(banner).not.toMatch(/\bborder-l\b|\bborder-l-\d/);
+    expect(banner).not.toContain("border-left-color");
+    expect(banner.split(/\s+/)).toContain("border");
+  });
+
+  it.each(banners)("%s tints its border with its own status colour", (_label, banner) => {
+    // Not border-border-base: a red banner outlined in neutral grey reads as a
+    // panel that happens to be pink, rather than as an error.
+    expect(banner).toMatch(/\[border-color:color-mix\(in_oklab,var\(--st-(rejected|offer)\)/);
+  });
+});
+
+describe("class-name constants", () => {
+  const constants = Object.entries(ui).filter(
+    ([, value]) => typeof value === "string"
+  ) as [string, string][];
+
+  it("exports class strings for every styled element", () => {
+    expect(constants.length).toBeGreaterThan(10);
+  });
+
+  it.each(constants)("%s keeps each arbitrary value in one whitespace-free token", (_name, value) => {
+    // The browser splits a class attribute on whitespace, so a space inside
+    // brackets — "[background:color-mix(in oklab,…)]" — silently becomes two
+    // class names that match no rule and the style just never applies.
+    // Tailwind's underscore stands in for the space.
+    for (const token of value.split(/\s+/)) {
+      const opens = (token.match(/\[/g) ?? []).length;
+      const closes = (token.match(/\]/g) ?? []).length;
+      expect({ token, opens, closes }).toEqual({ token, opens, closes: opens });
+    }
   });
 });

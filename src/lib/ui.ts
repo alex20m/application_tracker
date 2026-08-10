@@ -54,11 +54,15 @@ export const CARD = "rounded-3xl border border-border-base bg-surface p-[22px] s
 
 // ─── Banners ─────────────────────────────────────────────────────────────────
 
+// An even hairline in the status hue, the way the badges and cards are drawn,
+// rather than a heavy bar down the left edge — that bar is a stock callout look
+// nothing else in this UI uses, and it made a one-line message read as a pull
+// quote instead of a notice.
 export const ERROR_BANNER =
-  "rounded-2xl border-l-4 px-4 py-3 text-sm [border-left-color:var(--st-rejected)] [background:color-mix(in_oklab,var(--st-rejected)_8%,var(--surface))] [color:var(--st-rejected-ink)]";
+  "rounded-2xl border px-4 py-3 text-sm [border-color:color-mix(in_oklab,var(--st-rejected)_30%,transparent)] [background:color-mix(in_oklab,var(--st-rejected)_8%,var(--surface))] [color:var(--st-rejected-ink)]";
 
 export const SUCCESS_BANNER =
-  "rounded-2xl border-l-4 px-4 py-3 text-sm [border-left-color:var(--st-offer)] [background:color-mix(in_oklab,var(--st-offer)_8%,var(--surface))] [color:var(--st-offer-ink)]";
+  "rounded-2xl border px-4 py-3 text-sm [border-color:color-mix(in_oklab,var(--st-offer)_30%,transparent)] [background:color-mix(in_oklab,var(--st-offer)_8%,var(--surface))] [color:var(--st-offer-ink)]";
 
 // ─── Form inputs ──────────────────────────────────────────────────────────────
 
