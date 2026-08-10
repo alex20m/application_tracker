@@ -240,3 +240,24 @@ h1 {
 .status-dot[data-status="offer"]      { background: var(--st-offer);      }
 .status-dot[data-status="accepted"]   { background: var(--st-accepted);   }
 .status-dot[data-status="declined"]   { background: var(--st-declined);   }
+
+/* ── Sign-in code field ─────────────────────────────────────────────────── */
+/* The real input is transparent, so the empty slot the next digit lands in
+   draws its own caret. Blinks in step, not eased, to read as a text cursor. */
+.otp-caret {
+  display: block;
+  width: 2px;
+  height: 24px;
+  border-radius: 1px;
+  background: var(--accent);
+  animation: otp-caret-blink 1.05s steps(1, end) infinite;
+}
+
+@keyframes otp-caret-blink {
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .otp-caret { animation: none; }
+}
