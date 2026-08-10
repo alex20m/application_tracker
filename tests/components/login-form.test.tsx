@@ -107,6 +107,133 @@ describe("LoginForm", () => {
     expect(screen.getByRole("button", { name: /verify code/i })).toBeInTheDocument();
   });
 
+  describe("Code-entry step", () => {
+    const sendAction = () =>
+      vi.fn().mockResolvedValue({
+        success: true,
+        otpSent: true,
+        message: "We sent a 6-digit code to your email. Enter it below to sign in.",
+      });
+
+    async function reachCodeStep(user: ReturnType<typeof userEvent.setup>, verify = noopVerify) {
+      const result = render(<LoginForm action={sendAction()} verifyAction={verify} />);
+      await user.click(screen.getByRole("button", { name: /use email code/i }));
+      await user.type(screen.getByLabelText(/email/i), "user@example.com");
+      await user.click(screen.getByRole("button", { name: /send code/i }));
+      await screen.findByLabelText(/6-digit code/i);
+      return result;
+    }
+
+    it("shows which address the code went to", async () => {
+      const user = userEvent.setup();
+      await reachCodeStep(user);
+
+      expect(screen.getByText("user@example.com")).toBeInTheDocument();
+    });
+
+    it("renders the code as six separate slots", async () => {
+      const user = userEvent.setup();
+      await reachCodeStep(user);
+
+      expect(screen.getAllByTestId("otp-slot")).toHaveLength(6);
+    });
+
+    it("keeps the verify button disabled until all six digits are entered", async () => {
+      const user = userEvent.setup();
+      await reachCodeStep(user);
+
+      expect(screen.getByRole("button", { name: /verify code/i })).toBeDisabled();
+
+      await user.type(screen.getByLabelText(/6-digit code/i), "12345");
+      expect(screen.getByRole("button", { name: /verify code/i })).toBeDisabled();
+    });
+
+    it("enables the verify button once the code is complete", async () => {
+      const user = userEvent.setup();
+      await reachCodeStep(user);
+
+      await user.type(screen.getByLabelText(/6-digit code/i), "123456");
+
+      expect(screen.getByRole("button", { name: /verify/i })).toBeEnabled();
+    });
+
+    it("submits the code as soon as the sixth digit is typed", async () => {
+      const user = userEvent.setup();
+      const verify = vi.fn().mockResolvedValue({ success: false });
+      await reachCodeStep(user, verify);
+
+      await user.type(screen.getByLabelText(/6-digit code/i), "123456");
+
+      expect(verify).toHaveBeenCalledOnce();
+      const formData = verify.mock.calls[0][1] as FormData;
+      expect(formData.get("token")).toBe("123456");
+      expect(formData.get("email")).toBe("user@example.com");
+    });
+
+    it("does not submit a partial code", async () => {
+      const user = userEvent.setup();
+      const verify = vi.fn().mockResolvedValue({ success: false });
+      await reachCodeStep(user, verify);
+
+      await user.type(screen.getByLabelText(/6-digit code/i), "12345");
+
+      expect(verify).not.toHaveBeenCalled();
+    });
+
+    it("marks the code field invalid when verification failed", async () => {
+      const user = userEvent.setup();
+      const verify = vi
+        .fn()
+        .mockResolvedValue({ success: false, error: "That code is invalid or has expired. Please try again." });
+      await reachCodeStep(user, verify);
+
+      await user.type(screen.getByLabelText(/6-digit code/i), "123456");
+
+      expect(
+        await screen.findByText(/that code is invalid or has expired/i)
+      ).toBeInTheDocument();
+      expect(screen.getByLabelText(/6-digit code/i)).toHaveAttribute("aria-invalid", "true");
+    });
+
+    it("clears the rejected code so the next one can be typed straight away", async () => {
+      const user = userEvent.setup();
+      const verify = vi.fn().mockResolvedValue({ success: false, error: "That code is invalid." });
+      await reachCodeStep(user, verify);
+
+      await user.type(screen.getByLabelText(/6-digit code/i), "123456");
+      await screen.findByText(/that code is invalid/i);
+
+      const codeField = screen.getByLabelText(/6-digit code/i) as HTMLInputElement;
+      expect(codeField.value).toBe("");
+      expect(codeField).toHaveFocus();
+    });
+
+    it("stops flagging the code as invalid once the user retypes", async () => {
+      const user = userEvent.setup();
+      const verify = vi.fn().mockResolvedValue({ success: false, error: "That code is invalid." });
+      await reachCodeStep(user, verify);
+
+      await user.type(screen.getByLabelText(/6-digit code/i), "123456");
+      await screen.findByText(/that code is invalid/i);
+      await user.type(screen.getByLabelText(/6-digit code/i), "7");
+
+      expect(screen.getByLabelText(/6-digit code/i)).toHaveAttribute("aria-invalid", "false");
+    });
+
+    it("resubmits a second code after the first was rejected", async () => {
+      const user = userEvent.setup();
+      const verify = vi.fn().mockResolvedValue({ success: false, error: "That code is invalid." });
+      await reachCodeStep(user, verify);
+
+      await user.type(screen.getByLabelText(/6-digit code/i), "123456");
+      await screen.findByText(/that code is invalid/i);
+      await user.type(screen.getByLabelText(/6-digit code/i), "654321");
+
+      expect(verify).toHaveBeenCalledTimes(2);
+      expect((verify.mock.calls[1][1] as FormData).get("token")).toBe("654321");
+    });
+  });
+
   describe("Password criteria (signup mode)", () => {
     it("shows criteria checklist when in signup mode", async () => {
       const user = userEvent.setup();
