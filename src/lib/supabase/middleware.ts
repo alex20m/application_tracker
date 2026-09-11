@@ -29,6 +29,7 @@ export async function updateSession(request: NextRequest, extraHeaders?: Headers
     ROUTES.forgotPassword,
     ROUTES.resetPasswordCallback,
     ROUTES.cronAutoGhost,
+    ROUTES.cronKeepAlive,
   ];
   const isPublicPath = publicPaths.some((path) =>
     request.nextUrl.pathname.startsWith(path)

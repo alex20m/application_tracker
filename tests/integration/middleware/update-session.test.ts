@@ -90,6 +90,7 @@ describe("updateSession — signed out", () => {
     ["the forgot-password page", ROUTES.forgotPassword],
     ["the password-reset callback", ROUTES.resetPasswordCallback],
     ["the auto-ghost cron endpoint", ROUTES.cronAutoGhost],
+    ["the keep-alive cron endpoint", ROUTES.cronKeepAlive],
   ])("serves %s without a session", async (_label, path) => {
     signedOut();
 
@@ -108,6 +109,7 @@ describe("updateSession — signed out", () => {
       ROUTES.forgotPassword,
       ROUTES.resetPasswordCallback,
       ROUTES.cronAutoGhost,
+      ROUTES.cronKeepAlive,
     ];
     for (const route of publicRoutes) {
       expect(typeof route, JSON.stringify(publicRoutes)).toBe("string");
